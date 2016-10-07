@@ -52,8 +52,8 @@ Apache 2.0 - See `LICENSE`_ for more information.
    :target: https://travis-ci.org/dhermes/ci-diff-helper
 .. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/dhermes/ci-diff-helper?branch=master&svg=true
    :target: https://ci.appveyor.com/project/dhermes/ci-diff-helper
-.. |coverage| image:: https://coveralls.io/repos/dhermes/ci-diff-helper-python/badge.png?branch=master
-   :target: https://coveralls.io/r/dhermes/ci-diff-helper-python?branch=master
+.. |coverage| image:: https://coveralls.io/repos/github/dhermes/ci-diff-helper/badge.svg?branch=master
+   :target: https://coveralls.io/github/dhermes/ci-diff-helper?branch=master
 .. |pypi| image:: https://img.shields.io/pypi/v/ci-diff-helper.svg
    :target: https://pypi.python.org/pypi/ci-diff-helper
 .. |versions| image:: https://img.shields.io/pypi/pyversions/ci-diff-helper.svg
