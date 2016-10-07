@@ -1,5 +1,6 @@
 version: 1.0.{build}.{branch}
 
+build: off
 environment:
   global:
     # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
@@ -14,26 +15,32 @@ environment:
     # See: http://www.appveyor.com/docs/installed-software#python
 
     - PYTHON: "C:\\Python27"
+      PYTHON_VERSION: "2.7.x"
       PYTHON_ARCH: "32"
       TOX_ENV: "py27"
 
     - PYTHON: "C:\\Python27-x64"
+      PYTHON_VERSION: "2.7.x"
       PYTHON_ARCH: "64"
       TOX_ENV: "py27"
 
     - PYTHON: "C:\\Python34"
+      PYTHON_VERSION: "3.4.x"
       PYTHON_ARCH: "32"
       TOX_ENV: "py34"
 
     - PYTHON: "C:\\Python34-x64"
+      PYTHON_VERSION: "3.4.x"
       PYTHON_ARCH: "64"
       TOX_ENV: "py34"
 
     - PYTHON: "C:\\Python35"
+      PYTHON_VERSION: "3.5.x"
       PYTHON_ARCH: "32"
       TOX_ENV: "py35"
 
     - PYTHON: "C:\\Python35-x64"
+      PYTHON_VERSION: "3.5.x"
       PYTHON_ARCH: "64"
       TOX_ENV: "py35"
 
