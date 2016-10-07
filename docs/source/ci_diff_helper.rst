@@ -1,6 +1,13 @@
 ci_diff_helper package
 ======================
 
+Submodules
+----------
+
+.. toctree::
+
+   ci_diff_helper.travis
+
 Module contents
 ---------------
 

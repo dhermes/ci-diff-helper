@@ -11,18 +11,9 @@
 # limitations under the License.
 
 import os
-import subprocess
 import unittest
 
-
-try:
-    _PROC = subprocess.Popen(['git', '--help'],
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-    HAS_GIT = _PROC.wait() == 0
-    del _PROC
-except OSError:  # pragma: NO COVER
-    HAS_GIT = False
+from tests import utils
 
 
 class Test_in_travis(unittest.TestCase):
@@ -34,9 +25,9 @@ class Test_in_travis(unittest.TestCase):
 
     def test_success(self):
         import mock
-        import ci_diff_helper
+        from ci_diff_helper import travis
 
-        mock_env = {ci_diff_helper._IN_TRAVIS_ENV: 'true'}
+        mock_env = {travis._IN_TRAVIS_ENV: 'true'}
         with mock.patch('os.environ', new=mock_env):
             self.assertTrue(self._call_function_under_test())
 
@@ -106,36 +97,6 @@ class Test_travis_branch(unittest.TestCase):
                 self._call_function_under_test()
 
 
-class Test__check_output(unittest.TestCase):
-
-    @staticmethod
-    def _call_function_under_test(*args):
-        from ci_diff_helper import _check_output
-        return _check_output(*args)
-
-    def _helper(self, ret_val, expected_result):
-        import mock
-
-        arg1 = 'foo'
-        arg2 = 'bar'
-        check_mock = mock.patch('subprocess.check_output',
-                                return_value=ret_val)
-        with check_mock as mocked:
-            result = self._call_function_under_test(arg1, arg2)
-            mocked.assert_called_once_with((arg1, arg2))
-            self.assertEqual(result, expected_result)
-
-    def test_bytes(self):
-        ret_val = b'abc\n'
-        expected_result = u'abc'
-        self._helper(ret_val, expected_result)
-
-    def test_unicode(self):
-        ret_val = b'abc\n\tab'
-        expected_result = u'abc\n\tab'
-        self._helper(ret_val, expected_result)
-
-
 class Test_git_root(unittest.TestCase):
 
     @staticmethod
@@ -146,13 +107,13 @@ class Test_git_root(unittest.TestCase):
     def test_sys_call(self):
         import mock
 
-        with mock.patch('ci_diff_helper._check_output') as mocked:
+        with mock.patch('ci_diff_helper._utils.check_output') as mocked:
             result = self._call_function_under_test()
             self.assertIs(result, mocked.return_value)
             mocked.assert_called_once_with(
                 'git', 'rev-parse', '--show-toplevel')
 
-    @unittest.skipUnless(HAS_GIT, 'git not installed')
+    @unittest.skipUnless(utils.HAS_GIT, 'git not installed')
     def test_actual_call(self):
         result = self._call_function_under_test()
         result = os.path.abspath(result)  # Normalize path for Windows.
@@ -183,7 +144,7 @@ class Test_get_checked_in_files(unittest.TestCase):
             os.path.join('d', 'e', 'f.py'),
         ]
         cmd_output = '\n'.join(filenames)
-        mock_output = mock.patch('ci_diff_helper._check_output',
+        mock_output = mock.patch('ci_diff_helper._utils.check_output',
                                  return_value=cmd_output)
 
         git_root = os.path.join('totally', 'on', 'your', 'filesystem')
@@ -208,7 +169,7 @@ class Test_get_checked_in_files(unittest.TestCase):
                 result.add(os.path.join(dirname, filename))
         return result
 
-    @unittest.skipUnless(HAS_GIT, 'git not installed')
+    @unittest.skipUnless(utils.HAS_GIT, 'git not installed')
     def test_actual_call(self):
         result = self._call_function_under_test()
         tests_dir = os.path.dirname(__file__)

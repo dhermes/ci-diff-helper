@@ -10,17 +10,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Diff Helper for Continuous Integration (CI) Services.
-
-Provides a set of utilities for dealing with Travis CI.
-"""
-
+"""Diff Helper for Continuous Integration (CI) Services."""
 
 import os
 import subprocess
 
+from ci_diff_helper import _utils
+from ci_diff_helper import travis
 
-_IN_TRAVIS_ENV = 'TRAVIS'
+
 _TRAVIS_PR_ENV = 'TRAVIS_PULL_REQUEST'
 _TRAVIS_BRANCH_ENV = 'TRAVIS_BRANCH'
 
@@ -28,16 +26,10 @@ _TRAVIS_BRANCH_ENV = 'TRAVIS_BRANCH'
 def in_travis():
     """Detect if we are running in Travis.
 
-    .. _Travis env docs: https://docs.travis-ci.com/user/\
-                         environment-variables\
-                         #Default-Environment-Variables
-
-    See `Travis env docs`_.
-
     :rtype: bool
     :returns: Flag indicating if we are running on Travis.
     """
-    return os.getenv(_IN_TRAVIS_ENV) == 'true'
+    return travis.Travis().active
 
 
 def in_travis_pr():
@@ -93,31 +85,13 @@ def travis_branch():
         raise OSError(msg)
 
 
-def _check_output(*args):
-    """Run a command on the operation system.
-
-    :type args: tuple
-    :param args: Arguments to pass to ``subprocess.check_output``.
-
-    :rtype: str
-    :returns: The raw STDOUT from the command (converted from bytes
-              if necessary).
-    """
-    cmd_output = subprocess.check_output(args)
-    # On Python 3, this returns bytes (from STDOUT), so we
-    # convert to a string.
-    cmd_output_str = cmd_output.decode('utf-8')
-    # Also strip the output since it usually has a trailing newline.
-    return cmd_output_str.strip()
-
-
 def git_root():
     """Return the root directory of the current ``git`` checkout.
 
     :rtype: str
     :returns: Filesystem path to ``git`` checkout root.
     """
-    return _check_output('git', 'rev-parse', '--show-toplevel')
+    return _utils.check_output('git', 'rev-parse', '--show-toplevel')
 
 
 def get_checked_in_files():
@@ -133,7 +107,7 @@ def get_checked_in_files():
     :returns: List of all filenames checked into.
     """
     root_dir = git_root()
-    cmd_output = _check_output('git', 'ls-files', root_dir)
+    cmd_output = _utils.check_output('git', 'ls-files', root_dir)
 
     result = []
     for filename in cmd_output.split('\n'):
