@@ -41,3 +41,7 @@ pip-log.txt
 
 # JetBrains
 .idea
+
+# Make sure a generated file isn't accidentally committed.
+scripts/pylintrc_production
+scripts/pylintrc_test

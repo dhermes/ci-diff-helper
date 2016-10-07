@@ -82,9 +82,8 @@ def travis_branch():
     :rtype: str
     :returns: The name of the branch the current pull request is
               changed against.
-    :raises: :class:`~exceptions.OSError` if the ``_TRAVIS_BRANCH_ENV``
-             environment variable isn't set during a pull request
-             build.
+    :raises OSError: if the ``_TRAVIS_BRANCH_ENV`` environment variable
+                     isn't set during a pull request build.
     """
     try:
         return os.environ[_TRAVIS_BRANCH_ENV]
@@ -107,9 +106,9 @@ def _check_output(*args):
     cmd_output = subprocess.check_output(args)
     # On Python 3, this returns bytes (from STDOUT), so we
     # convert to a string.
-    cmd_output = cmd_output.decode('utf-8')
+    cmd_output_str = cmd_output.decode('utf-8')
     # Also strip the output since it usually has a trailing newline.
-    return cmd_output.strip()
+    return cmd_output_str.strip()
 
 
 def git_root():

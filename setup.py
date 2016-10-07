@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Setup file for ci-diff-helper."""
+
 import os
 
 from setuptools import find_packages
