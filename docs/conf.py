@@ -22,12 +22,17 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+import email
+import os
+import pkg_resources
+import sys
+
+import sphinx_rtd_theme
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
-import sys
 sys.path.insert(0, os.path.abspath('..'))
 
 # -- General configuration ------------------------------------------------
@@ -65,8 +70,6 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-import email
-import pkg_resources
 project = u'ci-diff-helper'
 distrib = pkg_resources.get_distribution(project)
 copyright = u'2016, Danny Hermes'
@@ -140,7 +143,6 @@ todo_include_todos = True
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-import sphinx_rtd_theme
 ON_READ_THE_DOCS = os.environ.get('READTHEDOCS', None) == 'True'
 if not ON_READ_THE_DOCS:
     html_theme = 'sphinx_rtd_theme'
@@ -170,8 +172,8 @@ if not ON_READ_THE_DOCS:
 # html_logo = None
 
 # The name of an image file (relative to this directory) to use as a favicon of
-# the docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
-# pixels large.
+# the docs.  This file should be a Windows icon file (.ico) being 16x16 or
+# 32x32 pixels large.
 #
 # html_favicon = None
 

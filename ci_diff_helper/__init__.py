@@ -17,6 +17,7 @@ Provides a set of utilities for dealing with Travis CI.
 
 
 import os
+import subprocess
 
 
 _IN_TRAVIS_ENV = 'TRAVIS'
@@ -91,3 +92,52 @@ def travis_branch():
         msg = ('Pull request build does not have an '
                'associated branch set (via %s)') % (_TRAVIS_BRANCH_ENV,)
         raise OSError(msg)
+
+
+def _check_output(*args):
+    """Run a command on the operation system.
+
+    :type args: tuple
+    :param args: Arguments to pass to ``subprocess.check_output``.
+
+    :rtype: str
+    :returns: The raw STDOUT from the command (converted from bytes
+              if necessary).
+    """
+    cmd_output = subprocess.check_output(args)
+    # On Python 3, this returns bytes (from STDOUT), so we
+    # convert to a string.
+    cmd_output = cmd_output.decode('utf-8')
+    # Also strip the output since it usually has a trailing newline.
+    return cmd_output.strip()
+
+
+def git_root():
+    """Return the root directory of the current ``git`` checkout.
+
+    :rtype: str
+    :returns: Filesystem path to ``git`` checkout root.
+    """
+    return _check_output('git', 'rev-parse', '--show-toplevel')
+
+
+def get_checked_in_files():
+    """Gets a list of files in the current ``git`` repository.
+
+    Effectively runs::
+
+      $ git ls-files ${GIT_ROOT}
+
+    and then finds the absolute path for each file returned.
+
+    :rtype: list
+    :returns: List of all filenames checked into.
+    """
+    root_dir = git_root()
+    cmd_output = _check_output('git', 'ls-files', root_dir)
+
+    result = []
+    for filename in cmd_output.split('\n'):
+        result.append(os.path.abspath(filename))
+
+    return result
