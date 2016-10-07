@@ -2,7 +2,7 @@ language: python
 sudo: false
 
 install:
-  - pip install --upgrade pip tox
+- pip install --upgrade pip tox
 
 addons:
   apt:
@@ -12,15 +12,25 @@ addons:
     - python3.5
 
 script:
-  - tox -e py27
-  - tox -e py34
-  - tox -e py35
-  - tox -e cover
+- tox -e py27
+- tox -e py34
+- tox -e py35
+- tox -e cover
 
 after_success:
-  - .tox/cover/bin/pip install coveralls
-  - .tox/cover/bin/coveralls
+- ".tox/cover/bin/pip install coveralls"
+- ".tox/cover/bin/coveralls"
 
 cache:
   directories:
-    - ${HOME}/.cache/pip
+  - "${HOME}/.cache/pip"
+
+deploy:
+  provider: pypi
+  user: bossylobster
+  password:
+    secure: NavzeXIywkEQ0l1CnUt/bFjVgZI1kFIPWUts1Rcp2X8I71SNyIFzzrDjlAZXu7YKuww8MsOqmyFfR3Rwnm/Sbc0IQhsmX4STS7KGxtl16eJzqZJjyTIUHTj3qmyfqAeQjVOXBthyOL8alVf+xw16KpQlpJxPFc73wphVjMba2kYyRvzg/sNWf43ECqf2JMd01M9TxRO/o2w5WcYA3DMGyjFxsl/njpQaWLz33fvzdx1UDmx8yGiScYA2djC8dlbuPtY24tL0guRps2O3y1nfO5QTboTXpauHWhVJqklFfsRv8XnUrOoVoXovqBlHExFpk4pFdpZZsWVIhUIBY+l2x98Q1trN4YL+zwRMyarXiXiwgB6sk70K60ZRQBEZs5lAcxh7L2aQWntzuChbo55lnfg3NBjzdlizOWhnrY2hQF3oisNHDSCIR+ZmkIlT7n8ib1qUmxnAMzGqs7Ri/aQrsJwBWGC6pX2p8hQKup4yEZI73h2r/js6P5DCSIpLK9zIzCXRBsR+drlFxfIrBthFbXGd2Fl5yYwEiHJrkJkAdieS5dC8QfEucPQhifFcczPUZh/K7Hoji2ZokD1KdcfSALvx1PvMEodtdx8iGS2kf3Zm2NseVKflXIRbR3NLjL6grLGJ+pW3fgKJsa46/oPZY9Qx+UW3pgTql/ZB0xsJhgc=
+  on:
+    tags: true
+    distributions: sdist bdist_wheel
+    repo: dhermes/ci-diff-helper
