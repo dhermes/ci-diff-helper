@@ -2,7 +2,7 @@ language: python
 sudo: false
 
 install:
-- pip install --upgrade pip tox
+- pip install --upgrade pip tox Sphinx sphinx-rtd-theme
 
 addons:
   apt:
@@ -16,6 +16,7 @@ script:
 - tox -e py34
 - tox -e py35
 - tox -e cover
+- build_docs.sh
 
 after_success:
 - ".tox/cover/bin/pip install coveralls"
