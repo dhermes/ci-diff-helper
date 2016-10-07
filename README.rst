@@ -1,5 +1,9 @@
-Diff Helper for Continuous Integration (CI) Services
-====================================================
+CI Diff Helper
+==============
+
+    Diff Helper for Continuous Integration (CI) Services
+
+|pypi| |build| |appveyor| |coverage| |versions|
 
 For an open source project, running unit tests, system tests, torture tests,
 fuzz tests, integration tests, code quality checks, etc. can quickly become
@@ -36,3 +40,21 @@ Install
 ::
 
     $ pip install --upgrade ci-diff-helper
+
+License
+-------
+
+Apache 2.0 - See `LICENSE`_ for more information.
+
+.. _LICENSE: https://github.com/dhermes/ci-diff-helper/blob/master/LICENSE
+
+.. |build| image:: https://travis-ci.org/dhermes/ci-diff-helper.svg?branch=master
+   :target: https://travis-ci.org/dhermes/ci-diff-helper
+.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/dhermes/ci-diff-helper?branch=master&svg=true
+   :target: https://ci.appveyor.com/project/dhermes/ci-diff-helper
+.. |coverage| image:: https://coveralls.io/repos/dhermes/ci-diff-helper-python/badge.png?branch=master
+   :target: https://coveralls.io/r/dhermes/ci-diff-helper-python?branch=master
+.. |pypi| image:: https://img.shields.io/pypi/v/ci-diff-helper.svg
+   :target: https://pypi.python.org/pypi/ci-diff-helper
+.. |versions| image:: https://img.shields.io/pypi/pyversions/ci-diff-helper.svg
+   :target: https://pypi.python.org/pypi/ci-diff-helper
