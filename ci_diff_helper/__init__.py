@@ -19,9 +19,6 @@ from ci_diff_helper import _utils
 from ci_diff_helper import travis
 
 
-_TRAVIS_BRANCH_ENV = 'TRAVIS_BRANCH'
-
-
 def in_travis():
     """Detect if we are running in Travis.
 
@@ -53,11 +50,10 @@ def in_travis_pr():
 def travis_branch():
     """Get the current branch of the PR.
 
-    .. _Travis env docs: https://docs.travis-ci.com/user/\
-                         environment-variables\
-                         #Default-Environment-Variables
-
-    See `Travis env docs`_.
+    See the :class:`.Travis` class for a
+    more comprehensive way to determine the Travis configuration,
+    with caching enabled. In particular, for this method, see
+    :attr:`.Travis.branch`.
 
     .. note::
 
@@ -67,15 +63,8 @@ def travis_branch():
     :rtype: str
     :returns: The name of the branch the current pull request is
               changed against.
-    :raises OSError: if the ``_TRAVIS_BRANCH_ENV`` environment variable
-                     isn't set during a pull request build.
     """
-    try:
-        return os.environ[_TRAVIS_BRANCH_ENV]
-    except KeyError:
-        msg = ('Pull request build does not have an '
-               'associated branch set (via %s)') % (_TRAVIS_BRANCH_ENV,)
-        raise OSError(msg)
+    return travis.Travis().branch
 
 
 def git_root():

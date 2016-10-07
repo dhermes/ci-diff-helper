@@ -36,6 +36,7 @@ import os
 _UNSET = object()  # Sentinel for unset config values.
 _IN_TRAVIS_ENV = 'TRAVIS'
 _TRAVIS_PR_ENV = 'TRAVIS_PULL_REQUEST'
+_TRAVIS_BRANCH_ENV = 'TRAVIS_BRANCH'
 
 
 def _in_travis():
@@ -59,10 +60,28 @@ def _travis_pr():
         return None
 
 
+def _travis_branch():
+    """Get the current branch of the PR.
+
+    :rtype: str
+    :returns: The name of the branch the current pull request is
+              changed against.
+    :raises OSError: if the ``_TRAVIS_BRANCH_ENV`` environment variable
+                     isn't set during a pull request build.
+    """
+    try:
+        return os.environ[_TRAVIS_BRANCH_ENV]
+    except KeyError:
+        msg = ('Pull request build does not have an '
+               'associated branch set (via %s)') % (_TRAVIS_BRANCH_ENV,)
+        raise OSError(msg)
+
+
 class Travis(object):
     """Represent Travis state and cache return values."""
 
     _active = _UNSET
+    _branch = _UNSET
     _pr = _UNSET
 
     @property
@@ -76,16 +95,14 @@ class Travis(object):
         return self._active
 
     @property
-    def pr(self):
-        """The current Travis pull request (if any).
+    def branch(self):
+        """Indicates if currently running in Travis.
 
-        If there is no active pull request, returns :data:`None`.
-
-        :rtype: int
+        :rtype: bool
         """
-        if self._pr is _UNSET:
-            self._pr = _travis_pr()
-        return self._pr
+        if self._branch is _UNSET:
+            self._branch = _travis_branch()
+        return self._branch
 
     @property
     def in_pr(self):
@@ -100,3 +117,15 @@ class Travis(object):
         :rtype: bool
         """
         return self.pr is not None
+
+    @property
+    def pr(self):
+        """The current Travis pull request (if any).
+
+        If there is no active pull request, returns :data:`None`.
+
+        :rtype: int
+        """
+        if self._pr is _UNSET:
+            self._pr = _travis_pr()
+        return self._pr

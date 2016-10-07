@@ -81,10 +81,10 @@ class Test_travis_branch(unittest.TestCase):
 
     def test_success(self):
         import mock
-        import ci_diff_helper
+        from ci_diff_helper import travis
 
         branch = 'this-very-branch'
-        mock_env = {ci_diff_helper._TRAVIS_BRANCH_ENV: branch}
+        mock_env = {travis._TRAVIS_BRANCH_ENV: branch}
         with mock.patch('os.environ', new=mock_env):
             result = self._call_function_under_test()
             self.assertEqual(result, branch)
