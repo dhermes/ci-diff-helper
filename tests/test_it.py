@@ -155,6 +155,7 @@ class Test_git_root(unittest.TestCase):
     @unittest.skipUnless(HAS_GIT, 'git not installed')
     def test_actual_call(self):
         result = self._call_function_under_test()
+        result = os.path.abspath(result)  # Normalize path for Windows.
         tests_dir = os.path.dirname(__file__)
         root_dir = os.path.abspath(os.path.join(tests_dir, '..'))
         self.assertEqual(result, root_dir)
