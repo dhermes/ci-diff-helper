@@ -16,7 +16,7 @@ script:
 - tox -e py34
 - tox -e py35
 - tox -e cover
-- build_docs.sh
+- ./build_docs.sh
 
 after_success:
 - ".tox/cover/bin/pip install coveralls"
