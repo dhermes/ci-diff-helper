@@ -18,7 +18,8 @@ script:
   - tox -e cover
 
 after_success:
-  - tox -e coveralls
+  - .tox/cover/bin/pip install coveralls
+  - .tox/cover/bin/coveralls
 
 cache:
   directories:
