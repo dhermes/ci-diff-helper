@@ -213,3 +213,32 @@ class TestTravis(unittest.TestCase):
         with mock.patch('os.environ', new={}):
             with self.assertRaises(OSError):
                 config.branch
+
+    def test_base_property_in_pr(self):
+        from ci_diff_helper import travis
+
+        config = self._make_one()
+        # Make sure the Travis config thinks we are in a PR.
+        config._pr = 1234
+        self.assertTrue(config.in_pr)
+        # Make sure the Travis config knows the current branch.
+        branch = 'scary-tree-branch'
+        config._branch = branch
+        self.assertEqual(config.branch, branch)
+        # Check that in the PR case, the base is a branch.
+        self.assertIs(config._base, travis._UNSET)
+        self.assertEqual(config.base, branch)
+        # Verify that caching works.
+        self.assertEqual(config._base, branch)
+        self.assertEqual(config.base, branch)
+
+    def test_base_property_non_pr(self):
+        from ci_diff_helper import travis
+
+        config = self._make_one()
+        # Make sure the Travis config thinks we are not in a PR.
+        config._pr = None
+        self.assertFalse(config.in_pr)
+        # Verify the failure.
+        with self.assertRaises(NotImplementedError):
+            config.base

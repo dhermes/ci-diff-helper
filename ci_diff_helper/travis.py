@@ -81,6 +81,7 @@ class Travis(object):
     """Represent Travis state and cache return values."""
 
     _active = _UNSET
+    _base = _UNSET
     _branch = _UNSET
     _pr = _UNSET
 
@@ -93,6 +94,22 @@ class Travis(object):
         if self._active is _UNSET:
             self._active = _in_travis()
         return self._active
+
+    @property
+    def base(self):
+        """The ``git`` object that current build is changed against.
+
+        The ``git`` object can be any of a branch name, tag or a commit SHA.
+
+        :rtype: str
+        :raises NotImplementedError: If not in a pull request.
+        """
+        if self._base is _UNSET:
+            if self.in_pr:
+                self._base = self.branch
+            else:
+                raise NotImplementedError
+        return self._base
 
     @property
     def branch(self):
