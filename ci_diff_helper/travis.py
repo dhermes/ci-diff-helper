@@ -33,7 +33,9 @@ For more details, see the `Travis env docs`_.
 import os
 
 
+_UNSET = object()  # Sentinel for unset config values.
 _IN_TRAVIS_ENV = 'TRAVIS'
+_TRAVIS_PR_ENV = 'TRAVIS_PULL_REQUEST'
 
 
 def _in_travis():
@@ -45,10 +47,23 @@ def _in_travis():
     return os.getenv(_IN_TRAVIS_ENV) == 'true'
 
 
+def _travis_pr():
+    """Get the current Travis pull request (if any).
+
+    :rtype: int
+    :returns: The current pull request ID.
+    """
+    try:
+        return int(os.getenv(_TRAVIS_PR_ENV, ''))
+    except ValueError:
+        return None
+
+
 class Travis(object):
     """Represent Travis state and cache return values."""
 
-    _active = None
+    _active = _UNSET
+    _pr = _UNSET
 
     @property
     def active(self):
@@ -56,6 +71,32 @@ class Travis(object):
 
         :rtype: bool
         """
-        if self._active is None:
+        if self._active is _UNSET:
             self._active = _in_travis()
         return self._active
+
+    @property
+    def pr(self):
+        """The current Travis pull request (if any).
+
+        If there is no active pull request, returns :data:`None`.
+
+        :rtype: int
+        """
+        if self._pr is _UNSET:
+            self._pr = _travis_pr()
+        return self._pr
+
+    @property
+    def in_pr(self):
+        """Indicates if currently running in Travis pull request.
+
+        This uses the ``TRAVIS_PULL_REQUEST`` environment variable
+        to check if currently in a pull request. Though it doesn't use
+        the ``TRAVIS_EVENT_TYPE`` environment variable, checking that
+        ``TRAVIS_EVENT_TYPE==pull_request`` would be a perfectly valid
+        approach.
+
+        :rtype: bool
+        """
+        return self.pr is not None

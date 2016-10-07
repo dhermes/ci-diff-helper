@@ -19,12 +19,16 @@ from ci_diff_helper import _utils
 from ci_diff_helper import travis
 
 
-_TRAVIS_PR_ENV = 'TRAVIS_PULL_REQUEST'
 _TRAVIS_BRANCH_ENV = 'TRAVIS_BRANCH'
 
 
 def in_travis():
     """Detect if we are running in Travis.
+
+    See the :class:`.Travis` class for a
+    more comprehensive way to determine the Travis configuration,
+    with caching enabled. In particular, for this method, see
+    :attr:`.Travis.active`.
 
     :rtype: bool
     :returns: Flag indicating if we are running on Travis.
@@ -35,26 +39,15 @@ def in_travis():
 def in_travis_pr():
     """Detect if we are running in a pull request on Travis.
 
-    .. _Travis env docs: https://docs.travis-ci.com/user/\
-                         environment-variables\
-                         #Default-Environment-Variables
-
-    See `Travis env docs`_.
-
-    .. note::
-
-        This assumes we already know we are running in Travis.
+    See the :class:`.Travis` class for a
+    more comprehensive way to determine the Travis configuration,
+    with caching enabled. In particular, for this method, see
+    :attr:`.Travis.in_pr`.
 
     :rtype: bool
     :returns: Flag indicating if we are in a pull request on Travis.
     """
-    # NOTE: We're a little extra cautious and make sure that the
-    #       PR environment variable is an integer.
-    try:
-        int(os.getenv(_TRAVIS_PR_ENV, ''))
-        return True
-    except ValueError:
-        return False
+    return travis.Travis().in_pr
 
 
 def travis_branch():

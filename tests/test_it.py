@@ -47,11 +47,11 @@ class Test_in_travis_pr(unittest.TestCase):
 
     def test_success(self):
         import mock
-        import ci_diff_helper
+        from ci_diff_helper import travis
 
         valid_int = '1234'
         self.assertEqual(int(valid_int), 1234)
-        mock_env = {ci_diff_helper._TRAVIS_PR_ENV: valid_int}
+        mock_env = {travis._TRAVIS_PR_ENV: valid_int}
         with mock.patch('os.environ', new=mock_env):
             self.assertTrue(self._call_function_under_test())
 
@@ -63,11 +63,11 @@ class Test_in_travis_pr(unittest.TestCase):
 
     def test_failure_bad_value(self):
         import mock
-        import ci_diff_helper
+        from ci_diff_helper import travis
 
         not_int = 'not-int'
         self.assertRaises(ValueError, int, not_int)
-        mock_env = {ci_diff_helper._TRAVIS_PR_ENV: not_int}
+        mock_env = {travis._TRAVIS_PR_ENV: not_int}
         with mock.patch('os.environ', new=mock_env):
             self.assertFalse(self._call_function_under_test())
 
