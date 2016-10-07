@@ -26,10 +26,17 @@ import sys
 import ci_diff_helper
 
 
-def main():
-    """Run pycodestyle on all Python files in the repository."""
+def main(all_files=None):
+    """Run pycodestyle on all Python files in the repository.
+
+    :type all_files: list
+    :param all_files: (Optional) A list of all files to consider.
+    """
+    if all_files is None:
+        all_files = ci_diff_helper.get_checked_in_files()
+
     python_files = []
-    for filename in ci_diff_helper.get_checked_in_files():
+    for filename in all_files:
         _, ext = os.path.splitext(filename)
         if ext == '.py':
             python_files.append(filename)

@@ -214,19 +214,25 @@ def is_test_filename(filename):
     return 'test' in filename
 
 
-def get_python_files():
+def get_python_files(all_files=None):
     """Gets a list of all Python files in the repository.
 
     Separates the files based on test or production code according
     to :func:`is_test_filename`.
 
+    :type all_files: list
+    :param all_files: (Optional) A list of all files to consider.
+
     :rtype: tuple
     :returns: A tuple containing two lists. The first list
               contains all production files, the next all test files.
     """
+    if all_files is None:
+        all_files = ci_diff_helper.get_checked_in_files()
+
     production_files = []
     test_files = []
-    for filename in ci_diff_helper.get_checked_in_files():
+    for filename in all_files:
         if not valid_filename(filename):
             continue
         if is_test_filename(filename):
@@ -263,8 +269,12 @@ def lint_fileset(filenames, rc_filename, description):
         print(_SKIP_TEMPLATE % (description,))
 
 
-def main():
-    """Script entry point. Lints both sets of files."""
+def main(all_files=None):
+    """Script entry point. Lints both sets of files.
+
+    :type all_files: list
+    :param all_files: (Optional) A list of all files to consider.
+    """
     default_config = read_config(get_default_config())
     make_rc(default_config, PRODUCTION_RC,
             additions=_PRODUCTION_RC_ADDITIONS,
@@ -272,7 +282,7 @@ def main():
     make_rc(default_config, TEST_RC,
             additions=_TEST_RC_ADDITIONS,
             replacements=_TEST_RC_REPLACEMENTS)
-    production_files, test_files = get_python_files()
+    production_files, test_files = get_python_files(all_files=all_files)
     lint_fileset(production_files, PRODUCTION_RC, 'Library')
     lint_fileset(test_files, TEST_RC, 'Test')
 
