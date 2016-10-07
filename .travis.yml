@@ -1,0 +1,25 @@
+language: python
+sudo: false
+
+install:
+  - pip install --upgrade pip tox
+
+addons:
+  apt:
+    sources:
+    - deadsnakes
+    packages:
+    - python3.5
+
+script:
+  - tox -e py27
+  - tox -e py34
+  - tox -e py35
+  - tox -e cover
+
+after_success:
+  - tox -e coveralls
+
+cache:
+  directories:
+    - ${HOME}/.cache/pip
