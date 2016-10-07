@@ -3,7 +3,7 @@ CI Diff Helper
 
     Diff Helper for Continuous Integration (CI) Services
 
-|pypi| |build| |appveyor| |coverage| |versions|
+|pypi| |build| |appveyor| |coverage| |versions| |docs|
 
 For an open source project, running unit tests, system tests, torture tests,
 fuzz tests, integration tests, code quality checks, etc. can quickly become
@@ -58,3 +58,6 @@ Apache 2.0 - See `LICENSE`_ for more information.
    :target: https://pypi.python.org/pypi/ci-diff-helper
 .. |versions| image:: https://img.shields.io/pypi/pyversions/ci-diff-helper.svg
    :target: https://pypi.python.org/pypi/ci-diff-helper
+.. |docs| image:: https://readthedocs.org/projects/ci-diff-helper/badge/?version=latest
+   :target: http://ci-diff-helper.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
