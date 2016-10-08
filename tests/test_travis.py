@@ -120,12 +120,24 @@ class Test__travis_event_type(unittest.TestCase):
                 self._call_function_under_test()
 
 
-class Test__push_build_base(unittest.TestCase):
+class Test__get_commit_range(unittest.TestCase):
 
     @staticmethod
     def _call_function_under_test():
-        from ci_diff_helper.travis import _push_build_base
-        return _push_build_base()
+        from ci_diff_helper.travis import _get_commit_range
+        return _get_commit_range()
+
+    def test_success(self):
+        import mock
+        from ci_diff_helper import travis
+
+        start = 'abcd'
+        finish = 'wxyz'
+        commit_range = start + travis._RANGE_DELIMITER + finish
+        mock_env = {travis._RANGE_ENV: commit_range}
+        with mock.patch('os.environ', new=mock_env):
+            result = self._call_function_under_test()
+            self.assertEqual(result, (start, finish))
 
     def test_failure(self):
         import mock
@@ -134,63 +146,108 @@ class Test__push_build_base(unittest.TestCase):
             with self.assertRaises(EnvironmentError):
                 self._call_function_under_test()
 
+
+class Test__verify_merge_base(unittest.TestCase):
+
+    @staticmethod
+    def _call_function_under_test(start, finish):
+        from ci_diff_helper.travis import _verify_merge_base
+        return _verify_merge_base(start, finish)
+
+    def test_success(self):
+        import mock
+
+        start = 'abcd'
+        finish = 'wxyz'
+        output_mock = mock.patch('ci_diff_helper._utils.check_output',
+                                 return_value=start)
+        with output_mock as mocked:
+            result = self._call_function_under_test(start, finish)
+            self.assertIsNone(result)
+            mocked.assert_called_once_with(
+                'git', 'merge-base', start, finish, ignore_err=True)
+
+    def _failure_helper(self, start, merge_base):
+        import mock
+
+        finish = 'wxyz'
+        output_mock = mock.patch('ci_diff_helper._utils.check_output',
+                                 return_value=merge_base)
+        with output_mock as mocked:
+            with self.assertRaises(ValueError):
+                self._call_function_under_test(start, finish)
+            mocked.assert_called_once_with(
+                'git', 'merge-base', start, finish, ignore_err=True)
+
+    def test_failure_sys_call_wrong_base(self):
+        start = 'abcd'
+        merge_base = 'not-start'
+        self.assertNotEqual(start, merge_base)
+        self._failure_helper(start, merge_base)
+
+    def test_failure_sys_call_error(self):
+        start = 'abcd'
+        # A "merge_base=None" indicates the system call failed.
+        self._failure_helper(start, None)
+
+
+class Test__push_build_base(unittest.TestCase):
+
+    @staticmethod
+    def _call_function_under_test():
+        from ci_diff_helper.travis import _push_build_base
+        return _push_build_base()
+
     def test_unresolved_start_commit(self):
         import mock
         from ci_diff_helper import travis
 
-        start = 'a'
-        commit_range = start + travis._RANGE_DELIMITER + 'b'
-        mock_env = {travis._RANGE_ENV: commit_range}
-        with mock.patch('os.environ', new=mock_env):
-            # Make sure the start commit doesn't resolve.
-            output_mock = mock.patch('ci_diff_helper._utils.check_output',
-                                     return_value=None)
-            with output_mock as mocked:
+        start = 'abcd'
+        patch_range = mock.patch(
+            'ci_diff_helper.travis._get_commit_range',
+            return_value=(start, None))
+        # Make sure ``start_full`` is empty, indicating that the
+        # local ``git`` checkout doesn't have the commit.
+        patch_output = mock.patch(
+            'ci_diff_helper._utils.check_output',
+            return_value=None)
+
+        with patch_range as mocked_range:
+            with patch_output as mocked:
                 with self.assertRaises(NotImplementedError):
                     self._call_function_under_test()
                 mocked.assert_called_once_with(
                     'git', 'rev-parse', start, ignore_err=True)
+                mocked_range.assert_called_once_with()
 
-    def _merge_base_helper(self, start_full, merge_base):
+    def test_success(self):
         import mock
         from ci_diff_helper import travis
 
-        # Make a patch for os.environ to pass through the range.
-        start = 'a'
-        finish = 'b'
-        commit_range = start + travis._RANGE_DELIMITER + finish
-        mock_env = {travis._RANGE_ENV: commit_range}
-        env_patch = mock.patch('os.environ', new=mock_env)
-        # Make a patch for the system calls (check_output). Use
-        # side_effect=[...] to support multiple calls getting
-        # different return values.
-        output_mock = mock.patch('ci_diff_helper._utils.check_output',
-                                 side_effect=[start_full, merge_base])
-        with env_patch:
-            with output_mock as mocked:
-                if start_full == merge_base:
+        start = 'abcd'
+        start_full = 'abcd-zomg-more'
+        finish = 'wxyz'
+        patch_range = mock.patch(
+            'ci_diff_helper.travis._get_commit_range',
+            return_value=(start, finish))
+        # Just hide the verification / make it do nothing.
+        patch_verify = mock.patch(
+            'ci_diff_helper.travis._verify_merge_base')
+        # Make sure ``start_full`` is empty, indicating that the
+        # local ``git`` checkout doesn't have the commit.
+        patch_output = mock.patch(
+            'ci_diff_helper._utils.check_output',
+            return_value=start_full)
+
+        with patch_range as mocked_range:
+            with patch_verify as mocked_verify:
+                with patch_output as mocked:
                     result = self._call_function_under_test()
-                    self.assertEqual(result, merge_base)
-                else:
-                    with self.assertRaises(ValueError):
-                        self._call_function_under_test()
-
-                self.assertEqual(mocked.call_count, 2)
-                mocked.assert_any_call(
-                    'git', 'rev-parse', start, ignore_err=True)
-                mocked.assert_any_call(
-                    'git', 'merge-base', start_full, finish, ignore_err=True)
-
-    def test_bad_merge(self):
-        start_full = 'abcd'
-        merge_base = 'not-abcd'
-        self.assertNotEqual(start_full, merge_base)
-        self._merge_base_helper(start_full, merge_base)
-
-    def test_success(self):
-        start_full = 'abcd'
-        merge_base = start_full
-        self._merge_base_helper(start_full, merge_base)
+                    self.assertEqual(result, start_full)
+                    mocked.assert_called_once_with(
+                        'git', 'rev-parse', start, ignore_err=True)
+                    mocked_verify.assert_called_once_with(start_full, finish)
+                    mocked_range.assert_called_once_with()
 
 
 class Test__travis_slug(unittest.TestCase):

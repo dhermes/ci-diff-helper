@@ -109,24 +109,52 @@ def _travis_event_type():
                          TravisEventType.__members__.keys())
 
 
+def _get_commit_range():
+    """Get the Travis commit range from the environment.
+
+    Uses the ``TRAVIS_COMMIT_RANGE`` environment variable and then
+    makes sure it can be split into a start and finish commit.
+
+    :rtype: tuple
+    :returns: The ``start``, ``finish`` pair from the commit range.
+    :raises EnvironmentError: if the ``TRAVIS_COMMIT_RANGE`` does not contain
+                              '...' (which indicates a start and end commit)
+    """
+    commit_range = os.getenv(_RANGE_ENV, '')
+    try:
+        start, finish = commit_range.split(_RANGE_DELIMITER)
+        return start, finish
+    except ValueError:
+        raise EnvironmentError('Commit range in unexpected format',
+                               commit_range)
+
+
+def _verify_merge_base(start, finish):
+    """Verifies that the merge base of a commit range **is** the start.
+
+    :type start: str
+    :param start: The start commit in a range.
+
+    :type finish: str
+    :param finish: The last commit in a range.
+
+    :raises ValueError: If the merge base is not the start commit
+    """
+    merge_base = _utils.check_output(
+        'git', 'merge-base', start, finish, ignore_err=True)
+    if merge_base != start:
+        raise ValueError(
+            'git merge base is not the start commit in range',
+            merge_base, start, finish)
+
+
 def _push_build_base():
     """Get the diffbase for a Travis "push" build.
 
     :rtype: str
     :returns: The commit SHA of the diff base.
-    :raises EnvironmentError: if the ``TRAVIS_COMMIT_RANGE`` does not contain
-                              '...' (which indicates a start and end commit)
-    :raises ValueError: If the merge base is not the start commit (in the case
-                        that the start commit is actually in the current
-                        ``git`` checkout).
     """
-    commit_range = os.getenv(_RANGE_ENV, '')
-    try:
-        start, finish = commit_range.split(_RANGE_DELIMITER)
-    except ValueError:
-        raise EnvironmentError('Commit range in unexpected format',
-                               commit_range)
-
+    start, finish = _get_commit_range()
     # Resolve the start object name into a 40-char SHA1 hash.
     start_full = _utils.check_output('git', 'rev-parse', start,
                                      ignore_err=True)
@@ -139,13 +167,8 @@ def _push_build_base():
         # In this case, the start commit is in history so we
         # expect it to also be the merge base of the start and finish
         # commits.
-        merge_base = _utils.check_output(
-            'git', 'merge-base', start_full, finish, ignore_err=True)
-        if merge_base != start_full:
-            raise ValueError(
-                'git merge base is not the start commit in range',
-                merge_base, start_full, commit_range)
-        return merge_base
+        _verify_merge_base(start_full, finish)
+        return start_full
 
 
 def _travis_slug():
