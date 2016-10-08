@@ -37,7 +37,10 @@ class Test__rate_limit_info(unittest.TestCase):
             self._call_function_under_test(response)
             msg = _github._RATE_LIMIT_TEMPLATE % (
                 remaining, rate_limit, rate_reset)
-            mocked.called_once_with(msg, file=sys.stderr)
+            self.assertEqual(mocked.call_count, 2)
+            mocked.assert_any_call(msg, file=sys.stderr)
+            mocked.assert_any_call(_github._GH_ENV_VAR_MSG,
+                                   file=sys.stderr)
 
 
 class Test_commit_compare(unittest.TestCase):

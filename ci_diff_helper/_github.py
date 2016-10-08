@@ -28,6 +28,9 @@ _RATE_LIMIT_HEADER = 'X-RateLimit-Limit'
 _RATE_RESET_HEADER = 'X-RateLimit-Reset'
 _RATE_LIMIT_TEMPLATE = '%25s: %%s\n%25s: %%s\n%25s: %%s' % (
     _RATE_REMAINING_HEADER, _RATE_LIMIT_HEADER, _RATE_RESET_HEADER)
+_GH_ENV_VAR_MSG = (
+    'You can avoid being rate limited by storing a GitHub OAuth '
+    'token the %s environment variable') % (env.GH_TOKEN,)
 
 
 def _rate_limit_info(response):
@@ -41,6 +44,7 @@ def _rate_limit_info(response):
     rate_reset = response.headers.get(_RATE_RESET_HEADER)
     msg = _RATE_LIMIT_TEMPLATE % (remaining, rate_limit, rate_reset)
     six.print_(msg, file=sys.stderr)
+    six.print_(_GH_ENV_VAR_MSG, file=sys.stderr)
 
 
 def commit_compare(slug, start, finish):
