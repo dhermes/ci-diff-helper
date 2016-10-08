@@ -49,25 +49,22 @@ class Test_in_travis_pr(unittest.TestCase):
         import mock
         from ci_diff_helper import travis
 
-        valid_int = '1234'
-        self.assertEqual(int(valid_int), 1234)
-        mock_env = {travis._TRAVIS_PR_ENV: valid_int}
+        mock_env = {travis._EVENT_TYPE_ENV: 'pull_request'}
         with mock.patch('os.environ', new=mock_env):
             self.assertTrue(self._call_function_under_test())
 
     def test_failure_unset(self):
         import mock
 
-        with mock.patch('os.environ', new={}):
-            self.assertFalse(self._call_function_under_test())
+        with self.assertRaises(ValueError):
+            with mock.patch('os.environ', new={}):
+                self.assertFalse(self._call_function_under_test())
 
     def test_failure_bad_value(self):
         import mock
         from ci_diff_helper import travis
 
-        not_int = 'not-int'
-        self.assertRaises(ValueError, int, not_int)
-        mock_env = {travis._TRAVIS_PR_ENV: not_int}
+        mock_env = {travis._EVENT_TYPE_ENV: 'push'}
         with mock.patch('os.environ', new=mock_env):
             self.assertFalse(self._call_function_under_test())
 
@@ -84,7 +81,7 @@ class Test_travis_branch(unittest.TestCase):
         from ci_diff_helper import travis
 
         branch = 'this-very-branch'
-        mock_env = {travis._TRAVIS_BRANCH_ENV: branch}
+        mock_env = {travis._BRANCH_ENV: branch}
         with mock.patch('os.environ', new=mock_env):
             result = self._call_function_under_test()
             self.assertEqual(result, branch)

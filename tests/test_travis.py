@@ -49,7 +49,7 @@ class Test__travis_pr(unittest.TestCase):
         valid_int = '1234'
         actual_val = 1234
         self.assertEqual(int(valid_int), actual_val)
-        mock_env = {travis._TRAVIS_PR_ENV: valid_int}
+        mock_env = {travis._PR_ENV: valid_int}
         with mock.patch('os.environ', new=mock_env):
             self.assertEqual(self._call_function_under_test(), actual_val)
 
@@ -65,7 +65,7 @@ class Test__travis_pr(unittest.TestCase):
 
         not_int = 'not-int'
         self.assertRaises(ValueError, int, not_int)
-        mock_env = {travis._TRAVIS_PR_ENV: not_int}
+        mock_env = {travis._PR_ENV: not_int}
         with mock.patch('os.environ', new=mock_env):
             self.assertIsNone(self._call_function_under_test())
 
@@ -82,7 +82,7 @@ class Test__travis_branch(unittest.TestCase):
         from ci_diff_helper import travis
 
         branch = 'this-very-branch'
-        mock_env = {travis._TRAVIS_BRANCH_ENV: branch}
+        mock_env = {travis._BRANCH_ENV: branch}
         with mock.patch('os.environ', new=mock_env):
             result = self._call_function_under_test()
             self.assertEqual(result, branch)
@@ -92,6 +92,31 @@ class Test__travis_branch(unittest.TestCase):
 
         with mock.patch('os.environ', new={}):
             with self.assertRaises(OSError):
+                self._call_function_under_test()
+
+
+class Test__travis_event_type(unittest.TestCase):
+
+    @staticmethod
+    def _call_function_under_test():
+        from ci_diff_helper.travis import _travis_event_type
+        return _travis_event_type()
+
+    def test_success(self):
+        import mock
+        from ci_diff_helper import travis
+
+        event_env = 'push'
+        mock_env = {travis._EVENT_TYPE_ENV: event_env}
+        with mock.patch('os.environ', new=mock_env):
+            result = self._call_function_under_test()
+            self.assertIs(result, travis.TravisEventType.push)
+
+    def test_failure(self):
+        import mock
+
+        with mock.patch('os.environ', new={}):
+            with self.assertRaises(ValueError):
                 self._call_function_under_test()
 
 
@@ -219,7 +244,7 @@ class TestTravis(unittest.TestCase):
 
         config = self._make_one()
         # Make sure the Travis config thinks we are in a PR.
-        config._pr = 1234
+        config._event_type = travis.TravisEventType.pull_request
         self.assertTrue(config.in_pr)
         # Make sure the Travis config knows the current branch.
         branch = 'scary-tree-branch'
@@ -237,8 +262,39 @@ class TestTravis(unittest.TestCase):
 
         config = self._make_one()
         # Make sure the Travis config thinks we are not in a PR.
-        config._pr = None
+        config._event_type = travis.TravisEventType.push
         self.assertFalse(config.in_pr)
         # Verify the failure.
         with self.assertRaises(NotImplementedError):
             config.base
+
+    def _event_type_helper(self, event_type_val):
+        import mock
+        from ci_diff_helper import travis
+
+        config = self._make_one()
+        # Make sure there is no _event_type value set.
+        self.assertIs(config._event_type, travis._UNSET)
+
+        # Patch the helper so we can control the value.
+        in_travis_patch = mock.patch(
+            'ci_diff_helper.travis._travis_event_type',
+            return_value=event_type_val)
+        with in_travis_patch as mocked:
+            result = config.event_type
+            self.assertIs(result, event_type_val)
+            mocked.assert_called_once_with()
+
+        return config
+
+    def test_event_type_property(self):
+        event_type_val = 'push'
+        self._event_type_helper(event_type_val)
+
+    def test_event_type_property_cache(self):
+        event_type_val = 'cron'
+        config = self._event_type_helper(event_type_val)
+        # Test that the value is cached.
+        self.assertIs(config._event_type, event_type_val)
+        # Test that cached value is re-used.
+        self.assertIs(config.event_type, event_type_val)

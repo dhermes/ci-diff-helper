@@ -32,11 +32,14 @@ For more details, see the `Travis env docs`_.
 
 import os
 
+import enum
+
 
 _UNSET = object()  # Sentinel for unset config values.
 _IN_TRAVIS_ENV = 'TRAVIS'
-_TRAVIS_PR_ENV = 'TRAVIS_PULL_REQUEST'
-_TRAVIS_BRANCH_ENV = 'TRAVIS_BRANCH'
+_PR_ENV = 'TRAVIS_PULL_REQUEST'
+_BRANCH_ENV = 'TRAVIS_BRANCH'
+_EVENT_TYPE_ENV = 'TRAVIS_EVENT_TYPE'
 
 
 def _in_travis():
@@ -55,7 +58,7 @@ def _travis_pr():
     :returns: The current pull request ID.
     """
     try:
-        return int(os.getenv(_TRAVIS_PR_ENV, ''))
+        return int(os.getenv(_PR_ENV, ''))
     except ValueError:
         return None
 
@@ -66,15 +69,40 @@ def _travis_branch():
     :rtype: str
     :returns: The name of the branch the current pull request is
               changed against.
-    :raises OSError: if the ``_TRAVIS_BRANCH_ENV`` environment variable
+    :raises OSError: if the ``_BRANCH_ENV`` environment variable
                      isn't set during a pull request build.
     """
     try:
-        return os.environ[_TRAVIS_BRANCH_ENV]
+        return os.environ[_BRANCH_ENV]
     except KeyError:
         msg = ('Pull request build does not have an '
-               'associated branch set (via %s)') % (_TRAVIS_BRANCH_ENV,)
+               'associated branch set (via %s)') % (_BRANCH_ENV,)
         raise OSError(msg)
+
+
+def _travis_event_type():
+    """Get the event type of the current Travis build
+
+    :rtype: :class:`TravisEventType`
+    :returns: The type of the current Travis build.
+    :raises ValueError: if the ``TRAVIS_EVENT_TYPE`` environment
+                        variable is not one of the expected values.
+    """
+    event_env = os.getenv(_EVENT_TYPE_ENV, '')
+    try:
+        return TravisEventType(event_env)
+    except ValueError:
+        raise ValueError('Invalid event type', event_env,
+                         'Expected one of',
+                         TravisEventType.__members__.keys())
+
+
+class TravisEventType(enum.Enum):
+    """Enum representing all possible Travis event types."""
+    push = 'push'
+    pull_request = 'pull_request'
+    api = 'api'
+    cron = 'cron'
 
 
 class Travis(object):
@@ -83,6 +111,7 @@ class Travis(object):
     _active = _UNSET
     _base = _UNSET
     _branch = _UNSET
+    _event_type = _UNSET
     _pr = _UNSET
 
     @property
@@ -122,18 +151,27 @@ class Travis(object):
         return self._branch
 
     @property
-    def in_pr(self):
-        """Indicates if currently running in Travis pull request.
-
-        This uses the ``TRAVIS_PULL_REQUEST`` environment variable
-        to check if currently in a pull request. Though it doesn't use
-        the ``TRAVIS_EVENT_TYPE`` environment variable, checking that
-        ``TRAVIS_EVENT_TYPE==pull_request`` would be a perfectly valid
-        approach.
+    def event_type(self):
+        """Indicates if currently running in Travis.
 
         :rtype: bool
         """
-        return self.pr is not None
+        if self._event_type is _UNSET:
+            self._event_type = _travis_event_type()
+        return self._event_type
+
+    @property
+    def in_pr(self):
+        """Indicates if currently running in Travis pull request.
+
+        This uses the ``TRAVIS_EVENT_TYPE`` environment variable to check
+        if currently in a pull request. Though it doesn't use the
+        ``TRAVIS_PULL_REQUEST`` environment variable, checking that the
+        value is set to an integer would be a perfectly valid approach.
+
+        :rtype: bool
+        """
+        return self.event_type is TravisEventType.pull_request
 
     @property
     def pr(self):

@@ -24,6 +24,7 @@ with open(os.path.join(PACKAGE_ROOT, 'README.rst')) as file_obj:
     README = file_obj.read()
 
 REQUIREMENTS = (
+    'enum34',
 )
 DESCRIPTION = 'Diff Helper for Continuous Integration (CI) Services'
 
