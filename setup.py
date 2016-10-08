@@ -33,7 +33,7 @@ DESCRIPTION = 'Diff Helper for Continuous Integration (CI) Services'
 
 setup(
     name='ci-diff-helper',
-    version='0.0.2',
+    version='0.1.0',
     description=DESCRIPTION,
     author='Danny Hermes',
     author_email='daniel.j.hermes@gmail.com',

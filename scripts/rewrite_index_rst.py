@@ -53,8 +53,8 @@ def main():
     rewritten_content.append('=' * len(title))
 
     # Find the sections **and** assert there are only two '--...--' line.
-    submod_index, mod_index= [i for i, line in enumerate(lines)
-                              if set(line) == set('-')]
+    submod_index, mod_index = [i for i, line in enumerate(lines)
+                               if set(line) == set('-')]
     if submod_index != 4:
         raise ValueError('Unexpected submodules line', submod_index)
     if lines[2:6] != ['', 'Submodules', lines[4], '']:
