@@ -22,9 +22,9 @@ class Test__in_travis(unittest.TestCase):
 
     def test_success(self):
         import mock
-        from ci_diff_helper import travis
+        from ci_diff_helper import environment_vars as env
 
-        mock_env = {travis._IN_TRAVIS_ENV: 'true'}
+        mock_env = {env.IN_TRAVIS_ENV: 'true'}
         with mock.patch('os.environ', new=mock_env):
             self.assertTrue(self._call_function_under_test())
 
@@ -44,12 +44,12 @@ class Test__travis_pr(unittest.TestCase):
 
     def test_success(self):
         import mock
-        from ci_diff_helper import travis
+        from ci_diff_helper import environment_vars as env
 
         valid_int = '1234'
         actual_val = 1234
         self.assertEqual(int(valid_int), actual_val)
-        mock_env = {travis._PR_ENV: valid_int}
+        mock_env = {env.TRAVIS_PR_ENV: valid_int}
         with mock.patch('os.environ', new=mock_env):
             self.assertEqual(self._call_function_under_test(), actual_val)
 
@@ -61,11 +61,11 @@ class Test__travis_pr(unittest.TestCase):
 
     def test_failure_bad_value(self):
         import mock
-        from ci_diff_helper import travis
+        from ci_diff_helper import environment_vars as env
 
         not_int = 'not-int'
         self.assertRaises(ValueError, int, not_int)
-        mock_env = {travis._PR_ENV: not_int}
+        mock_env = {env.TRAVIS_PR_ENV: not_int}
         with mock.patch('os.environ', new=mock_env):
             self.assertIsNone(self._call_function_under_test())
 
@@ -79,10 +79,10 @@ class Test__travis_branch(unittest.TestCase):
 
     def test_success(self):
         import mock
-        from ci_diff_helper import travis
+        from ci_diff_helper import environment_vars as env
 
         branch = 'this-very-branch'
-        mock_env = {travis._BRANCH_ENV: branch}
+        mock_env = {env.TRAVIS_BRANCH_ENV: branch}
         with mock.patch('os.environ', new=mock_env):
             result = self._call_function_under_test()
             self.assertEqual(result, branch)
@@ -104,10 +104,11 @@ class Test__travis_event_type(unittest.TestCase):
 
     def test_success(self):
         import mock
+        from ci_diff_helper import environment_vars as env
         from ci_diff_helper import travis
 
         event_env = 'push'
-        mock_env = {travis._EVENT_TYPE_ENV: event_env}
+        mock_env = {env.TRAVIS_EVENT_TYPE_ENV: event_env}
         with mock.patch('os.environ', new=mock_env):
             result = self._call_function_under_test()
             self.assertIs(result, travis.TravisEventType.push)
@@ -129,12 +130,13 @@ class Test__get_commit_range(unittest.TestCase):
 
     def test_success(self):
         import mock
+        from ci_diff_helper import environment_vars as env
         from ci_diff_helper import travis
 
         start = 'abcd'
         finish = 'wxyz'
         commit_range = start + travis._RANGE_DELIMITER + finish
-        mock_env = {travis._RANGE_ENV: commit_range}
+        mock_env = {env.TRAVIS_RANGE_ENV: commit_range}
         with mock.patch('os.environ', new=mock_env):
             result = self._call_function_under_test()
             self.assertEqual(result, (start, finish))
@@ -337,10 +339,10 @@ class Test__travis_slug(unittest.TestCase):
 
     def test_success(self):
         import mock
-        from ci_diff_helper import travis
+        from ci_diff_helper import environment_vars as env
 
         slug = 'foo/bar'
-        mock_env = {travis._SLUG_ENV: slug}
+        mock_env = {env.TRAVIS_SLUG_ENV: slug}
         with mock.patch('os.environ', new=mock_env):
             result = self._call_function_under_test()
             self.assertEqual(result, slug)

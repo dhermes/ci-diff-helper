@@ -16,24 +16,8 @@ Since Travis only works with GitHub, the commands in this module
 are GitHub and ``git`` centric.
 
 This module uses a selection of environment variables to detect
-the state of Travis configuration. Among them are:
-
-* ``TRAVIS``: to indicate if running in ``TRAVIS``
-* ``TRAVIS_PULL_REQUEST``: to indicate which pull request we are in
-  (this is an integer) or to indicate it is a push build
-* ``TRAVIS_BRANCH``: to indicate the branch that was pushed (for a
-  "push" build) or the branch that a pull request is against
-* ``TRAVIS_EVENT_TYPE``: to indicate the type of build that is
-  occurring
-* ``TRAVIS_COMMIT_RANGE``: the range of commits changed in the current
-  build (not particularly useful in a PR build)
-* ``TRAVIS_REPO_SLUG``: the organization and repository for the project
-  that the current build belongs to
-
-For more details, see the `Travis env docs`_.
-
-.. _Travis env docs: https://docs.travis-ci.com/user/\
-                     environment-variables#Default-Environment-Variables
+the state of Travis configuration. See
+:mod:`~ci_diff_helper.environment_vars` for more details.
 """
 
 import os
@@ -44,16 +28,11 @@ import requests
 from six.moves import http_client
 
 from ci_diff_helper import _utils
+from ci_diff_helper import environment_vars as env
 
 
 _UNSET = object()  # Sentinel for unset config values.
-_IN_TRAVIS_ENV = 'TRAVIS'
-_PR_ENV = 'TRAVIS_PULL_REQUEST'
-_BRANCH_ENV = 'TRAVIS_BRANCH'
-_EVENT_TYPE_ENV = 'TRAVIS_EVENT_TYPE'
-_RANGE_ENV = 'TRAVIS_COMMIT_RANGE'
 _RANGE_DELIMITER = '...'
-_SLUG_ENV = 'TRAVIS_REPO_SLUG'
 _GH_COMPARE_TEMPLATE = 'https://api.github.com/repos/%s/compare/%s...%s'
 
 
@@ -63,7 +42,7 @@ def _in_travis():
     :rtype: bool
     :returns: Flag indicating if we are running on Travis.
     """
-    return os.getenv(_IN_TRAVIS_ENV) == 'true'
+    return os.getenv(env.IN_TRAVIS_ENV) == 'true'
 
 
 def _travis_pr():
@@ -73,7 +52,7 @@ def _travis_pr():
     :returns: The current pull request ID.
     """
     try:
-        return int(os.getenv(_PR_ENV, ''))
+        return int(os.getenv(env.TRAVIS_PR_ENV, ''))
     except ValueError:
         return None
 
@@ -88,10 +67,10 @@ def _travis_branch():
                               isn't set during a pull request build.
     """
     try:
-        return os.environ[_BRANCH_ENV]
+        return os.environ[env.TRAVIS_BRANCH_ENV]
     except KeyError as exc:
         msg = ('Pull request build does not have an '
-               'associated branch set (via %s)') % (_BRANCH_ENV,)
+               'associated branch set (via %s)') % (env.TRAVIS_BRANCH_ENV,)
         raise EnvironmentError(exc, msg)
 
 
@@ -103,7 +82,7 @@ def _travis_event_type():
     :raises ValueError: if the ``TRAVIS_EVENT_TYPE`` environment
                         variable is not one of the expected values.
     """
-    event_env = os.getenv(_EVENT_TYPE_ENV, '')
+    event_env = os.getenv(env.TRAVIS_EVENT_TYPE_ENV, '')
     try:
         return TravisEventType(event_env)
     except ValueError:
@@ -123,7 +102,7 @@ def _get_commit_range():
     :raises EnvironmentError: if the ``TRAVIS_COMMIT_RANGE`` does not contain
                               '...' (which indicates a start and end commit)
     """
-    commit_range = os.getenv(_RANGE_ENV, '')
+    commit_range = os.getenv(env.TRAVIS_RANGE_ENV, '')
     try:
         start, finish = commit_range.split(_RANGE_DELIMITER)
         return start, finish
@@ -225,10 +204,10 @@ def _travis_slug():
                               isn't set during a Travis build.
     """
     try:
-        return os.environ[_SLUG_ENV]
+        return os.environ[env.TRAVIS_SLUG_ENV]
     except KeyError as exc:
         msg = ('Travis build does not have a '
-               'repo slug set (via %s)') % (_SLUG_ENV,)
+               'repo slug set (via %s)') % (env.TRAVIS_SLUG_ENV,)
         raise EnvironmentError(exc, msg)
 
 

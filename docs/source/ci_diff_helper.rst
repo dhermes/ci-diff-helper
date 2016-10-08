@@ -6,6 +6,7 @@ Submodules
 
 .. toctree::
 
+   ci_diff_helper.environment_vars
    ci_diff_helper.travis
 
 Module contents
