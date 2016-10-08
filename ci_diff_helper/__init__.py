@@ -17,46 +17,15 @@
     When configuring your CI environment, it may be useful to set
     the ``GITHUB_OAUTH_TOKEN`` environment variable
     (:data:`~.environment_vars.GH_TOKEN`). By authenticating in
-    GitHub API requests, rate-limiting can be avoided. Unauthenticated
-    requests will be subject to rate-limiting across the entire
+    GitHub API requests, `rate limiting`_ can be avoided. Unauthenticated
+    requests will be subject to rate limiting across the entire
     CI system.
+
+.. _rate limiting: https://developer.github.com/v3/#rate-limiting
 """
 
-import os
-import subprocess
-
-from ci_diff_helper import _utils
+from ci_diff_helper.git_tools import get_checked_in_files
+from ci_diff_helper.git_tools import git_root
 from ci_diff_helper.travis import in_travis
 from ci_diff_helper.travis import in_travis_pr
 from ci_diff_helper.travis import travis_branch
-
-
-def git_root():
-    """Return the root directory of the current ``git`` checkout.
-
-    :rtype: str
-    :returns: Filesystem path to ``git`` checkout root.
-    """
-    return _utils.check_output('git', 'rev-parse', '--show-toplevel')
-
-
-def get_checked_in_files():
-    """Gets a list of files in the current ``git`` repository.
-
-    Effectively runs::
-
-      $ git ls-files ${GIT_ROOT}
-
-    and then finds the absolute path for each file returned.
-
-    :rtype: list
-    :returns: List of all filenames checked into.
-    """
-    root_dir = git_root()
-    cmd_output = _utils.check_output('git', 'ls-files', root_dir)
-
-    result = []
-    for filename in cmd_output.split('\n'):
-        result.append(os.path.abspath(filename))
-
-    return result

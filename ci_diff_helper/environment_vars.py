@@ -58,5 +58,7 @@ GH_TOKEN = 'GITHUB_OAUTH_TOKEN'
 
 This environment variable must be used to authenticate to
 the GitHub API. Making unauthenticated requests on a Continuous
-Integration server will typically be rate-limited.
+Integration server will typically be `rate limited`_.
+
+.. _rate limited: https://developer.github.com/v3/#rate-limiting
 """

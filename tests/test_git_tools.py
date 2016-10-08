@@ -20,7 +20,7 @@ class Test_git_root(unittest.TestCase):
 
     @staticmethod
     def _call_function_under_test():
-        from ci_diff_helper import git_root
+        from ci_diff_helper.git_tools import git_root
         return git_root()
 
     def test_sys_call(self):
@@ -45,7 +45,7 @@ class Test_get_checked_in_files(unittest.TestCase):
 
     @staticmethod
     def _call_function_under_test():
-        from ci_diff_helper import get_checked_in_files
+        from ci_diff_helper.git_tools import get_checked_in_files
         return get_checked_in_files()
 
     @staticmethod
@@ -67,7 +67,7 @@ class Test_get_checked_in_files(unittest.TestCase):
                                  return_value=cmd_output)
 
         git_root = os.path.join('totally', 'on', 'your', 'filesystem')
-        mock_root = mock.patch('ci_diff_helper.git_root',
+        mock_root = mock.patch('ci_diff_helper.git_tools.git_root',
                                return_value=git_root)
 
         mock_abspath = mock.patch('os.path.abspath', new=self._do_nothing)
