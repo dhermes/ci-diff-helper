@@ -16,15 +16,14 @@
 
 set -e
 
-rm -rf docs/build/* docs/source/*
+rm -rf docs/build/* docs/*rst
 sphinx-apidoc \
   --separate --force \
-  --output-dir docs/source \
+  --output-dir docs \
   ci_diff_helper
 # We only have one package, so modules.rst is overkill.
-rm -f docs/source/modules.rst
-# Manual edit for the root import.
-echo "    :imported-members:" >> docs/source/ci_diff_helper.rst
+rm -f docs/modules.rst
+mv docs/ci_diff_helper.rst docs/index.rst
 
 # If anything has changed
 if [[ -n "$(git diff -- docs/)" ]]; then
