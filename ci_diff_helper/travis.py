@@ -25,8 +25,10 @@ the state of Travis configuration. Among them are:
   "push" build) or the branch that a pull request is against
 * ``TRAVIS_EVENT_TYPE``: to indicate the type of build that is
   occurring
-* ``TRAVIS_COMMIT_RANGE``: The range of commits changed in the current
-  build. Not particularly useful in a PR build.
+* ``TRAVIS_COMMIT_RANGE``: the range of commits changed in the current
+  build (not particularly useful in a PR build)
+* ``TRAVIS_REPO_SLUG``: the organization and repository for the project
+  that the current build belongs to
 
 For more details, see the `Travis env docs`_.
 
@@ -49,6 +51,7 @@ _BRANCH_ENV = 'TRAVIS_BRANCH'
 _EVENT_TYPE_ENV = 'TRAVIS_EVENT_TYPE'
 _RANGE_ENV = 'TRAVIS_COMMIT_RANGE'
 _RANGE_DELIMITER = '...'
+_SLUG_ENV = 'TRAVIS_REPO_SLUG'
 
 
 def _in_travis():
@@ -145,6 +148,24 @@ def _push_build_base():
         return merge_base
 
 
+def _travis_slug():
+    """Get the GitHub repo slug for the current build.
+
+    Of the form ``{organization}/{repo}``.
+
+    :rtype: str
+    :returns: The slug for the current build.
+    :raises EnvironmentError: if the ``TRAVIS_REPO_SLUG`` environment variable
+                              isn't set during a Travis build.
+    """
+    try:
+        return os.environ[_SLUG_ENV]
+    except KeyError:
+        msg = ('Travis build does not have a '
+               'repo slug set (via %s)') % (_SLUG_ENV,)
+        raise EnvironmentError(msg)
+
+
 class TravisEventType(enum.Enum):
     """Enum representing all possible Travis event types."""
     push = 'push'
@@ -161,6 +182,7 @@ class Travis(object):
     _branch = _UNSET
     _event_type = _UNSET
     _pr = _UNSET
+    _slug = _UNSET
 
     @property
     def active(self):
@@ -235,3 +257,15 @@ class Travis(object):
         if self._pr is _UNSET:
             self._pr = _travis_pr()
         return self._pr
+
+    @property
+    def slug(self):
+        """The current slug in the Travis build.
+
+        Of the form ``{organization}/{repo}``.
+
+        :rtype: str
+        """
+        if self._slug is _UNSET:
+            self._slug = _travis_slug()
+        return self._slug

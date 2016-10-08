@@ -193,6 +193,31 @@ class Test__push_build_base(unittest.TestCase):
         self._merge_base_helper(start_full, merge_base)
 
 
+class Test__travis_slug(unittest.TestCase):
+
+    @staticmethod
+    def _call_function_under_test():
+        from ci_diff_helper.travis import _travis_slug
+        return _travis_slug()
+
+    def test_success(self):
+        import mock
+        from ci_diff_helper import travis
+
+        slug = 'foo/bar'
+        mock_env = {travis._SLUG_ENV: slug}
+        with mock.patch('os.environ', new=mock_env):
+            result = self._call_function_under_test()
+            self.assertEqual(result, slug)
+
+    def test_failure(self):
+        import mock
+
+        with mock.patch('os.environ', new={}):
+            with self.assertRaises(EnvironmentError):
+                self._call_function_under_test()
+
+
 class TravisEventType(unittest.TestCase):
 
     @staticmethod
@@ -431,3 +456,42 @@ class TestTravis(unittest.TestCase):
         self.assertIs(config._event_type, event_type_val)
         # Test that cached value is re-used.
         self.assertIs(config.event_type, event_type_val)
+
+    def _slug_helper(self, slug_val):
+        import mock
+        from ci_diff_helper import travis
+
+        config = self._make_one()
+        # Make sure there is no _slug value set.
+        self.assertIs(config._slug, travis._UNSET)
+
+        # Patch the helper so we can control the value.
+        slug_patch = mock.patch(
+            'ci_diff_helper.travis._travis_slug',
+            return_value=slug_val)
+        with slug_patch as mocked:
+            result = config.slug
+            self.assertIs(result, slug_val)
+            mocked.assert_called_once_with()
+
+        return config
+
+    def test_slug_property(self):
+        slug_val = 'slug-on-a-tree-in-a-forest'
+        self._slug_helper(slug_val)
+
+    def test_slug_property_cache(self):
+        slug_val = 'slugging-along'
+        config = self._slug_helper(slug_val)
+        # Test that the value is cached.
+        self.assertIs(config._slug, slug_val)
+        # Test that cached value is re-used.
+        self.assertIs(config.slug, slug_val)
+
+    def test_slug_property_error(self):
+        import mock
+
+        config = self._make_one()
+        with mock.patch('os.environ', new={}):
+            with self.assertRaises(EnvironmentError):
+                config.slug
