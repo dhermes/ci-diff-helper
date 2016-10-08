@@ -42,10 +42,13 @@ class Test_check_output(unittest.TestCase):
         expected_result = u'abc\n\tab'
         self._helper(ret_val, expected_result)
 
-    def _err_helper(self, **kwargs):
+    def _err_helper(self, ignore_err=False):
         import subprocess
         import mock
 
+        kwargs = {}
+        if ignore_err:
+            kwargs['ignore_err'] = True
         check_mock = mock.patch(
             'subprocess.check_output',
             side_effect=subprocess.CalledProcessError(1, ''))
@@ -53,7 +56,9 @@ class Test_check_output(unittest.TestCase):
         arg = 'hello-is-it-me'
         with check_mock as mocked:
             result = self._call_function_under_test(arg, **kwargs)
-            mocked.assert_called_once_with((arg,))
+            # We can only get here in the ignore_err case.
+            mocked.assert_called_once_with(
+                (arg,), stderr=subprocess.PIPE)
             self.assertIsNone(result)
 
     def test_ignore_err(self):

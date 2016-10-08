@@ -87,7 +87,8 @@ def get_default_config():
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     status_code = proc.wait()
     if status_code != 0:
-        raise EnvironmentError('Failed to generate Pylint RC file.')
+        raise EnvironmentError(
+            status_code, 'Failed to generate Pylint RC file.')
     result = proc.stdout.read()
     # On Python 3, this returns bytes (from STDOUT), so we
     # convert to a string.

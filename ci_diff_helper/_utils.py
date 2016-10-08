@@ -43,7 +43,10 @@ def check_output(*args, **kwargs):
                         list(kwargs.keys()))
 
     try:
-        cmd_output = subprocess.check_output(args)
+        kwargs = {}
+        if ignore_err:
+            kwargs['stderr'] = subprocess.PIPE  # Swallow stderr.
+        cmd_output = subprocess.check_output(args, **kwargs)
         # On Python 3, this returns bytes (from STDOUT), so we
         # convert to a string.
         cmd_output_str = cmd_output.decode('utf-8')

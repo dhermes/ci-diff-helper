@@ -89,10 +89,10 @@ def _travis_branch():
     """
     try:
         return os.environ[_BRANCH_ENV]
-    except KeyError:
+    except KeyError as exc:
         msg = ('Pull request build does not have an '
                'associated branch set (via %s)') % (_BRANCH_ENV,)
-        raise EnvironmentError(msg)
+        raise EnvironmentError(exc, msg)
 
 
 def _travis_event_type():
@@ -127,9 +127,9 @@ def _get_commit_range():
     try:
         start, finish = commit_range.split(_RANGE_DELIMITER)
         return start, finish
-    except ValueError:
-        raise EnvironmentError('Commit range in unexpected format',
-                               commit_range)
+    except ValueError as exc:
+        raise EnvironmentError(
+            exc, 'Commit range in unexpected format', commit_range)
 
 
 def _verify_merge_base(start, finish):
@@ -226,10 +226,10 @@ def _travis_slug():
     """
     try:
         return os.environ[_SLUG_ENV]
-    except KeyError:
+    except KeyError as exc:
         msg = ('Travis build does not have a '
                'repo slug set (via %s)') % (_SLUG_ENV,)
-        raise EnvironmentError(msg)
+        raise EnvironmentError(exc, msg)
 
 
 class TravisEventType(enum.Enum):
