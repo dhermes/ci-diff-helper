@@ -200,45 +200,8 @@ class Test__get_merge_base_from_github(unittest.TestCase):
         from ci_diff_helper.travis import _get_merge_base_from_github
         return _get_merge_base_from_github(slug, start, finish)
 
-    @staticmethod
-    def _make_response(status_code, payload):
-        import json
-        import requests
-
-        response = requests.Response()
-        response.status_code = status_code
-        response._content = json.dumps(payload).encode('utf-8')
-        return response
-
-    def _helper(self, status_code, payload=None,
-                sha=None, error_class=None):
-        import mock
-        from ci_diff_helper import travis
-
-        if payload is None:
-            payload = {}
-
-        response = self._make_response(status_code, payload)
-
-        patch_get = mock.patch('requests.get', return_value=response)
-        slug = 'a/b'
-        start = '1234'
-        finish = '6789'
-        expected_url = travis._GH_COMPARE_TEMPLATE % (
-            slug, start, finish)
-        with patch_get as mocked:
-            if sha is None:
-                with self.assertRaises(error_class):
-                    self._call_function_under_test(
-                        slug, start, finish)
-            else:
-                result = self._call_function_under_test(
-                    slug, start, finish)
-                self.assertEqual(result, sha)
-            mocked.assert_called_once_with(expected_url)
-
     def test_success(self):
-        from six.moves import http_client
+        import mock
 
         sha = 'f8c2476b625f6a6f35a9e7f4d566c9b036722f11'
         payload = {
@@ -246,19 +209,32 @@ class Test__get_merge_base_from_github(unittest.TestCase):
                 'sha': sha,
             },
         }
-        self._helper(http_client.OK, payload=payload, sha=sha)
+        slug = 'a/b'
+        start = '1234'
+        finish = '6789'
 
-    def test_response_failure(self):
-        import requests
-        from six.moves import http_client
+        compare_patch = mock.patch(
+            'ci_diff_helper._github.commit_compare',
+            return_value=payload)
+        with compare_patch as mocked:
+            result = self._call_function_under_test(slug, start, finish)
+            self.assertEqual(result, sha)
+            mocked.assert_called_once_with(slug, start, finish)
 
-        self._helper(http_client.NOT_FOUND,
-                     error_class=requests.HTTPError)
+    def test_failure(self):
+        import mock
 
-    def test_invalid_payload(self):
-        from six.moves import http_client
+        slug = 'a/b'
+        start = '1234'
+        finish = '6789'
 
-        self._helper(http_client.OK, error_class=KeyError)
+        compare_patch = mock.patch(
+            'ci_diff_helper._github.commit_compare',
+            return_value={})
+        with compare_patch as mocked:
+            with self.assertRaises(KeyError):
+                self._call_function_under_test(slug, start, finish)
+            mocked.assert_called_once_with(slug, start, finish)
 
 
 class Test__push_build_base(unittest.TestCase):

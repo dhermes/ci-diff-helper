@@ -27,13 +27,13 @@ import enum
 import requests
 from six.moves import http_client
 
+from ci_diff_helper import _github
 from ci_diff_helper import _utils
 from ci_diff_helper import environment_vars as env
 
 
 _UNSET = object()  # Sentinel for unset config values.
 _RANGE_DELIMITER = '...'
-_GH_COMPARE_TEMPLATE = 'https://api.github.com/repos/%s/compare/%s...%s'
 
 
 def _in_travis():
@@ -138,7 +138,7 @@ def _get_merge_base_from_github(slug, start, finish):
 
     :type slug: str
     :param slug: The GitHub repo slug for the current build.
-                 Of the form ``{organization}/{repo}``.
+                 Of the form ``{organization}/{repository}``.
 
     :type start: str
     :param start: The start commit in a range.
@@ -151,19 +151,14 @@ def _get_merge_base_from_github(slug, start, finish):
     :raises requests.exceptions.HTTPError:
         If the GitHub API request fails.
     """
-    api_url = _GH_COMPARE_TEMPLATE % (slug, start, finish)
-    response = requests.get(api_url)
-    if response.status_code != http_client.OK:
-        response.raise_for_status()
-
-    payload = response.json()
+    payload = _github.commit_compare(slug, start, finish)
     try:
         return payload['merge_base_commit']['sha']
     except KeyError:
         raise KeyError(
             'Missing key in the GitHub API payload',
             'expected merge_base_commit->sha',
-            payload, api_url, response)
+            payload, slug, start, finish)
 
 
 def _push_build_base(slug):
@@ -171,7 +166,7 @@ def _push_build_base(slug):
 
     :type slug: str
     :param slug: The GitHub repo slug for the current build.
-                 Of the form ``{organization}/{repo}``.
+                 Of the form ``{organization}/{repository}``.
 
     :rtype: str
     :returns: The commit SHA of the diff base.
@@ -196,7 +191,7 @@ def _push_build_base(slug):
 def _travis_slug():
     """Get the GitHub repo slug for the current build.
 
-    Of the form ``{organization}/{repo}``.
+    Of the form ``{organization}/{repository}``.
 
     :rtype: str
     :returns: The slug for the current build.
@@ -307,7 +302,7 @@ class Travis(object):
     def slug(self):
         """The current slug in the Travis build.
 
-        Of the form ``{organization}/{repo}``.
+        Of the form ``{organization}/{repository}``.
 
         :rtype: str
         """
