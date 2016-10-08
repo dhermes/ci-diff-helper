@@ -191,6 +191,74 @@ class Test__verify_merge_base(unittest.TestCase):
         self._failure_helper(start, None)
 
 
+class Test__get_merge_base_from_github(unittest.TestCase):
+
+    @staticmethod
+    def _call_function_under_test(slug, start, finish):
+        from ci_diff_helper.travis import _get_merge_base_from_github
+        return _get_merge_base_from_github(slug, start, finish)
+
+    @staticmethod
+    def _make_response(status_code, payload):
+        import json
+        import requests
+
+        response = requests.Response()
+        response.status_code = status_code
+        response._content = json.dumps(payload).encode('utf-8')
+        return response
+
+    def _helper(self, status_code, payload=None,
+                sha=None, error_class=None):
+        import mock
+        from ci_diff_helper import travis
+
+        if payload is None:
+            payload = {}
+
+        response = self._make_response(status_code, payload)
+
+        patch_get = mock.patch('requests.get', return_value=response)
+        slug = 'a/b'
+        start = '1234'
+        finish = '6789'
+        expected_url = travis._GH_COMPARE_TEMPLATE % (
+            slug, start, finish)
+        with patch_get as mocked:
+            if sha is None:
+                with self.assertRaises(error_class):
+                    self._call_function_under_test(
+                        slug, start, finish)
+            else:
+                result = self._call_function_under_test(
+                    slug, start, finish)
+                self.assertEqual(result, sha)
+            mocked.assert_called_once_with(expected_url)
+
+    def test_success(self):
+        from six.moves import http_client
+
+        sha = 'f8c2476b625f6a6f35a9e7f4d566c9b036722f11'
+        payload = {
+            'merge_base_commit': {
+                'sha': sha,
+            },
+        }
+        self._helper(http_client.OK, payload=payload, sha=sha)
+
+    def test_response_failure(self):
+        import requests
+        from six.moves import http_client
+
+        self._helper(http_client.NOT_FOUND,
+                     error_class=requests.HTTPError)
+
+    def test_invalid_payload(self):
+        from six.moves import http_client
+
+        self._helper(http_client.OK, error_class=KeyError)
+
+
 class Test__push_build_base(unittest.TestCase):
 
     @staticmethod
@@ -203,22 +271,32 @@ class Test__push_build_base(unittest.TestCase):
         from ci_diff_helper import travis
 
         start = 'abcd'
+        finish = 'wxyz'
+        slug = 'raindrops/roses'
         patch_range = mock.patch(
             'ci_diff_helper.travis._get_commit_range',
-            return_value=(start, None))
+            return_value=(start, finish))
         # Make sure ``start_full`` is empty, indicating that the
         # local ``git`` checkout doesn't have the commit.
         patch_output = mock.patch(
             'ci_diff_helper._utils.check_output',
             return_value=None)
+        # Make sure ``start_full`` is empty, indicating that the
+        # local ``git`` checkout doesn't have the commit.
+        sha = '058b526c33dea1e8fc7013b498593cd106300411'
+        patch_from_github = mock.patch(
+            'ci_diff_helper.travis._get_merge_base_from_github',
+            return_value=sha)
 
         with patch_range as mocked_range:
-            with patch_output as mocked:
-                with self.assertRaises(NotImplementedError):
-                    self._call_function_under_test(None)
-                mocked.assert_called_once_with(
-                    'git', 'rev-parse', start, ignore_err=True)
-                mocked_range.assert_called_once_with()
+            with patch_output as mocked_output:
+                with patch_from_github as mocked:
+                    result = self._call_function_under_test(slug)
+                    self.assertEqual(result, sha)
+                    mocked.called_once_with(slug, start, finish)
+                    mocked_output.assert_called_once_with(
+                        'git', 'rev-parse', start, ignore_err=True)
+                    mocked_range.assert_called_once_with()
 
     def test_success(self):
         import mock

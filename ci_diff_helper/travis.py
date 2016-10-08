@@ -40,6 +40,8 @@ import os
 import subprocess
 
 import enum
+import requests
+from six.moves import http_client
 
 from ci_diff_helper import _utils
 
@@ -52,6 +54,7 @@ _EVENT_TYPE_ENV = 'TRAVIS_EVENT_TYPE'
 _RANGE_ENV = 'TRAVIS_COMMIT_RANGE'
 _RANGE_DELIMITER = '...'
 _SLUG_ENV = 'TRAVIS_REPO_SLUG'
+_GH_COMPARE_TEMPLATE = 'https://api.github.com/repos/%s/compare/%s...%s'
 
 
 def _in_travis():
@@ -148,6 +151,42 @@ def _verify_merge_base(start, finish):
             merge_base, start, finish)
 
 
+def _get_merge_base_from_github(slug, start, finish):
+    """Retrieves the merge base of two commits from the GitHub API.
+
+    This is intended to be used in cases where one of the commits
+    is no longer in the local checkout, but is still around on GitHub.
+
+    :type slug: str
+    :param slug: The GitHub repo slug for the current build.
+                 Of the form ``{organization}/{repo}``.
+
+    :type start: str
+    :param start: The start commit in a range.
+
+    :type finish: str
+    :param finish: The last commit in a range.
+
+    :rtype: str
+    :returns: The commit SHA of the merge base.
+    :raises requests.exceptions.HTTPError:
+        If the GitHub API request fails.
+    """
+    api_url = _GH_COMPARE_TEMPLATE % (slug, start, finish)
+    response = requests.get(api_url)
+    if response.status_code != http_client.OK:
+        response.raise_for_status()
+
+    payload = response.json()
+    try:
+        return payload['merge_base_commit']['sha']
+    except KeyError:
+        raise KeyError(
+            'Missing key in the GitHub API payload',
+            'expected merge_base_commit->sha',
+            payload, api_url, response)
+
+
 def _push_build_base(slug):
     """Get the diffbase for a Travis "push" build.
 
@@ -166,7 +205,7 @@ def _push_build_base(slug):
     if start_full is None:
         # In this case, the start commit isn't in history so we
         # need to use the GitHub API.
-        raise NotImplementedError
+        return _get_merge_base_from_github(slug, start, finish)
     else:
         # In this case, the start commit is in history so we
         # expect it to also be the merge base of the start and finish
