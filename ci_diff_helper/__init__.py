@@ -10,7 +10,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Diff Helper for Continuous Integration (CI) Services."""
+"""Diff Helper for Continuous Integration (CI) Services.
+
+.. note::
+
+    When configuring your CI environment, it may be useful to set
+    the ``GITHUB_OAUTH_TOKEN`` environment variable
+    (:attr:`.environment_vars.GH_TOKEN`). By authenticating in
+    GitHub API requests, rate-limiting can be avoided. Unauthenticated
+    requests will be subject to rate-limiting across the entire
+    CI system.
+"""
 
 import os
 import subprocess

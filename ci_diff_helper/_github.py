@@ -12,11 +12,35 @@
 
 """Helper to make calls to the GitHub API."""
 
+import os
+import sys
+
 import requests
+import six
 from six.moves import http_client
+
+from ci_diff_helper import environment_vars as env
 
 
 _GH_COMPARE_TEMPLATE = 'https://api.github.com/repos/%s/compare/%s...%s'
+_RATE_REMAINING_HEADER = 'X-RateLimit-Remaining'
+_RATE_LIMIT_HEADER = 'X-RateLimit-Limit'
+_RATE_RESET_HEADER = 'X-RateLimit-Reset'
+_RATE_LIMIT_TEMPLATE = '%25s: %%s\n%25s: %%s\n%25s: %%s' % (
+    _RATE_REMAINING_HEADER, _RATE_LIMIT_HEADER, _RATE_RESET_HEADER)
+
+
+def _rate_limit_info(response):
+    """Print response rate limit information to stderr.
+
+    :type response: :class:`requests.Response`
+    :param response: A GitHub API response.
+    """
+    remaining = response.headers.get(_RATE_REMAINING_HEADER)
+    rate_limit = response.headers.get(_RATE_LIMIT_HEADER)
+    rate_reset = response.headers.get(_RATE_RESET_HEADER)
+    msg = _RATE_LIMIT_TEMPLATE % (remaining, rate_limit, rate_reset)
+    six.print_(msg, file=sys.stderr)
 
 
 def commit_compare(slug, start, finish):
@@ -38,8 +62,15 @@ def commit_compare(slug, start, finish):
         If the GitHub API request fails.
     """
     api_url = _GH_COMPARE_TEMPLATE % (slug, start, finish)
-    response = requests.get(api_url)
+
+    headers = {}
+    github_token = os.getenv(env.GH_TOKEN, None)
+    if github_token is not None:
+        headers['Authorization'] = 'token ' + github_token
+
+    response = requests.get(api_url, headers=headers)
     if response.status_code != http_client.OK:
+        _rate_limit_info(response)
         response.raise_for_status()
 
     return response.json()
