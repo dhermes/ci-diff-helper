@@ -21,11 +21,8 @@ the state of Travis configuration. See
 """
 
 import os
-import subprocess
 
 import enum
-import requests
-from six.moves import http_client
 
 from ci_diff_helper import _github
 from ci_diff_helper import _utils
@@ -88,7 +85,7 @@ def _travis_event_type():
     except ValueError:
         raise ValueError('Invalid event type', event_env,
                          'Expected one of',
-                         TravisEventType.__members__.keys())
+                         [enum_val.name for enum_val in TravisEventType])
 
 
 def _get_commit_range():
@@ -148,8 +145,8 @@ def _get_merge_base_from_github(slug, start, finish):
 
     :rtype: str
     :returns: The commit SHA of the merge base.
-    :raises requests.exceptions.HTTPError:
-        If the GitHub API request fails.
+    :raises KeyError: If the payload doesn't contain the nested key
+                      merge_base_commit->sha.
     """
     payload = _github.commit_compare(slug, start, finish)
     try:
@@ -206,12 +203,14 @@ def _travis_slug():
         raise EnvironmentError(exc, msg)
 
 
+# pylint: disable=too-few-public-methods
 class TravisEventType(enum.Enum):
     """Enum representing all possible Travis event types."""
     push = 'push'
     pull_request = 'pull_request'
     api = 'api'
     cron = 'cron'
+# pylint: enable=too-few-public-methods
 
 
 class Travis(object):
@@ -224,6 +223,7 @@ class Travis(object):
     _pr = _UNSET
     _slug = _UNSET
 
+    # pylint: disable=missing-returns-doc
     @property
     def active(self):
         """Indicates if currently running in Travis.
@@ -286,6 +286,7 @@ class Travis(object):
         """
         return self.event_type is TravisEventType.pull_request
 
+    # pylint: disable=invalid-name
     @property
     def pr(self):
         """The current Travis pull request (if any).
@@ -297,6 +298,7 @@ class Travis(object):
         if self._pr is _UNSET:
             self._pr = _travis_pr()
         return self._pr
+    # pylint: enable=invalid-name
 
     @property
     def slug(self):
@@ -309,3 +311,4 @@ class Travis(object):
         if self._slug is _UNSET:
             self._slug = _travis_slug()
         return self._slug
+    # pylint: enable=missing-returns-doc

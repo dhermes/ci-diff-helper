@@ -15,8 +15,6 @@
 import requests
 from six.moves import http_client
 
-from ci_diff_helper import environment_vars as env
-
 
 _GH_COMPARE_TEMPLATE = 'https://api.github.com/repos/%s/compare/%s...%s'
 

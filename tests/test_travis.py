@@ -181,7 +181,7 @@ class Test__verify_merge_base(unittest.TestCase):
             mocked.assert_called_once_with(
                 'git', 'merge-base', start, finish, ignore_err=True)
 
-    def test_failure_sys_call_wrong_base(self):
+    def test_failure_sys_call_bad_base(self):
         start = 'abcd'
         merge_base = 'not-start'
         self.assertNotEqual(start, merge_base)
@@ -246,7 +246,6 @@ class Test__push_build_base(unittest.TestCase):
 
     def test_unresolved_start_commit(self):
         import mock
-        from ci_diff_helper import travis
 
         start = 'abcd'
         finish = 'wxyz'
@@ -278,7 +277,6 @@ class Test__push_build_base(unittest.TestCase):
 
     def test_success(self):
         import mock
-        from ci_diff_helper import travis
 
         start = 'abcd'
         start_full = 'abcd-zomg-more'
@@ -344,8 +342,9 @@ class TravisEventType(unittest.TestCase):
 
     def test_members(self):
         klass = self._get_target_class()
-        self.assertEqual(set(klass.__members__.keys()),
-                         set(['api', 'cron', 'pull_request', 'push']))
+        self.assertEqual(
+            set([enum_val.name for enum_val in klass]),
+            set(['api', 'cron', 'pull_request', 'push']))
 
     def test_api(self):
         klass = self._get_target_class()
@@ -485,7 +484,7 @@ class TestTravis(unittest.TestCase):
         config = self._make_one()
         with mock.patch('os.environ', new={}):
             with self.assertRaises(EnvironmentError):
-                config.branch
+                getattr(config, 'branch')
 
     def test_base_property_in_pr(self):
         from ci_diff_helper import travis
@@ -532,7 +531,7 @@ class TestTravis(unittest.TestCase):
         self.assertEqual(config._base, base_val)
         self.assertEqual(config.base, base_val)
 
-    def test_base_property_non_pr_or_push(self):
+    def test_base_property_unsupported(self):
         from ci_diff_helper import travis
 
         config = self._make_one()
@@ -541,7 +540,7 @@ class TestTravis(unittest.TestCase):
         self.assertFalse(config.in_pr)
         # Verify the failure.
         with self.assertRaises(NotImplementedError):
-            config.base
+            getattr(config, 'base')
 
     def _event_type_helper(self, event_type_val):
         import mock
@@ -611,4 +610,4 @@ class TestTravis(unittest.TestCase):
         config = self._make_one()
         with mock.patch('os.environ', new={}):
             with self.assertRaises(EnvironmentError):
-                config.slug
+                getattr(config, 'slug')

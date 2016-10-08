@@ -36,6 +36,8 @@ def check_output(*args, **kwargs):
     :returns: The raw STDOUT from the command (converted from bytes
               if necessary).
     :raises TypeError: if any unrecognized keyword arguments are used.
+    :raises CalledProcessError:
+        If ``ignore_err`` is not :data:`True` and the system call fails.
     """
     ignore_err = kwargs.pop('ignore_err', False)
     if kwargs:

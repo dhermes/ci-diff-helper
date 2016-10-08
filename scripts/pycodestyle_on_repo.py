@@ -46,7 +46,8 @@ def main(all_files=None):
     else:
         pycodestyle_command = ['pycodestyle'] + python_files
         status_code = subprocess.call(pycodestyle_command)
-        sys.exit(status_code)
+        if status_code != 0:
+            sys.exit(status_code)
 
 
 if __name__ == '__main__':
