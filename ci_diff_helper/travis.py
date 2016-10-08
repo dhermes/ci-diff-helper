@@ -179,7 +179,8 @@ class Travis(object):
         The ``git`` object can be any of a branch name, tag or a commit SHA.
 
         :rtype: str
-        :raises NotImplementedError: If not in a "pull request" or "push" build.
+        :raises NotImplementedError: If not in a "pull request" or
+                                     "push" build.
         """
         if self._base is _UNSET:
             if self.in_pr:
