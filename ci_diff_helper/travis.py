@@ -148,8 +148,12 @@ def _verify_merge_base(start, finish):
             merge_base, start, finish)
 
 
-def _push_build_base():
+def _push_build_base(slug):
     """Get the diffbase for a Travis "push" build.
+
+    :type slug: str
+    :param slug: The GitHub repo slug for the current build.
+                 Of the form ``{organization}/{repo}``.
 
     :rtype: str
     :returns: The commit SHA of the diff base.
@@ -231,7 +235,7 @@ class Travis(object):
             if self.in_pr:
                 self._base = self.branch
             elif self.event_type is TravisEventType.push:
-                self._base = _push_build_base()
+                self._base = _push_build_base(self.slug)
             else:
                 raise NotImplementedError
         return self._base

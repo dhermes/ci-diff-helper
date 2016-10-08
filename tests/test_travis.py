@@ -194,9 +194,9 @@ class Test__verify_merge_base(unittest.TestCase):
 class Test__push_build_base(unittest.TestCase):
 
     @staticmethod
-    def _call_function_under_test():
+    def _call_function_under_test(slug):
         from ci_diff_helper.travis import _push_build_base
-        return _push_build_base()
+        return _push_build_base(slug)
 
     def test_unresolved_start_commit(self):
         import mock
@@ -215,7 +215,7 @@ class Test__push_build_base(unittest.TestCase):
         with patch_range as mocked_range:
             with patch_output as mocked:
                 with self.assertRaises(NotImplementedError):
-                    self._call_function_under_test()
+                    self._call_function_under_test(None)
                 mocked.assert_called_once_with(
                     'git', 'rev-parse', start, ignore_err=True)
                 mocked_range.assert_called_once_with()
@@ -242,7 +242,7 @@ class Test__push_build_base(unittest.TestCase):
         with patch_range as mocked_range:
             with patch_verify as mocked_verify:
                 with patch_output as mocked:
-                    result = self._call_function_under_test()
+                    result = self._call_function_under_test(None)
                     self.assertEqual(result, start_full)
                     mocked.assert_called_once_with(
                         'git', 'rev-parse', start, ignore_err=True)
@@ -458,6 +458,10 @@ class TestTravis(unittest.TestCase):
         config._event_type = travis.TravisEventType.push
         self.assertFalse(config.in_pr)
         self.assertIs(config.event_type, travis.TravisEventType.push)
+        # Make sure the Travis slug is set.
+        slug = 'rainbows/puppies'
+        config._slug = slug
+        self.assertEqual(config.slug, slug)
         # Check that in the "push" case, the base gets set
         # from _push_build_base().
         base_val = '076879d777af62e621c9f72d2b5f6863e88689e9'
@@ -467,7 +471,7 @@ class TestTravis(unittest.TestCase):
         self.assertIs(config._base, travis._UNSET)
         with push_base_patch as mocked:
             self.assertEqual(config.base, base_val)
-            mocked.assert_called_once_with()
+            mocked.assert_called_once_with(slug)
         # Verify that caching works.
         self.assertEqual(config._base, base_val)
         self.assertEqual(config.base, base_val)
