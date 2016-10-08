@@ -15,19 +15,42 @@
 import subprocess
 
 
-def check_output(*args):
+def check_output(*args, **kwargs):
     """Run a command on the operation system.
+
+    If the command fails a :class:`~subprocess.CalledProcessError`
+    will occur. However, if you would like to silently ignore this
+    error, pass the ``ignore_err`` flag::
+
+      >>> print(check_output('false', ignore_err=True))
+      None
 
     :type args: tuple
     :param args: Arguments to pass to ``subprocess.check_output``.
 
+    :type kwargs: dict
+    :param kwargs: Keyword arguments for this helper. Currently the
+                   only accepted keyword argument is ``ignore_err`.
+
     :rtype: str
     :returns: The raw STDOUT from the command (converted from bytes
               if necessary).
+    :raises TypeError: if any unrecognized keyword arguments are used.
     """
-    cmd_output = subprocess.check_output(args)
-    # On Python 3, this returns bytes (from STDOUT), so we
-    # convert to a string.
-    cmd_output_str = cmd_output.decode('utf-8')
-    # Also strip the output since it usually has a trailing newline.
-    return cmd_output_str.strip()
+    ignore_err = kwargs.pop('ignore_err', False)
+    if kwargs:
+        raise TypeError('Got unexpected keyword argument(s)',
+                        list(kwargs.keys()))
+
+    try:
+        cmd_output = subprocess.check_output(args)
+        # On Python 3, this returns bytes (from STDOUT), so we
+        # convert to a string.
+        cmd_output_str = cmd_output.decode('utf-8')
+        # Also strip the output since it usually has a trailing newline.
+        return cmd_output_str.strip()
+    except subprocess.CalledProcessError:
+        if ignore_err:
+            return
+        else:
+            raise

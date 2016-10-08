@@ -16,9 +16,9 @@ import unittest
 class Test_check_output(unittest.TestCase):
 
     @staticmethod
-    def _call_function_under_test(*args):
+    def _call_function_under_test(*args, **kwargs):
         from ci_diff_helper._utils import check_output
-        return check_output(*args)
+        return check_output(*args, **kwargs)
 
     def _helper(self, ret_val, expected_result):
         import mock
@@ -41,3 +41,30 @@ class Test_check_output(unittest.TestCase):
         ret_val = b'abc\n\tab'
         expected_result = u'abc\n\tab'
         self._helper(ret_val, expected_result)
+
+    def _err_helper(self, **kwargs):
+        import subprocess
+        import mock
+
+        check_mock = mock.patch(
+            'subprocess.check_output',
+            side_effect=subprocess.CalledProcessError(1, ''))
+
+        arg = 'hello-is-it-me'
+        with check_mock as mocked:
+            result = self._call_function_under_test(arg, **kwargs)
+            mocked.assert_called_once_with((arg,))
+            self.assertIsNone(result)
+
+    def test_ignore_err(self):
+        self._err_helper(ignore_err=True)
+
+    def test_uncaught_err(self):
+        import subprocess
+
+        with self.assertRaises(subprocess.CalledProcessError):
+            self._err_helper()
+
+    def test_bad_keywords(self):
+        with self.assertRaises(TypeError):
+            self._call_function_under_test(huh='bad-kw')

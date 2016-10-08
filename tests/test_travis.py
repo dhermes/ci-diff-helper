@@ -91,7 +91,7 @@ class Test__travis_branch(unittest.TestCase):
         import mock
 
         with mock.patch('os.environ', new={}):
-            with self.assertRaises(OSError):
+            with self.assertRaises(EnvironmentError):
                 self._call_function_under_test()
 
 
@@ -118,6 +118,116 @@ class Test__travis_event_type(unittest.TestCase):
         with mock.patch('os.environ', new={}):
             with self.assertRaises(ValueError):
                 self._call_function_under_test()
+
+
+class Test__push_build_base(unittest.TestCase):
+
+    @staticmethod
+    def _call_function_under_test():
+        from ci_diff_helper.travis import _push_build_base
+        return _push_build_base()
+
+    def test_failure(self):
+        import mock
+
+        with mock.patch('os.environ', new={}):
+            with self.assertRaises(EnvironmentError):
+                self._call_function_under_test()
+
+    def test_unresolved_start_commit(self):
+        import mock
+        from ci_diff_helper import travis
+
+        start = 'a'
+        commit_range = start + travis._RANGE_DELIMITER + 'b'
+        mock_env = {travis._RANGE_ENV: commit_range}
+        with mock.patch('os.environ', new=mock_env):
+            # Make sure the start commit doesn't resolve.
+            output_mock = mock.patch('ci_diff_helper._utils.check_output',
+                                     return_value=None)
+            with output_mock as mocked:
+                with self.assertRaises(NotImplementedError):
+                    self._call_function_under_test()
+                mocked.assert_called_once_with(
+                    'git', 'rev-parse', start, ignore_err=True)
+
+    def _merge_base_helper(self, start_full, merge_base):
+        import mock
+        from ci_diff_helper import travis
+
+        # Make a patch for os.environ to pass through the range.
+        start = 'a'
+        finish = 'b'
+        commit_range = start + travis._RANGE_DELIMITER + finish
+        mock_env = {travis._RANGE_ENV: commit_range}
+        env_patch = mock.patch('os.environ', new=mock_env)
+        # Make a patch for the system calls (check_output). Use
+        # side_effect=[...] to support multiple calls getting
+        # different return values.
+        output_mock = mock.patch('ci_diff_helper._utils.check_output',
+                                 side_effect=[start_full, merge_base])
+        with env_patch:
+            with output_mock as mocked:
+                if start_full == merge_base:
+                    result = self._call_function_under_test()
+                    self.assertEqual(result, merge_base)
+                else:
+                    with self.assertRaises(ValueError):
+                        self._call_function_under_test()
+
+                self.assertEqual(mocked.call_count, 2)
+                mocked.assert_any_call(
+                    'git', 'rev-parse', start, ignore_err=True)
+                mocked.assert_any_call(
+                    'git', 'merge-base', start_full, finish, ignore_err=True)
+
+    def test_bad_merge(self):
+        start_full = 'abcd'
+        merge_base = 'not-abcd'
+        self.assertNotEqual(start_full, merge_base)
+        self._merge_base_helper(start_full, merge_base)
+
+    def test_success(self):
+        start_full = 'abcd'
+        merge_base = start_full
+        self._merge_base_helper(start_full, merge_base)
+
+
+class TravisEventType(unittest.TestCase):
+
+    @staticmethod
+    def _get_target_class():
+        from ci_diff_helper import travis
+        return travis.TravisEventType
+
+    def _make_one(self, enum_val):
+        klass = self._get_target_class()
+        return klass(enum_val)
+
+    def test_members(self):
+        klass = self._get_target_class()
+        self.assertEqual(set(klass.__members__.keys()),
+                         set(['api', 'cron', 'pull_request', 'push']))
+
+    def test_api(self):
+        klass = self._get_target_class()
+        enum_obj = self._make_one('api')
+        self.assertIs(enum_obj, klass.api)
+
+    def test_cron(self):
+        klass = self._get_target_class()
+        enum_obj = self._make_one('cron')
+        self.assertIs(enum_obj, klass.cron)
+
+    def test_pull_request(self):
+        klass = self._get_target_class()
+        enum_obj = self._make_one('pull_request')
+        self.assertIs(enum_obj, klass.pull_request)
+
+    def test_push(self):
+        klass = self._get_target_class()
+        enum_obj = self._make_one('push')
+        self.assertIs(enum_obj, klass.push)
 
 
 class TestTravis(unittest.TestCase):
@@ -236,7 +346,7 @@ class TestTravis(unittest.TestCase):
 
         config = self._make_one()
         with mock.patch('os.environ', new={}):
-            with self.assertRaises(OSError):
+            with self.assertRaises(EnvironmentError):
                 config.branch
 
     def test_base_property_in_pr(self):
@@ -257,12 +367,35 @@ class TestTravis(unittest.TestCase):
         self.assertEqual(config._base, branch)
         self.assertEqual(config.base, branch)
 
-    def test_base_property_non_pr(self):
+    def test_base_property_push(self):
+        import mock
+        from ci_diff_helper import travis
+
+        config = self._make_one()
+        # Make sure the Travis config thinks we are in a push build.
+        config._event_type = travis.TravisEventType.push
+        self.assertFalse(config.in_pr)
+        self.assertIs(config.event_type, travis.TravisEventType.push)
+        # Check that in the "push" case, the base gets set
+        # from _push_build_base().
+        base_val = '076879d777af62e621c9f72d2b5f6863e88689e9'
+        push_base_patch = mock.patch(
+            'ci_diff_helper.travis._push_build_base',
+            return_value=base_val)
+        self.assertIs(config._base, travis._UNSET)
+        with push_base_patch as mocked:
+            self.assertEqual(config.base, base_val)
+            mocked.assert_called_once_with()
+        # Verify that caching works.
+        self.assertEqual(config._base, base_val)
+        self.assertEqual(config.base, base_val)
+
+    def test_base_property_non_pr_or_push(self):
         from ci_diff_helper import travis
 
         config = self._make_one()
         # Make sure the Travis config thinks we are not in a PR.
-        config._event_type = travis.TravisEventType.push
+        config._event_type = travis.TravisEventType.cron
         self.assertFalse(config.in_pr)
         # Verify the failure.
         with self.assertRaises(NotImplementedError):

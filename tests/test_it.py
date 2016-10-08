@@ -90,7 +90,7 @@ class Test_travis_branch(unittest.TestCase):
         import mock
 
         with mock.patch('os.environ', new={}):
-            with self.assertRaises(OSError):
+            with self.assertRaises(EnvironmentError):
                 self._call_function_under_test()
 
 
