@@ -16,7 +16,7 @@
 
     When configuring your CI environment, it may be useful to set
     the ``GITHUB_OAUTH_TOKEN`` environment variable
-    (:attr:`.environment_vars.GH_TOKEN`). By authenticating in
+    (:data:`~.environment_vars.GH_TOKEN`). By authenticating in
     GitHub API requests, rate-limiting can be avoided. Unauthenticated
     requests will be subject to rate-limiting across the entire
     CI system.
@@ -26,55 +26,9 @@ import os
 import subprocess
 
 from ci_diff_helper import _utils
-from ci_diff_helper import travis
-
-
-def in_travis():
-    """Detect if we are running in Travis.
-
-    See the :class:`.Travis` class for a
-    more comprehensive way to determine the Travis configuration,
-    with caching enabled. In particular, for this method, see
-    :attr:`.Travis.active`.
-
-    :rtype: bool
-    :returns: Flag indicating if we are running on Travis.
-    """
-    return travis.Travis().active
-
-
-def in_travis_pr():
-    """Detect if we are running in a pull request on Travis.
-
-    See the :class:`.Travis` class for a
-    more comprehensive way to determine the Travis configuration,
-    with caching enabled. In particular, for this method, see
-    :attr:`.Travis.in_pr`.
-
-    :rtype: bool
-    :returns: Flag indicating if we are in a pull request on Travis.
-    """
-    return travis.Travis().in_pr
-
-
-def travis_branch():
-    """Get the current branch of the PR.
-
-    See the :class:`.Travis` class for a
-    more comprehensive way to determine the Travis configuration,
-    with caching enabled. In particular, for this method, see
-    :attr:`.Travis.branch`.
-
-    .. note::
-
-        This assumes we already know we are running in Travis
-        during a PR.
-
-    :rtype: str
-    :returns: The name of the branch the current pull request is
-              changed against.
-    """
-    return travis.Travis().branch
+from ci_diff_helper.travis import in_travis
+from ci_diff_helper.travis import in_travis_pr
+from ci_diff_helper.travis import travis_branch
 
 
 def git_root():

@@ -312,3 +312,51 @@ class Travis(object):
             self._slug = _travis_slug()
         return self._slug
     # pylint: enable=missing-returns-doc
+
+
+def in_travis():
+    """Detect if we are running in Travis.
+
+    See the :class:`Travis` class for a
+    more comprehensive way to determine the Travis configuration,
+    with caching enabled. In particular, for this method, see
+    :attr:`Travis.active`.
+
+    :rtype: bool
+    :returns: Flag indicating if we are running on Travis.
+    """
+    return Travis().active
+
+
+def in_travis_pr():
+    """Detect if we are running in a pull request on Travis.
+
+    See the :class:`Travis` class for a
+    more comprehensive way to determine the Travis configuration,
+    with caching enabled. In particular, for this method, see
+    :attr:`Travis.in_pr`.
+
+    :rtype: bool
+    :returns: Flag indicating if we are in a pull request on Travis.
+    """
+    return Travis().in_pr
+
+
+def travis_branch():
+    """Get the current branch of the PR.
+
+    See the :class:`Travis` class for a
+    more comprehensive way to determine the Travis configuration,
+    with caching enabled. In particular, for this method, see
+    :attr:`Travis.branch`.
+
+    .. note::
+
+        This assumes we already know we are running in Travis
+        during a PR.
+
+    :rtype: str
+    :returns: The name of the branch the current pull request is
+              changed against.
+    """
+    return Travis().branch

@@ -23,6 +23,8 @@ sphinx-apidoc \
   ci_diff_helper
 # We only have one package, so modules.rst is overkill.
 rm -f docs/source/modules.rst
+# Manual edit for the root import.
+echo "    :imported-members:" >> docs/source/ci_diff_helper.rst
 
 # If anything has changed
 if [[ -n "$(git diff -- docs/)" ]]; then
