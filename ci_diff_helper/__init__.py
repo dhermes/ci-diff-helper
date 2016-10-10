@@ -57,8 +57,8 @@ To use this in your project first install::
   $ pip install --upgrade ci-diff-helper
 
 Once you've done that, you can use some basic functions
-(:meth:`~travis.in_travis`, :meth:`~travis.in_travis_pr` and
-:meth:`~travis.travis_branch`) to get information about your
+(:func:`~travis.in_travis`, :func:`~travis.in_travis_pr` and
+:func:`~travis.travis_branch`) to get information about your
 current environment.
 
 .. testsetup:: pr
@@ -144,6 +144,50 @@ it can also be used to find relevant information in a
   True
   >>> config.base
   '4ad7349dc7223ebc02175a16dc577a013044a538'
+
+In addition :func:`~git_tools.git_root` and
+:func:`~git_tools.get_checked_in_files` are provided as
+tools for a ``git``-based project. Being able to get the
+root of the current ``git`` checkout may be needed to collect
+files, execute scripts, etc. Getting all checked in files can
+be useful for things like test collection, file linting, etc.
+
+.. testsetup:: git
+
+  import ci_diff_helper
+  from ci_diff_helper import _utils
+
+  root_dir = '/path/to/your/git_checkout'
+  calls = [
+      ('git', 'rev-parse', '--show-toplevel'),
+      ('git', 'rev-parse', '--show-toplevel'),
+      ('git', 'ls-files', root_dir),
+  ]
+  files = (
+      '/path/to/your/git_checkout/setup.py\\n'
+      '/path/to/your/git_checkout/project/__init__.py\\n'
+      '/path/to/your/git_checkout/project/feature.py')
+  results = [
+      root_dir,
+      root_dir,
+      files,
+  ]
+
+  def mock_check(*args):
+      assert args == calls.pop(0)
+      return results.pop(0)
+
+  _utils.check_output = mock_check
+
+.. doctest:: git
+  :options: +NORMALIZE_WHITESPACE
+
+  >>> ci_diff_helper.git_root()
+  '/path/to/your/git_checkout'
+  >>> ci_diff_helper.get_checked_in_files()
+  ['/path/to/your/git_checkout/setup.py',
+   '/path/to/your/git_checkout/project/__init__.py',
+   '/path/to/your/git_checkout/project/feature.py']
 """
 
 from ci_diff_helper.git_tools import get_checked_in_files
