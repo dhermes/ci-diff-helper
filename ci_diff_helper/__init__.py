@@ -112,6 +112,8 @@ determining a diffbase.
   'organization/repository'
   >>> config.pr
   1234
+  >>> config.tag is None
+  True
   >>> config.base
   'master'
 
@@ -125,6 +127,7 @@ it can also be used to find relevant information in a
   os.environ = {
       'TRAVIS_EVENT_TYPE': 'push',
       'TRAVIS_REPO_SLUG': 'organization/repository',
+      'TRAVIS_TAG': '0.13.37',
   }
   import ci_diff_helper
   from ci_diff_helper import travis
@@ -142,6 +145,8 @@ it can also be used to find relevant information in a
   <TravisEventType.push: 'push'>
   >>> config.pr is None
   True
+  >>> config.tag
+  '0.13.37'
   >>> config.base
   '4ad7349dc7223ebc02175a16dc577a013044a538'
 

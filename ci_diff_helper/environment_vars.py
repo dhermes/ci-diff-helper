@@ -53,6 +53,9 @@ TRAVIS_SLUG_ENV = 'TRAVIS_REPO_SLUG'
 A slug is of the form ``{organization}/{repository}``.
 """
 
+TRAVIS_TAG_ENV = 'TRAVIS_TAG'
+"""The tag of the current Travis build."""
+
 GH_TOKEN = 'GITHUB_OAUTH_TOKEN'
 """GitHub OAuth 2.0 token.
 
