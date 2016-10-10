@@ -12,16 +12,48 @@
 
 """Setup file for ci-diff-helper."""
 
+import collections
 import os
 
 from setuptools import find_packages
 from setuptools import setup
 
 
+VERSION = '0.1.0'
 PACKAGE_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 with open(os.path.join(PACKAGE_ROOT, 'README.rst')) as file_obj:
     README = file_obj.read()
+
+# Remove PyPI and Python versions badges from README since this
+# will show up on PyPI.
+README = README.replace(
+    '|pypi| |build| |appveyor| |coverage| |versions| |docs|',
+    '|build| |appveyor| |coverage| |docs|')
+BADGES_START = README.index('.. |build| image')
+BADGES_TEXT = '\n' + README[BADGES_START:].strip()
+# We know ``BADGES_TEXT`` starts with '\n.. |build' hence when we
+# split on '\n .. |' to find each badge's info.
+BADGES = collections.OrderedDict()
+for line in BADGES_TEXT.split('\n.. |')[1:]:
+    BADGE_NAME = line[:line.index('|')]
+    BADGES[BADGE_NAME] = '.. |' + line
+# Continue removing PyPI and Python versions badges.
+BADGES.pop('pypi')
+BADGES.pop('versions')
+# Update the Travis CI badge.
+BADGES['build'] = BADGES['build'].replace(
+    'branch=master', 'tag=' + VERSION)
+# Update the coveralls.io badge.
+BADGES['coverage'] = BADGES['coverage'].replace(
+    'branch=master', 'branch=' + VERSION)
+# Update the docs badge.
+BADGES['docs'] = BADGES['docs'].replace('latest', VERSION)
+# Update the AppVeyor badge.
+BADGES['appveyor'] = BADGES['appveyor'].replace(
+    'branch=master', 'tag=' + VERSION)
+# Update the README with the new tag content.
+README = README[:BADGES_START] + '\n'.join(BADGES.values()) + '\n'
 
 REQUIREMENTS = (
     'enum34',
@@ -33,7 +65,7 @@ DESCRIPTION = 'Diff Helper for Continuous Integration (CI) Services'
 
 setup(
     name='ci-diff-helper',
-    version='0.1.0',
+    version=VERSION,
     description=DESCRIPTION,
     author='Danny Hermes',
     author_email='daniel.j.hermes@gmail.com',
