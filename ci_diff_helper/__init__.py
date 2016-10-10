@@ -61,7 +61,19 @@ Once you've done that, you can use some basic functions
 :meth:`~travis.travis_branch`) to get information about your
 current environment.
 
-.. code-block:: python
+.. testsetup:: pr
+
+  import os
+  os.environ = {
+      'TRAVIS': 'true',
+      'TRAVIS_EVENT_TYPE': 'pull_request',
+      'TRAVIS_BRANCH': 'master',
+      'TRAVIS_REPO_SLUG': 'organization/repository',
+      'TRAVIS_PULL_REQUEST': '1234',
+  }
+  import ci_diff_helper
+
+.. doctest:: pr
 
   >>> import ci_diff_helper
   >>> ci_diff_helper.in_travis()
@@ -78,9 +90,8 @@ Instead, a long-lived configuration object (:class:`.Travis`) is provided
 with the same functionality, but also caches the returned values and
 uses them to compute other useful values.
 
-.. code-block:: python
+.. doctest:: pr
 
-  >>> import ci_diff_helper
   >>> config = ci_diff_helper.Travis()
   >>> config.active
   True
@@ -92,9 +103,8 @@ uses them to compute other useful values.
 In addition this configuration provides extra features for
 determining a diffbase.
 
-.. code-block:: python
+.. doctest:: pr
 
-  >>> import ci_diff_helper
   >>> config = ci_diff_helper.Travis()
   >>> config.event_type
   <TravisEventType.pull_request: 'pull_request'>
@@ -109,9 +119,24 @@ Not only is this object valuable during a pull request build,
 it can also be used to find relevant information in a
 "push" build:
 
-.. code-block:: python
+.. testsetup:: push
 
-  >>> import ci_diff_helper
+  import os
+  os.environ = {
+      'TRAVIS_EVENT_TYPE': 'push',
+      'TRAVIS_REPO_SLUG': 'organization/repository',
+  }
+  import ci_diff_helper
+  from ci_diff_helper import travis
+
+  def mock_push_base(slug):
+      assert slug == 'organization/repository'
+      return '4ad7349dc7223ebc02175a16dc577a013044a538'
+
+  travis._push_build_base = mock_push_base
+
+.. doctest:: push
+
   >>> config = ci_diff_helper.Travis()
   >>> config.event_type
   <TravisEventType.push: 'push'>

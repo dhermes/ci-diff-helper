@@ -18,6 +18,7 @@ script:
 - tox -e cover
 - tox -e lint
 - tox -e docs
+- tox -e doctest
 
 after_success:
 - ".tox/cover/bin/pip install coveralls"
