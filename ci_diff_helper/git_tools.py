@@ -46,3 +46,26 @@ def get_checked_in_files():
         result.append(os.path.abspath(filename))
 
     return result
+
+
+def merge_commit(revision='HEAD'):
+    """Checks if a ``git`` revision is a merge commit.
+
+    :type revision: str
+    :param revision: (Optional) A ``git`` revision, any of a branch name,
+                     tag, a commit SHA or a special reference.
+
+    :rtype: bool
+    :returns: Flag indicating if the given revision.
+    :raises NotImplementedError: if the number of parents is not 1 or 2.
+    """
+    parents = _utils.check_output(
+        'git', 'log', '--pretty=%P', '-1', revision)
+    num_parents = len(parents.split())
+    if num_parents == 1:
+        return False
+    elif num_parents == 2:
+        return True
+    else:
+        raise NotImplementedError(
+            'Unexpected number of parent commits', parents)

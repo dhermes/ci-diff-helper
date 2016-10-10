@@ -238,7 +238,8 @@ class Travis(object):
     def base(self):
         """The ``git`` object that current build is changed against.
 
-        The ``git`` object can be any of a branch name, tag or a commit SHA.
+        The ``git`` object can be any of a branch name, tag, a commit SHA
+        or a special reference.
 
         :rtype: str
         :raises NotImplementedError: If not in a "pull request" or

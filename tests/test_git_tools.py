@@ -94,3 +94,45 @@ class Test_get_checked_in_files(unittest.TestCase):
         tests_dir = os.path.dirname(__file__)
         root_dir = os.path.abspath(os.path.join(tests_dir, '..'))
         self.assertLessEqual(set(result), self._all_files(root_dir))
+
+
+class Test_merge_commit(unittest.TestCase):
+
+    @staticmethod
+    def _call_function_under_test(revision):
+        from ci_diff_helper.git_tools import merge_commit
+        return merge_commit(revision)
+
+    def _helper(self, parents, revision='HEAD'):
+        import mock
+
+        output_patch = mock.patch('ci_diff_helper._utils.check_output',
+                                  return_value=parents)
+        with output_patch as mocked:
+            result = self._call_function_under_test(revision)
+            mocked.assert_called_once_with(
+                'git', 'log', '--pretty=%P', '-1', revision)
+            return result
+
+    def test_non_merge_default(self):
+        parents = 'fd5cffa5d437607159ceeda68895b9b53f23a531'
+        result = self._helper(parents)
+        self.assertFalse(result)
+
+    def test_non_merge_explicit(self):
+        parents = 'fd5cffa5d437607159ceeda68895b9b53f23a531'
+        result = self._helper(parents, revision='master')
+        self.assertFalse(result)
+
+    def test_merge(self):
+        parents = ('47ebd0bb461180dcab674b3beca5ec9c11a1b976 '
+                   'e8fd7135497b1027cba26ffab7851f1533ff08e3')
+        result = self._helper(parents)
+        self.assertTrue(result)
+
+    def test_three_parents(self):
+        parents = ('8103a3b85aa5f3e2b14200bfef815539c1be109a '
+                   'e9b5c87f8153fd177a0e10f7abda0b4bb4730626 '
+                   'ce60976326725217c16fe84b5120c6a8661177a8')
+        with self.assertRaises(NotImplementedError):
+            self._helper(parents)
