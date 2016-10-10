@@ -95,6 +95,12 @@ def _get_commit_range():
     Uses the ``TRAVIS_COMMIT_RANGE`` environment variable and then
     makes sure it can be split into a start and finish commit.
 
+    .. note::
+
+        This will throw an :class:`~exceptions.EnvironmentError` on the
+        very first build for a branch. This is because Travis leaves the value
+        empty in builds triggered by the initial commit of a new branch.
+
     :rtype: tuple
     :returns: The ``start``, ``finish`` pair from the commit range.
     :raises EnvironmentError: if the ``TRAVIS_COMMIT_RANGE`` does not contain
@@ -244,6 +250,13 @@ class Travis(object):
 
         The ``git`` object can be any of a branch name, tag, a commit SHA
         or a special reference.
+
+        .. note::
+
+            This will throw an :class:`~exceptions.EnvironmentError` on the
+            very first "push" build for a branch. This is because Travis
+            leaves the value empty in builds triggered by the initial commit
+            of a new branch.
 
         :rtype: str
         :raises NotImplementedError: If not in a "pull request" or

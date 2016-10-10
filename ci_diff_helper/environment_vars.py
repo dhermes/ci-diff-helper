@@ -45,6 +45,11 @@ TRAVIS_RANGE_ENV = 'TRAVIS_COMMIT_RANGE'
 """The range of commits changed in the current build.
 
 This is not particularly useful in a PR build.
+
+.. note::
+
+    This is empty for builds triggered by the initial commit of
+    a new branch.
 """
 
 TRAVIS_SLUG_ENV = 'TRAVIS_REPO_SLUG'
