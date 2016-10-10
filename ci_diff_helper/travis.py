@@ -27,6 +27,7 @@ import enum
 from ci_diff_helper import _github
 from ci_diff_helper import _utils
 from ci_diff_helper import environment_vars as env
+from ci_diff_helper import git_tools
 
 
 _UNSET = object()  # Sentinel for unset config values.
@@ -220,6 +221,8 @@ class Travis(object):
     _base = _UNSET
     _branch = _UNSET
     _event_type = _UNSET
+    _is_merge = _UNSET
+    _merged_pr = _UNSET
     _pr = _UNSET
     _slug = _UNSET
 
@@ -286,6 +289,48 @@ class Travis(object):
         :rtype: bool
         """
         return self.event_type is TravisEventType.pull_request
+
+    @property
+    def is_merge(self):
+        """Indicates if the HEAD commit is a merge commit.
+
+        :rtype: bool
+        """
+        if self._is_merge is _UNSET:
+            self._is_merge = git_tools.merge_commit()
+        return self._is_merge
+
+    @property
+    def merged_pr(self):
+        """The pull request corresponding to a merge commit at HEAD.
+
+        If not currently in a push build, returns :data:`None`. If
+        the HEAD commit is not a merge commit, returns :data:`None`.
+
+        .. note::
+
+            This only uses the ``git`` checkout to determine the pull
+            request ID. A more comprehensive check would involve
+            veriying the ID by using the GitHub API.
+
+        :rtype: int
+        :raises NotImplementedError: If not in a "pull request" or
+                                     "push" build.
+        """
+        if self._merged_pr is not _UNSET:
+            return self._merged_pr
+
+        if self.in_pr:
+            self._merged_pr = None
+        elif self.event_type is TravisEventType.push:
+            if git_tools.merge_commit():
+                merge_subject = git_tools.commit_subject()
+                self._merged_pr = _utils.pr_from_commit(merge_subject)
+            else:
+                self._merged_pr = None
+        else:
+            raise NotImplementedError
+        return self._merged_pr
 
     # pylint: disable=invalid-name
     @property

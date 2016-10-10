@@ -69,3 +69,17 @@ def merge_commit(revision='HEAD'):
     else:
         raise NotImplementedError(
             'Unexpected number of parent commits', parents)
+
+
+def commit_subject(revision='HEAD'):
+    """Gets the subject of a ``git`` commit.
+
+    :type revision: str
+    :param revision: (Optional) A ``git`` revision, any of a branch name,
+                     tag, a commit SHA or a special reference.
+
+    :rtype: str
+    :returns: The commit subject.
+    """
+    return _utils.check_output(
+        'git', 'log', '--pretty=%s', '-1', revision)

@@ -73,3 +73,32 @@ class Test_check_output(unittest.TestCase):
     def test_bad_keywords(self):
         with self.assertRaises(TypeError):
             self._call_function_under_test(huh='bad-kw')
+
+
+class Test_pr_from_commit(unittest.TestCase):
+
+    @staticmethod
+    def _call_function_under_test(merge_subject):
+        from ci_diff_helper._utils import pr_from_commit
+        return pr_from_commit(merge_subject)
+
+    def test_no_id(self):
+        subject = 'No pound sign.'
+        result = self._call_function_under_test(subject)
+        self.assertIsNone(result)
+
+    def test_too_many_ids(self):
+        subject = '#1234 then #5678 too many.'
+        result = self._call_function_under_test(subject)
+        self.assertIsNone(result)
+
+    def test_non_int_id(self):
+        subject = '#x will not match the regex.'
+        result = self._call_function_under_test(subject)
+        self.assertIsNone(result)
+
+    def test_valid_id(self):
+        expected = 88901
+        subject = 'Merge pull request #%d from queso/cheese' % (expected,)
+        result = self._call_function_under_test(subject)
+        self.assertEqual(result, expected)

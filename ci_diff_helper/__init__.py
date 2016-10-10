@@ -145,6 +145,27 @@ it can also be used to find relevant information in a
   >>> config.base
   '4ad7349dc7223ebc02175a16dc577a013044a538'
 
+Though :attr:`~.Travis.base` property can be useful as a diffbase
+of a given commit, it may be inappropriate. In a "push" build,
+:attr:`~.Travis.base` will be computed from the ``TRAVIS_COMMIT_RANGE``
+environment variable, and this value is not particularly reliable.
+Instead, :attr:`~.Travis.merged_pr` provides a way to determine the
+PR that was merged:
+
+.. testsetup:: push-merged-pr
+
+  import ci_diff_helper
+  config = ci_diff_helper.Travis()
+  config._merged_pr = 1355
+  config._is_merge = True
+
+.. doctest:: push-merged-pr
+
+  >>> config.is_merge
+  True
+  >>> config.merged_pr
+  1355
+
 In addition :func:`~git_tools.git_root` and
 :func:`~git_tools.get_checked_in_files` are provided as
 tools for a ``git``-based project. Being able to get the

@@ -12,7 +12,11 @@
 
 """Shared utilities for ci-diff-helper."""
 
+import re
 import subprocess
+
+
+_PR_ID_REGEX = re.compile(r'#(\d+)')
 
 
 def check_output(*args, **kwargs):
@@ -59,3 +63,24 @@ def check_output(*args, **kwargs):
             return
         else:
             raise
+
+
+def pr_from_commit(merge_subject):
+    """Get pull request ID from a commit message.
+
+    .. note::
+
+        This assumes we know the commit is a merge commit.
+
+    :type merge_subject: str
+    :param merge_subject: The subject of a merge commit.
+
+    :rtype: int
+    :returns: The PR ID extracted from the commit subject. If no integer
+              can be uniquely extracted, returns :data:`None`.
+    """
+    matches = _PR_ID_REGEX.findall(merge_subject)
+    if len(matches) == 1:
+        # NOTE: We don't need to catch a ValueError since the regex
+        #       guarantees the match will be all digits.
+        return int(matches[0])

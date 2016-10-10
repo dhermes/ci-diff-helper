@@ -612,6 +612,112 @@ class TestTravis(unittest.TestCase):
             with self.assertRaises(EnvironmentError):
                 getattr(config, 'slug')
 
+    def _merged_pr_helper(self, event_type, is_merge=False, pr_id=None):
+        import mock
+
+        config = self._make_one()
+        # Stub out the event type.
+        config._event_type = event_type
+
+        patch_merge = mock.patch(
+            'ci_diff_helper.git_tools.merge_commit',
+            return_value=is_merge)
+        patch_subject = mock.patch(
+            'ci_diff_helper.git_tools.commit_subject',
+            return_value='#%s' % (pr_id,))
+        with patch_merge as mocked_merge:
+            with patch_subject as mocked_subject:
+                result = config.merged_pr
+
+        return mocked_merge, mocked_subject, result
+
+    def test_merged_pr_in_pr(self):
+        from ci_diff_helper import travis
+
+        event_type = travis.TravisEventType.pull_request
+        mocked_merge, mocked_subject, result = self._merged_pr_helper(
+            event_type)
+        mocked_merge.assert_not_called()
+        mocked_subject.assert_not_called()
+        self.assertIsNone(result)
+
+    def test_merged_pr_non_merge(self):
+        from ci_diff_helper import travis
+
+        event_type = travis.TravisEventType.push
+        mocked_merge, mocked_subject, result = self._merged_pr_helper(
+            event_type, is_merge=False)
+        mocked_merge.assert_called_once_with()
+        mocked_subject.assert_not_called()
+        self.assertIsNone(result)
+
+    def test_merged_pr_in_merge(self):
+        from ci_diff_helper import travis
+
+        event_type = travis.TravisEventType.push
+        pr_id = 1355
+        mocked_merge, mocked_subject, result = self._merged_pr_helper(
+            event_type, is_merge=True, pr_id=pr_id)
+        mocked_merge.assert_called_once_with()
+        mocked_subject.assert_called_once_with()
+        self.assertEqual(result, pr_id)
+
+    def test_merged_pr_unsupported(self):
+        from ci_diff_helper import travis
+
+        event_type = travis.TravisEventType.cron
+        # Verify the failure.
+        with self.assertRaises(NotImplementedError):
+            self._merged_pr_helper(event_type)
+
+    def test_merged_pr_cache(self):
+        import mock
+
+        config = self._make_one()
+        config._merged_pr = 4567
+
+        patch_merge = mock.patch('ci_diff_helper.git_tools.merge_commit')
+        patch_subject = mock.patch('ci_diff_helper.git_tools.commit_subject')
+        with patch_merge as mocked_merge:
+            with patch_subject as mocked_subject:
+                result = config.merged_pr
+
+        self.assertEqual(result, config._merged_pr)
+        mocked_merge.assert_not_called()
+        mocked_subject.assert_not_called()
+
+    def _is_merge_helper(self, is_merge_val):
+        import mock
+        from ci_diff_helper import travis
+
+        config = self._make_one()
+        # Make sure there is no _is_merge value set.
+        self.assertIs(config._is_merge, travis._UNSET)
+
+        # Patch the helper so we can control the value.
+        merge_commit_patch = mock.patch(
+            'ci_diff_helper.git_tools.merge_commit',
+            return_value=is_merge_val)
+        with merge_commit_patch as mocked:
+            result = config.is_merge
+            if is_merge_val:
+                self.assertTrue(result)
+            else:
+                self.assertFalse(result)
+            mocked.assert_called_once_with()
+
+        return config
+
+    def test_is_merge_property(self):
+        self._is_merge_helper(True)
+
+    def test_is_merge_property_cache(self):
+        config = self._is_merge_helper(False)
+        # Test that the value is cached.
+        self.assertFalse(config._is_merge)
+        # Test that cached value is re-used.
+        self.assertFalse(config.is_merge)
+
 
 class Test_in_travis(unittest.TestCase):
 

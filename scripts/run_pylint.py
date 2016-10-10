@@ -49,6 +49,9 @@ _PRODUCTION_RC_REPLACEMENTS = {
         'load-plugins': 'pylint.extensions.check_docs',
         'jobs': '4',
     },
+    'DESIGN': {
+        'max-attributes': '10',
+    },
     'REPORTS': {
         'reports': 'no',
     },
@@ -62,6 +65,7 @@ _TEST_RC_ADDITIONS = copy.deepcopy(_PRODUCTION_RC_ADDITIONS)
 _TEST_RC_ADDITIONS['MESSAGES CONTROL']['disable'].extend([
     'missing-docstring',
     'protected-access',
+    'too-many-public-methods',
 ])
 _TEST_RC_REPLACEMENTS = copy.deepcopy(_PRODUCTION_RC_REPLACEMENTS)
 _TEST_RC_REPLACEMENTS.setdefault('BASIC', {})

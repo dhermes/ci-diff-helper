@@ -136,3 +136,32 @@ class Test_merge_commit(unittest.TestCase):
                    'ce60976326725217c16fe84b5120c6a8661177a8')
         with self.assertRaises(NotImplementedError):
             self._helper(parents)
+
+
+class Test_commit_subject(unittest.TestCase):
+
+    @staticmethod
+    def _call_function_under_test(*args):
+        from ci_diff_helper.git_tools import commit_subject
+        return commit_subject(*args)
+
+    def test_non_merge_default(self):
+        import mock
+
+        output_patch = mock.patch('ci_diff_helper._utils.check_output')
+        with output_patch as mocked:
+            result = self._call_function_under_test()
+            self.assertIs(result, mocked.return_value)
+            mocked.assert_called_once_with(
+                'git', 'log', '--pretty=%s', '-1', 'HEAD')
+
+    def test_non_merge_explicit(self):
+        import mock
+        revision = 'ffe035e3c4b4d11053b6162fce96474bb15c6869'
+
+        output_patch = mock.patch('ci_diff_helper._utils.check_output')
+        with output_patch as mocked:
+            result = self._call_function_under_test(revision)
+            self.assertIs(result, mocked.return_value)
+            mocked.assert_called_once_with(
+                'git', 'log', '--pretty=%s', '-1', revision)
