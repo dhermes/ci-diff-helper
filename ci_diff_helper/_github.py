@@ -30,7 +30,7 @@ _RATE_LIMIT_TEMPLATE = '%25s: %%s\n%25s: %%s\n%25s: %%s' % (
     _RATE_REMAINING_HEADER, _RATE_LIMIT_HEADER, _RATE_RESET_HEADER)
 _GH_ENV_VAR_MSG = (
     'You can avoid being rate limited by storing a GitHub OAuth '
-    'token the %s environment variable') % (env.GH_TOKEN,)
+    'token in the %s environment variable') % (env.GH_TOKEN,)
 
 
 def _rate_limit_info(response):
