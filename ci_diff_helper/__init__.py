@@ -150,7 +150,7 @@ it can also be used to find relevant information in a
   >>> config.base
   '4ad7349dc7223ebc02175a16dc577a013044a538'
 
-Though :attr:`~.Travis.base` property can be useful as a diffbase
+Though the :attr:`~.Travis.base` property can be useful as a diffbase
 of a given commit, it may be inappropriate. In a "push" build,
 :attr:`~.Travis.base` will be computed from the ``TRAVIS_COMMIT_RANGE``
 environment variable, and this value is not particularly reliable.
