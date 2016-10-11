@@ -21,6 +21,7 @@ import os
 
 import enum
 
+from ci_diff_helper import _config_base
 from ci_diff_helper import _utils
 from ci_diff_helper import environment_vars as env
 
@@ -53,7 +54,7 @@ class AppVeyorRepoProvider(enum.Enum):
 # pylint: enable=too-few-public-methods
 
 
-class AppVeyor(_utils.Config):
+class AppVeyor(_config_base.Config):
     """Represent AppVeyor state and cache return values."""
 
     # Default instance attributes.

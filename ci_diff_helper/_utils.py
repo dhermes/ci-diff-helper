@@ -12,14 +12,11 @@
 
 """Shared utilities for ci-diff-helper."""
 
-import os
 import re
 import subprocess
 
 
 _PR_ID_REGEX = re.compile(r'#(\d+)')
-_BRANCH_ERR_TEMPLATE = (
-    'Build does not have an associated branch set (via %s).')
 UNSET = object()  # Sentinel for unset config values.
 
 
@@ -88,73 +85,3 @@ def pr_from_commit(merge_subject):
         # NOTE: We don't need to catch a ValueError since the regex
         #       guarantees the match will be all digits.
         return int(matches[0])
-
-
-def _in_ci(env_var):
-    """Detect if we are running in the target CI system.
-
-    Assumes the only valid environment variable value is ``true``.
-
-    :type env_var: str
-    :param env_var: The environment variable which holds the status.
-
-    :rtype: bool
-    :returns: Flag indicating if we are running in the target CI system.
-    """
-    return os.getenv(env_var) == 'true'
-
-
-def _ci_branch(env_var):
-    """Get the current branch of CI build.
-
-    :type env_var: str
-    :param env_var: The environment variable which holds the branch.
-
-    :rtype: str
-    :returns: The name of the branch the current build is for / associated
-              with. (May indicate the active branch or the base branch of
-              a pull request.)
-    :raises EnvironmentError: if the environment variable
-                              isn't set during the build.
-    """
-    try:
-        return os.environ[env_var]
-    except KeyError as exc:
-        msg = _BRANCH_ERR_TEMPLATE % (env_var,)
-        raise EnvironmentError(exc, msg)
-
-
-class Config(object):
-    """Base class for caching CI configuration objects."""
-
-    # Default instance attributes.
-    _active = UNSET
-    _branch = UNSET
-    # Class attributes.
-    _active_env_var = None
-    _branch_env_var = None
-
-    # pylint: disable=missing-returns-doc
-    @property
-    def active(self):
-        """Indicates if currently running in the target CI system.
-
-        :rtype: bool
-        """
-        if self._active is UNSET:
-            self._active = _in_ci(self._active_env_var)
-        return self._active
-
-    @property
-    def branch(self):
-        """Indicates the current branch in the target CI system.
-
-        This may indicate the active branch or the base branch of a
-        pull request.
-
-        :rtype: bool
-        """
-        if self._branch is UNSET:
-            self._branch = _ci_branch(self._branch_env_var)
-        return self._branch
-    # pylint: enable=missing-returns-doc

@@ -25,6 +25,7 @@ import os
 import enum
 
 from ci_diff_helper import _github
+from ci_diff_helper import _config_base
 from ci_diff_helper import _utils
 from ci_diff_helper import environment_vars as env
 from ci_diff_helper import git_tools
@@ -193,7 +194,7 @@ class TravisEventType(enum.Enum):
 # pylint: enable=too-few-public-methods
 
 
-class Travis(_utils.Config):
+class Travis(_config_base.Config):
     """Represent Travis state and cache return values."""
 
     # Default instance attributes.
