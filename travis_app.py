@@ -92,6 +92,7 @@ def main():
     print('Travis (and git) helper functions:')
     print(HEADER_SEP)
     for helper in HELPERS:
+        format_str = '%20s(): %r'
         try:
             value = helper()
         except ERROR_TYPES as exc:
@@ -104,7 +105,9 @@ def main():
             value = '\n'.join(lines)
             # Add extra newline at the top.
             value = '\n' + value
-        print('%20s(): %r' % (helper.__name__, value))
+            # Update the format string to **not** be a literal.
+            format_str = '%20s(): %s'
+        print(format_str % (helper.__name__, value))
 
 
 if __name__ == '__main__':
