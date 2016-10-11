@@ -9,6 +9,7 @@
 .. toctree::
    :hidden:
 
+   ci_diff_helper.appveyor
    ci_diff_helper.environment_vars
    ci_diff_helper.git_tools
    ci_diff_helper.travis

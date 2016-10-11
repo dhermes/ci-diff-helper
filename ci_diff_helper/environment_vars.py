@@ -15,10 +15,12 @@
 These environment variables are core this library. They are used to
 detect the current environment.
 
-For more details, see the `Travis env docs`_.
+For more details, see the `Travis env docs`_ and
+`AppVeyor env docs`_.
 
 .. _Travis env docs: https://docs.travis-ci.com/user/\
                      environment-variables#Default-Environment-Variables
+.. _AppVeyor env docs: https://www.appveyor.com/docs/environment-variables/
 """
 
 IN_TRAVIS_ENV = 'TRAVIS'
@@ -70,3 +72,9 @@ Integration server will typically be `rate limited`_.
 
 .. _rate limited: https://developer.github.com/v3/#rate-limiting
 """
+
+IN_APPVEYOR_ENV = 'APPVEYOR'
+"""Indicates if running in AppVeyor."""
+
+APPVEYOR_REPO_ENV = 'APPVEYOR_REPO_PROVIDER'
+"""The code hosting provided for the repository being tested in AppVeyor."""

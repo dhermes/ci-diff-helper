@@ -329,7 +329,7 @@ class Test__travis_slug(unittest.TestCase):
                 self._call_function_under_test()
 
 
-class TravisEventType(unittest.TestCase):
+class TestTravisEventType(unittest.TestCase):
 
     @staticmethod
     def _get_target_class():
@@ -366,6 +366,10 @@ class TravisEventType(unittest.TestCase):
         enum_obj = self._make_one('push')
         self.assertIs(enum_obj, klass.push)
 
+    def test_invalid(self):
+        with self.assertRaises(ValueError):
+            self._make_one('ice-cubes')
+
 
 class TestTravis(unittest.TestCase):
 
@@ -385,7 +389,15 @@ class TestTravis(unittest.TestCase):
         config = self._make_one()
         self.assertIsInstance(config, klass)
         self.assertIs(config._active, travis._UNSET)
+        self.assertIs(config._active, travis._UNSET)
+        self.assertIs(config._base, travis._UNSET)
+        self.assertIs(config._branch, travis._UNSET)
+        self.assertIs(config._event_type, travis._UNSET)
+        self.assertIs(config._is_merge, travis._UNSET)
+        self.assertIs(config._merged_pr, travis._UNSET)
         self.assertIs(config._pr, travis._UNSET)
+        self.assertIs(config._slug, travis._UNSET)
+        self.assertIs(config._tag, travis._UNSET)
 
     def _active_helper(self, active_val):
         import mock
