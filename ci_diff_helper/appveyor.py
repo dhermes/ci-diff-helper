@@ -74,4 +74,19 @@ class AppVeyor(_config_base.Config):
         if self._provider is _utils.UNSET:
             self._provider = _appveyor_provider()
         return self._provider
+
+    @property
+    def tag(self):
+        """The ``git`` tag of the current AppVeyor build.
+
+        .. note::
+
+            We only expect the ``APPVEYOR_REPO_TAG_NAME`` environment variable
+            to be set when ``APPVEYOR_REPO_TAG=true`` indicates the build was
+            started by a pushed tag. However, we don't verify that we are in
+            a build started by a tag before checking for the tag.
+
+        :rtype: str
+        """
+        return super(AppVeyor, self).tag
     # pylint: enable=missing-returns-doc

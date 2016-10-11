@@ -579,6 +579,15 @@ class TestTravis(unittest.TestCase):
         mocked_merge.assert_not_called()
         mocked_subject.assert_not_called()
 
+    def test_tag_property(self):
+        # NOTE: This method is only needed for test coverage. The defined
+        #       do-nothing tag property is there to modify the docstring
+        #       of the original.
+        config = self._make_one()
+        tag = '0.x.y'
+        config._tag = tag
+        self.assertEqual(config.tag, tag)
+
 
 class Test_in_travis(unittest.TestCase):
 

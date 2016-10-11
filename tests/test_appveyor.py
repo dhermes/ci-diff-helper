@@ -139,3 +139,12 @@ class TestAppVeyor(unittest.TestCase):
         self.assertIs(config._provider, provider_val)
         # Test that cached value is re-used.
         self.assertIs(config.provider, provider_val)
+
+    def test_tag_property(self):
+        # NOTE: This method is only needed for test coverage. The defined
+        #       do-nothing tag property is there to modify the docstring
+        #       of the original.
+        config = self._make_one()
+        tag = '0.x.y'
+        config._tag = tag
+        self.assertEqual(config.tag, tag)

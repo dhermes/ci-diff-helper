@@ -316,6 +316,20 @@ class Travis(_config_base.Config):
         if self._slug is _utils.UNSET:
             self._slug = _travis_slug()
         return self._slug
+
+    @property
+    def tag(self):
+        """The ``git`` tag of the current Travis build.
+
+        .. note::
+
+            We only expect the ``TRAVIS_TAG`` environment variable
+            to be set during a tag "push" build, but we don't verify
+            that we are in a push build before checking for the tag.
+
+        :rtype: str
+        """
+        return super(Travis, self).tag
     # pylint: enable=missing-returns-doc
 
 
