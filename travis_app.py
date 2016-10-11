@@ -14,6 +14,8 @@
 
 from __future__ import print_function
 
+import json
+
 import ci_diff_helper
 
 
@@ -90,11 +92,22 @@ def main():
     print('Travis (and git) helper functions:')
     print(HEADER_SEP)
     for helper in HELPERS:
+        format_str = '%20s(): %r'
         try:
             value = helper()
         except ERROR_TYPES as exc:
             value = exc
-        print('%20s(): %r' % (helper.__name__, value))
+        if isinstance(value, (list, tuple)):
+            json_value = json.dumps(value, indent=2)
+            # Indent by 22 spaces.
+            whitespace = ' ' * 22
+            lines = [whitespace + line for line in json_value.split('\n')]
+            value = '\n'.join(lines)
+            # Add extra newline at the top.
+            value = '\n' + value
+            # Update the format string to **not** be a literal.
+            format_str = '%20s(): %s'
+        print(format_str % (helper.__name__, value))
 
 
 if __name__ == '__main__':
