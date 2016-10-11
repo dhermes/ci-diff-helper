@@ -30,7 +30,6 @@ from ci_diff_helper import environment_vars as env
 from ci_diff_helper import git_tools
 
 
-_UNSET = object()  # Sentinel for unset config values.
 _RANGE_DELIMITER = '...'
 
 
@@ -223,15 +222,15 @@ class TravisEventType(enum.Enum):
 class Travis(object):
     """Represent Travis state and cache return values."""
 
-    _active = _UNSET
-    _base = _UNSET
-    _branch = _UNSET
-    _event_type = _UNSET
-    _is_merge = _UNSET
-    _merged_pr = _UNSET
-    _pr = _UNSET
-    _slug = _UNSET
-    _tag = _UNSET
+    _active = _utils.UNSET
+    _base = _utils.UNSET
+    _branch = _utils.UNSET
+    _event_type = _utils.UNSET
+    _is_merge = _utils.UNSET
+    _merged_pr = _utils.UNSET
+    _pr = _utils.UNSET
+    _slug = _utils.UNSET
+    _tag = _utils.UNSET
 
     # pylint: disable=missing-returns-doc
     @property
@@ -240,7 +239,7 @@ class Travis(object):
 
         :rtype: bool
         """
-        if self._active is _UNSET:
+        if self._active is _utils.UNSET:
             self._active = _in_travis()
         return self._active
 
@@ -262,7 +261,7 @@ class Travis(object):
         :raises NotImplementedError: If not in a "pull request" or
                                      "push" build.
         """
-        if self._base is _UNSET:
+        if self._base is _utils.UNSET:
             if self.in_pr:
                 self._base = self.branch
             elif self.event_type is TravisEventType.push:
@@ -277,7 +276,7 @@ class Travis(object):
 
         :rtype: bool
         """
-        if self._branch is _UNSET:
+        if self._branch is _utils.UNSET:
             self._branch = _travis_branch()
         return self._branch
 
@@ -287,7 +286,7 @@ class Travis(object):
 
         :rtype: bool
         """
-        if self._event_type is _UNSET:
+        if self._event_type is _utils.UNSET:
             self._event_type = _travis_event_type()
         return self._event_type
 
@@ -310,7 +309,7 @@ class Travis(object):
 
         :rtype: bool
         """
-        if self._is_merge is _UNSET:
+        if self._is_merge is _utils.UNSET:
             self._is_merge = git_tools.merge_commit()
         return self._is_merge
 
@@ -331,7 +330,7 @@ class Travis(object):
         :raises NotImplementedError: If not in a "pull request" or
                                      "push" build.
         """
-        if self._merged_pr is not _UNSET:
+        if self._merged_pr is not _utils.UNSET:
             return self._merged_pr
 
         if self.in_pr:
@@ -355,7 +354,7 @@ class Travis(object):
 
         :rtype: int
         """
-        if self._pr is _UNSET:
+        if self._pr is _utils.UNSET:
             self._pr = _travis_pr()
         return self._pr
     # pylint: enable=invalid-name
@@ -368,7 +367,7 @@ class Travis(object):
 
         :rtype: str
         """
-        if self._slug is _UNSET:
+        if self._slug is _utils.UNSET:
             self._slug = _travis_slug()
         return self._slug
 
@@ -384,7 +383,7 @@ class Travis(object):
 
         :rtype: str
         """
-        if self._tag is _UNSET:
+        if self._tag is _utils.UNSET:
             tag_val = os.getenv(env.TRAVIS_TAG_ENV, '')
             # NOTE: On non-tag builds, the ``TRAVIS_TAG`` environment
             #       variable is still populated, but empty.

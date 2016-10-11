@@ -120,21 +120,21 @@ class TestAppVeyor(unittest.TestCase):
         return klass()
 
     def test_constructor(self):
-        from ci_diff_helper import appveyor
+        from ci_diff_helper import _utils
 
         klass = self._get_target_class()
         config = self._make_one()
         self.assertIsInstance(config, klass)
-        self.assertIs(config._active, appveyor._UNSET)
-        self.assertIs(config._provider, appveyor._UNSET)
+        self.assertIs(config._active, _utils.UNSET)
+        self.assertIs(config._provider, _utils.UNSET)
 
     def _active_helper(self, active_val):
         import mock
-        from ci_diff_helper import appveyor
+        from ci_diff_helper import _utils
 
         config = self._make_one()
         # Make sure there is no _active value set.
-        self.assertIs(config._active, appveyor._UNSET)
+        self.assertIs(config._active, _utils.UNSET)
 
         # Patch the helper so we can control the value.
         in_appveyor_patch = mock.patch(
@@ -161,11 +161,11 @@ class TestAppVeyor(unittest.TestCase):
 
     def _provider_helper(self, provider_val):
         import mock
-        from ci_diff_helper import appveyor
+        from ci_diff_helper import _utils
 
         config = self._make_one()
         # Make sure there is no _provider value set.
-        self.assertIs(config._provider, appveyor._UNSET)
+        self.assertIs(config._provider, _utils.UNSET)
 
         # Patch the helper so we can control the value.
         provider_patch = mock.patch(

@@ -21,10 +21,8 @@ import os
 
 import enum
 
+from ci_diff_helper import _utils
 from ci_diff_helper import environment_vars as env
-
-
-_UNSET = object()  # Sentinel for unset config values.
 
 
 def _in_appveyor():
@@ -67,8 +65,8 @@ class AppVeyorRepoProvider(enum.Enum):
 class AppVeyor(object):
     """Represent AppVeyor state and cache return values."""
 
-    _active = _UNSET
-    _provider = _UNSET
+    _active = _utils.UNSET
+    _provider = _utils.UNSET
 
     # pylint: disable=missing-returns-doc
     @property
@@ -77,7 +75,7 @@ class AppVeyor(object):
 
         :rtype: bool
         """
-        if self._active is _UNSET:
+        if self._active is _utils.UNSET:
             self._active = _in_appveyor()
         return self._active
 
@@ -87,7 +85,7 @@ class AppVeyor(object):
 
         :rtype: str
         """
-        if self._provider is _UNSET:
+        if self._provider is _utils.UNSET:
             self._provider = _appveyor_provider()
         return self._provider
     # pylint: enable=missing-returns-doc

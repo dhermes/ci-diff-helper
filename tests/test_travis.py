@@ -383,29 +383,29 @@ class TestTravis(unittest.TestCase):
         return klass()
 
     def test_constructor(self):
-        from ci_diff_helper import travis
+        from ci_diff_helper import _utils
 
         klass = self._get_target_class()
         config = self._make_one()
         self.assertIsInstance(config, klass)
-        self.assertIs(config._active, travis._UNSET)
-        self.assertIs(config._active, travis._UNSET)
-        self.assertIs(config._base, travis._UNSET)
-        self.assertIs(config._branch, travis._UNSET)
-        self.assertIs(config._event_type, travis._UNSET)
-        self.assertIs(config._is_merge, travis._UNSET)
-        self.assertIs(config._merged_pr, travis._UNSET)
-        self.assertIs(config._pr, travis._UNSET)
-        self.assertIs(config._slug, travis._UNSET)
-        self.assertIs(config._tag, travis._UNSET)
+        self.assertIs(config._active, _utils.UNSET)
+        self.assertIs(config._active, _utils.UNSET)
+        self.assertIs(config._base, _utils.UNSET)
+        self.assertIs(config._branch, _utils.UNSET)
+        self.assertIs(config._event_type, _utils.UNSET)
+        self.assertIs(config._is_merge, _utils.UNSET)
+        self.assertIs(config._merged_pr, _utils.UNSET)
+        self.assertIs(config._pr, _utils.UNSET)
+        self.assertIs(config._slug, _utils.UNSET)
+        self.assertIs(config._tag, _utils.UNSET)
 
     def _active_helper(self, active_val):
         import mock
-        from ci_diff_helper import travis
+        from ci_diff_helper import _utils
 
         config = self._make_one()
         # Make sure there is no _active value set.
-        self.assertIs(config._active, travis._UNSET)
+        self.assertIs(config._active, _utils.UNSET)
 
         # Patch the helper so we can control the value.
         in_travis_patch = mock.patch(
@@ -431,11 +431,11 @@ class TestTravis(unittest.TestCase):
 
     def _pr_helper(self, pr_val):
         import mock
-        from ci_diff_helper import travis
+        from ci_diff_helper import _utils
 
         config = self._make_one()
         # Make sure there is no _pr value set.
-        self.assertIs(config._pr, travis._UNSET)
+        self.assertIs(config._pr, _utils.UNSET)
 
         # Patch the helper so we can control the value.
         travis_pr_patch = mock.patch(
@@ -461,11 +461,11 @@ class TestTravis(unittest.TestCase):
 
     def _branch_helper(self, branch_val):
         import mock
-        from ci_diff_helper import travis
+        from ci_diff_helper import _utils
 
         config = self._make_one()
         # Make sure there is no _branch value set.
-        self.assertIs(config._branch, travis._UNSET)
+        self.assertIs(config._branch, _utils.UNSET)
 
         # Patch the helper so we can control the value.
         in_travis_patch = mock.patch(
@@ -499,6 +499,7 @@ class TestTravis(unittest.TestCase):
                 getattr(config, 'branch')
 
     def test_base_property_in_pr(self):
+        from ci_diff_helper import _utils
         from ci_diff_helper import travis
 
         config = self._make_one()
@@ -510,7 +511,7 @@ class TestTravis(unittest.TestCase):
         config._branch = branch
         self.assertEqual(config.branch, branch)
         # Check that in the PR case, the base is a branch.
-        self.assertIs(config._base, travis._UNSET)
+        self.assertIs(config._base, _utils.UNSET)
         self.assertEqual(config.base, branch)
         # Verify that caching works.
         self.assertEqual(config._base, branch)
@@ -518,6 +519,7 @@ class TestTravis(unittest.TestCase):
 
     def test_base_property_push(self):
         import mock
+        from ci_diff_helper import _utils
         from ci_diff_helper import travis
 
         config = self._make_one()
@@ -535,7 +537,7 @@ class TestTravis(unittest.TestCase):
         push_base_patch = mock.patch(
             'ci_diff_helper.travis._push_build_base',
             return_value=base_val)
-        self.assertIs(config._base, travis._UNSET)
+        self.assertIs(config._base, _utils.UNSET)
         with push_base_patch as mocked:
             self.assertEqual(config.base, base_val)
             mocked.assert_called_once_with(slug)
@@ -556,11 +558,11 @@ class TestTravis(unittest.TestCase):
 
     def _event_type_helper(self, event_type_val):
         import mock
-        from ci_diff_helper import travis
+        from ci_diff_helper import _utils
 
         config = self._make_one()
         # Make sure there is no _event_type value set.
-        self.assertIs(config._event_type, travis._UNSET)
+        self.assertIs(config._event_type, _utils.UNSET)
 
         # Patch the helper so we can control the value.
         in_travis_patch = mock.patch(
@@ -587,11 +589,11 @@ class TestTravis(unittest.TestCase):
 
     def _slug_helper(self, slug_val):
         import mock
-        from ci_diff_helper import travis
+        from ci_diff_helper import _utils
 
         config = self._make_one()
         # Make sure there is no _slug value set.
-        self.assertIs(config._slug, travis._UNSET)
+        self.assertIs(config._slug, _utils.UNSET)
 
         # Patch the helper so we can control the value.
         slug_patch = mock.patch(
@@ -700,11 +702,11 @@ class TestTravis(unittest.TestCase):
 
     def _is_merge_helper(self, is_merge_val):
         import mock
-        from ci_diff_helper import travis
+        from ci_diff_helper import _utils
 
         config = self._make_one()
         # Make sure there is no _is_merge value set.
-        self.assertIs(config._is_merge, travis._UNSET)
+        self.assertIs(config._is_merge, _utils.UNSET)
 
         # Patch the helper so we can control the value.
         merge_commit_patch = mock.patch(
@@ -732,12 +734,12 @@ class TestTravis(unittest.TestCase):
 
     def _tag_helper(self, tag_val='', expected=None):
         import mock
+        from ci_diff_helper import _utils
         from ci_diff_helper import environment_vars as env
-        from ci_diff_helper import travis
 
         config = self._make_one()
         # Make sure there is no _tag value set.
-        self.assertIs(config._tag, travis._UNSET)
+        self.assertIs(config._tag, _utils.UNSET)
 
         # Patch the environment so we can control the value.
         environ_patch = mock.patch(

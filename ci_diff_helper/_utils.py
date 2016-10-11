@@ -17,6 +17,7 @@ import subprocess
 
 
 _PR_ID_REGEX = re.compile(r'#(\d+)')
+UNSET = object()  # Sentinel for unset config values.
 
 
 def check_output(*args, **kwargs):
