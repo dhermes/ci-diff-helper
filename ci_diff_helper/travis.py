@@ -203,10 +203,10 @@ class Travis(_config_base.Config):
     _merged_pr = _utils.UNSET
     _pr = _utils.UNSET
     _slug = _utils.UNSET
-    _tag = _utils.UNSET
     # Class attributes.
     _active_env_var = env.IN_TRAVIS_ENV
     _branch_env_var = env.TRAVIS_BRANCH_ENV
+    _tag_env_var = env.TRAVIS_TAG_ENV
 
     # pylint: disable=missing-returns-doc
     @property
@@ -316,28 +316,6 @@ class Travis(_config_base.Config):
         if self._slug is _utils.UNSET:
             self._slug = _travis_slug()
         return self._slug
-
-    @property
-    def tag(self):
-        """The ``git`` tag of the current Travis build.
-
-        .. note::
-
-            We only expect the ``TRAVIS_TAG`` environment variable
-            to be set during a tag "push" build, but we don't verify
-            that we are in a push build before checking for the tag.
-
-        :rtype: str
-        """
-        if self._tag is _utils.UNSET:
-            tag_val = os.getenv(env.TRAVIS_TAG_ENV, '')
-            # NOTE: On non-tag builds, the ``TRAVIS_TAG`` environment
-            #       variable is still populated, but empty.
-            if tag_val == '':
-                self._tag = None
-            else:
-                self._tag = tag_val
-        return self._tag
     # pylint: enable=missing-returns-doc
 
 

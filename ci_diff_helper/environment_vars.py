@@ -61,7 +61,12 @@ A slug is of the form ``{organization}/{repository}``.
 """
 
 TRAVIS_TAG_ENV = 'TRAVIS_TAG'
-"""The tag of the current Travis build."""
+"""The tag of the current Travis build.
+
+We only expect the ``TRAVIS_TAG`` environment variable to be set
+during a tag "push" build, but it can be set as the empty string
+in non-"push" builds.
+"""
 
 GH_TOKEN = 'GITHUB_OAUTH_TOKEN'
 """GitHub OAuth 2.0 token.
@@ -84,4 +89,11 @@ APPVEYOR_BRANCH_ENV = 'APPVEYOR_REPO_BRANCH'
 
 In a "pull request" build it is the **base** branch the PR is
 merging into, otherwise it is the branch being built.
+"""
+
+APPVEYOR_TAG_ENV = 'APPVEYOR_REPO_TAG_NAME'
+"""The tag of the current AppVeyor build.
+
+This will only be valid when ``APPVEYOR_REPO_TAG``, i.e. when the
+build was started by a pushed tag.
 """

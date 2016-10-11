@@ -62,6 +62,7 @@ class AppVeyor(_config_base.Config):
     # Class attributes.
     _active_env_var = env.IN_APPVEYOR_ENV
     _branch_env_var = env.APPVEYOR_BRANCH_ENV
+    _tag_env_var = env.APPVEYOR_TAG_ENV
 
     # pylint: disable=missing-returns-doc
     @property

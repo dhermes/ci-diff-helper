@@ -203,3 +203,43 @@ class TestConfig(unittest.TestCase):
         self.assertFalse(config.is_merge)
         # Make sure the mock did not get called again on future access.
         self.assertEqual(mocked.call_count, 1)
+
+    def _tag_helper(self, env_var, tag_val='', expected=None):
+        import mock
+        from ci_diff_helper import _utils
+
+        config = self._make_one()
+        # Fake the environment variable on the instance.
+        config._tag_env_var = env_var
+        # Make sure there is no _tag value set.
+        self.assertIs(config._tag, _utils.UNSET)
+
+        # Patch the environment so we can control the value.
+        environ_patch = mock.patch(
+            'os.environ', new={env_var: tag_val})
+        with environ_patch:
+            result = config.tag
+            if expected is None:
+                self.assertIsNone(result, expected)
+            else:
+                self.assertEqual(result, expected)
+
+        return config
+
+    def test_tag_property_unset(self):
+        env_var = 'MY_CI'
+        self._tag_helper(env_var)
+
+    def test_tag_property_set(self):
+        env_var = 'MY_CI'
+        tag = '0.1.0'
+        self._tag_helper(env_var, tag, tag)
+
+    def test_tag_property_cache(self):
+        env_var = 'MY_CI'
+        tag = '0.0.144'
+        config = self._tag_helper(env_var, tag, tag)
+        # Test that the value is cached.
+        self.assertEqual(config._tag, tag)
+        # Test that cached value is re-used.
+        self.assertEqual(config.tag, tag)

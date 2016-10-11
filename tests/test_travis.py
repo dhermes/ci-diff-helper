@@ -346,7 +346,6 @@ class TestTravis(unittest.TestCase):
         self.assertIs(config._merged_pr, _utils.UNSET)
         self.assertIs(config._pr, _utils.UNSET)
         self.assertIs(config._slug, _utils.UNSET)
-        self.assertIs(config._tag, _utils.UNSET)
 
     def _pr_helper(self, pr_val):
         import mock
@@ -579,42 +578,6 @@ class TestTravis(unittest.TestCase):
         self.assertEqual(result, config._merged_pr)
         mocked_merge.assert_not_called()
         mocked_subject.assert_not_called()
-
-    def _tag_helper(self, tag_val='', expected=None):
-        import mock
-        from ci_diff_helper import _utils
-        from ci_diff_helper import environment_vars as env
-
-        config = self._make_one()
-        # Make sure there is no _tag value set.
-        self.assertIs(config._tag, _utils.UNSET)
-
-        # Patch the environment so we can control the value.
-        environ_patch = mock.patch(
-            'os.environ', new={env.TRAVIS_TAG_ENV: tag_val})
-        with environ_patch:
-            result = config.tag
-            if expected is None:
-                self.assertIsNone(result, expected)
-            else:
-                self.assertEqual(result, expected)
-
-        return config
-
-    def test_tag_property_unset(self):
-        self._tag_helper()
-
-    def test_tag_property_set(self):
-        tag = '0.1.0'
-        self._tag_helper(tag, tag)
-
-    def test_tag_property_cache(self):
-        tag = '0.0.144'
-        config = self._tag_helper(tag, tag)
-        # Test that the value is cached.
-        self.assertEqual(config._tag, tag)
-        # Test that cached value is re-used.
-        self.assertEqual(config.tag, tag)
 
 
 class Test_in_travis(unittest.TestCase):

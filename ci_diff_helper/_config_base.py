@@ -63,9 +63,11 @@ class Config(object):
     _active = _utils.UNSET
     _branch = _utils.UNSET
     _is_merge = _utils.UNSET
+    _tag = _utils.UNSET
     # Class attributes.
     _active_env_var = None
     _branch_env_var = None
+    _tag_env_var = None
 
     # pylint: disable=missing-returns-doc
     @property
@@ -100,4 +102,26 @@ class Config(object):
         if self._is_merge is _utils.UNSET:
             self._is_merge = git_tools.merge_commit()
         return self._is_merge
+
+    @property
+    def tag(self):
+        """The ``git`` tag of the current Travis build.
+
+        .. note::
+
+            We only expect the ``TRAVIS_TAG`` environment variable
+            to be set during a tag "push" build, but we don't verify
+            that we are in a push build before checking for the tag.
+
+        :rtype: str
+        """
+        if self._tag is _utils.UNSET:
+            tag_val = os.getenv(self._tag_env_var, '')
+            # NOTE: On non-tag builds in some environments (e.g. Travis)
+            #       the tag environment variable is still populated, but empty.
+            if tag_val == '':
+                self._tag = None
+            else:
+                self._tag = tag_val
+        return self._tag
     # pylint: enable=missing-returns-doc
