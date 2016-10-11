@@ -3,6 +3,7 @@
 
 .. automodule:: ci_diff_helper
     :members:
+    :inherited-members:
     :undoc-members:
     :show-inheritance:
 

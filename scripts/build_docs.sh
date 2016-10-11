@@ -17,7 +17,8 @@
 set -e
 
 rm -rf docs/build/* docs/*rst
-sphinx-apidoc \
+OPTIONS="members,inherited-members,undoc-members,show-inheritance"
+SPHINX_APIDOC_OPTIONS="${OPTIONS}" sphinx-apidoc \
   --separate --force \
   --output-dir docs \
   ci_diff_helper
@@ -25,7 +26,6 @@ sphinx-apidoc \
 rm -f docs/modules.rst
 mv docs/ci_diff_helper.rst docs/index.rst
 python scripts/rewrite_index_rst.py
-python scripts/add_rst_inherited.py
 
 # If anything has changed
 if [[ -n "$(git diff -- docs/)" ]]; then
