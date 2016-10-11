@@ -14,6 +14,8 @@
 
 from __future__ import print_function
 
+import json
+
 import ci_diff_helper
 
 
@@ -94,6 +96,14 @@ def main():
             value = helper()
         except ERROR_TYPES as exc:
             value = exc
+        if isinstance(value, (list, tuple)):
+            json_value = json.dumps(value, indent=2)
+            # Indent by 22 spaces.
+            whitespace = ' ' * 22
+            lines = [whitespace + line for line in json_value.split('\n')]
+            value = '\n'.join(lines)
+            # Add extra newline at the top.
+            value = '\n' + value
         print('%20s(): %r' % (helper.__name__, value))
 
 
