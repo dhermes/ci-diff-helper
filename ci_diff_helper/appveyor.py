@@ -25,15 +25,6 @@ from ci_diff_helper import _utils
 from ci_diff_helper import environment_vars as env
 
 
-def _in_appveyor():
-    """Detect if we are running in AppVeyor.
-
-    :rtype: bool
-    :returns: Flag indicating if we are running on AppVeyor.
-    """
-    return os.getenv(env.IN_APPVEYOR_ENV) == 'true'
-
-
 def _appveyor_provider():
     """Get the code hosting provider for the current AppVeyor build.
 
@@ -62,23 +53,16 @@ class AppVeyorRepoProvider(enum.Enum):
 # pylint: enable=too-few-public-methods
 
 
-class AppVeyor(object):
+class AppVeyor(_utils.Config):
     """Represent AppVeyor state and cache return values."""
 
-    _active = _utils.UNSET
+    # Default instance attributes.
     _provider = _utils.UNSET
+    # Class attributes.
+    _active_env_var = env.IN_APPVEYOR_ENV
+    _branch_env_var = env.APPVEYOR_BRANCH_ENV
 
     # pylint: disable=missing-returns-doc
-    @property
-    def active(self):
-        """Indicates if currently running in AppVeyor.
-
-        :rtype: bool
-        """
-        if self._active is _utils.UNSET:
-            self._active = _in_appveyor()
-        return self._active
-
     @property
     def provider(self):
         """The code hosting provider for the current AppVeyor build.

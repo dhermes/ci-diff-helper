@@ -33,15 +33,6 @@ from ci_diff_helper import git_tools
 _RANGE_DELIMITER = '...'
 
 
-def _in_travis():
-    """Detect if we are running in Travis.
-
-    :rtype: bool
-    :returns: Flag indicating if we are running on Travis.
-    """
-    return os.getenv(env.IN_TRAVIS_ENV) == 'true'
-
-
 def _travis_pr():
     """Get the current Travis pull request (if any).
 
@@ -52,23 +43,6 @@ def _travis_pr():
         return int(os.getenv(env.TRAVIS_PR_ENV, ''))
     except ValueError:
         return None
-
-
-def _travis_branch():
-    """Get the current branch of the PR.
-
-    :rtype: str
-    :returns: The name of the branch the current pull request is
-              changed against.
-    :raises EnvironmentError: if the ``TRAVIS_BRANCH`` environment variable
-                              isn't set during a pull request build.
-    """
-    try:
-        return os.environ[env.TRAVIS_BRANCH_ENV]
-    except KeyError as exc:
-        msg = ('Pull request build does not have an '
-               'associated branch set (via %s)') % (env.TRAVIS_BRANCH_ENV,)
-        raise EnvironmentError(exc, msg)
 
 
 def _travis_event_type():
@@ -219,30 +193,22 @@ class TravisEventType(enum.Enum):
 # pylint: enable=too-few-public-methods
 
 
-class Travis(object):
+class Travis(_utils.Config):
     """Represent Travis state and cache return values."""
 
-    _active = _utils.UNSET
+    # Default instance attributes.
     _base = _utils.UNSET
-    _branch = _utils.UNSET
     _event_type = _utils.UNSET
     _is_merge = _utils.UNSET
     _merged_pr = _utils.UNSET
     _pr = _utils.UNSET
     _slug = _utils.UNSET
     _tag = _utils.UNSET
+    # Class attributes.
+    _active_env_var = env.IN_TRAVIS_ENV
+    _branch_env_var = env.TRAVIS_BRANCH_ENV
 
     # pylint: disable=missing-returns-doc
-    @property
-    def active(self):
-        """Indicates if currently running in Travis.
-
-        :rtype: bool
-        """
-        if self._active is _utils.UNSET:
-            self._active = _in_travis()
-        return self._active
-
     @property
     def base(self):
         """The ``git`` object that current build is changed against.
@@ -269,16 +235,6 @@ class Travis(object):
             else:
                 raise NotImplementedError
         return self._base
-
-    @property
-    def branch(self):
-        """Indicates if currently running in Travis.
-
-        :rtype: bool
-        """
-        if self._branch is _utils.UNSET:
-            self._branch = _travis_branch()
-        return self._branch
 
     @property
     def event_type(self):

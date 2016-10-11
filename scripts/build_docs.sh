@@ -25,6 +25,7 @@ sphinx-apidoc \
 rm -f docs/modules.rst
 mv docs/ci_diff_helper.rst docs/index.rst
 python scripts/rewrite_index_rst.py
+python scripts/add_rst_inherited.py
 
 # If anything has changed
 if [[ -n "$(git diff -- docs/)" ]]; then

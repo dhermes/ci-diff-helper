@@ -13,28 +13,6 @@
 import unittest
 
 
-class Test__in_appveyor(unittest.TestCase):
-
-    @staticmethod
-    def _call_function_under_test():
-        from ci_diff_helper.appveyor import _in_appveyor
-        return _in_appveyor()
-
-    def test_success(self):
-        import mock
-        from ci_diff_helper import environment_vars as env
-
-        mock_env = {env.IN_APPVEYOR_ENV: 'true'}
-        with mock.patch('os.environ', new=mock_env):
-            self.assertTrue(self._call_function_under_test())
-
-    def test_failure(self):
-        import mock
-
-        with mock.patch('os.environ', new={}):
-            self.assertFalse(self._call_function_under_test())
-
-
 class Test__appveyor_provider(unittest.TestCase):
 
     @staticmethod
@@ -125,39 +103,7 @@ class TestAppVeyor(unittest.TestCase):
         klass = self._get_target_class()
         config = self._make_one()
         self.assertIsInstance(config, klass)
-        self.assertIs(config._active, _utils.UNSET)
         self.assertIs(config._provider, _utils.UNSET)
-
-    def _active_helper(self, active_val):
-        import mock
-        from ci_diff_helper import _utils
-
-        config = self._make_one()
-        # Make sure there is no _active value set.
-        self.assertIs(config._active, _utils.UNSET)
-
-        # Patch the helper so we can control the value.
-        in_appveyor_patch = mock.patch(
-            'ci_diff_helper.appveyor._in_appveyor',
-            return_value=active_val)
-        with in_appveyor_patch as mocked:
-            result = config.active
-            self.assertIs(result, active_val)
-            mocked.assert_called_once_with()
-
-        return config
-
-    def test_active_property(self):
-        active_val = object()
-        self._active_helper(active_val)
-
-    def test_active_property_cache(self):
-        active_val = object()
-        config = self._active_helper(active_val)
-        # Test that the value is cached.
-        self.assertIs(config._active, active_val)
-        # Test that cached value is re-used.
-        self.assertIs(config.active, active_val)
 
     def _provider_helper(self, provider_val):
         import mock

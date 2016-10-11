@@ -78,3 +78,10 @@ IN_APPVEYOR_ENV = 'APPVEYOR'
 
 APPVEYOR_REPO_ENV = 'APPVEYOR_REPO_PROVIDER'
 """The code hosting provided for the repository being tested in AppVeyor."""
+
+APPVEYOR_BRANCH_ENV = 'APPVEYOR_REPO_BRANCH'
+"""Indicates the active AppVeyor branch.
+
+In a "pull request" build it is the **base** branch the PR is
+merging into, otherwise it is the branch being built.
+"""
