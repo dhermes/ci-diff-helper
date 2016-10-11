@@ -343,7 +343,6 @@ class TestTravis(unittest.TestCase):
         self.assertIsInstance(config, klass)
         self.assertIs(config._base, _utils.UNSET)
         self.assertIs(config._event_type, _utils.UNSET)
-        self.assertIs(config._is_merge, _utils.UNSET)
         self.assertIs(config._merged_pr, _utils.UNSET)
         self.assertIs(config._pr, _utils.UNSET)
         self.assertIs(config._slug, _utils.UNSET)
@@ -580,38 +579,6 @@ class TestTravis(unittest.TestCase):
         self.assertEqual(result, config._merged_pr)
         mocked_merge.assert_not_called()
         mocked_subject.assert_not_called()
-
-    def _is_merge_helper(self, is_merge_val):
-        import mock
-        from ci_diff_helper import _utils
-
-        config = self._make_one()
-        # Make sure there is no _is_merge value set.
-        self.assertIs(config._is_merge, _utils.UNSET)
-
-        # Patch the helper so we can control the value.
-        merge_commit_patch = mock.patch(
-            'ci_diff_helper.git_tools.merge_commit',
-            return_value=is_merge_val)
-        with merge_commit_patch as mocked:
-            result = config.is_merge
-            if is_merge_val:
-                self.assertTrue(result)
-            else:
-                self.assertFalse(result)
-            mocked.assert_called_once_with()
-
-        return config
-
-    def test_is_merge_property(self):
-        self._is_merge_helper(True)
-
-    def test_is_merge_property_cache(self):
-        config = self._is_merge_helper(False)
-        # Test that the value is cached.
-        self.assertFalse(config._is_merge)
-        # Test that cached value is re-used.
-        self.assertFalse(config.is_merge)
 
     def _tag_helper(self, tag_val='', expected=None):
         import mock

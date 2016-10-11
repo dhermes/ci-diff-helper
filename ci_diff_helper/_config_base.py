@@ -15,6 +15,7 @@
 import os
 
 from ci_diff_helper import _utils
+from ci_diff_helper import git_tools
 
 
 _BRANCH_ERR_TEMPLATE = (
@@ -61,6 +62,7 @@ class Config(object):
     # Default instance attributes.
     _active = _utils.UNSET
     _branch = _utils.UNSET
+    _is_merge = _utils.UNSET
     # Class attributes.
     _active_env_var = None
     _branch_env_var = None
@@ -88,4 +90,14 @@ class Config(object):
         if self._branch is _utils.UNSET:
             self._branch = _ci_branch(self._branch_env_var)
         return self._branch
+
+    @property
+    def is_merge(self):
+        """Indicates if the HEAD commit is a merge commit.
+
+        :rtype: bool
+        """
+        if self._is_merge is _utils.UNSET:
+            self._is_merge = git_tools.merge_commit()
+        return self._is_merge
     # pylint: enable=missing-returns-doc

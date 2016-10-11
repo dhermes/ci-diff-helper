@@ -200,7 +200,6 @@ class Travis(_config_base.Config):
     # Default instance attributes.
     _base = _utils.UNSET
     _event_type = _utils.UNSET
-    _is_merge = _utils.UNSET
     _merged_pr = _utils.UNSET
     _pr = _utils.UNSET
     _slug = _utils.UNSET
@@ -259,16 +258,6 @@ class Travis(_config_base.Config):
         :rtype: bool
         """
         return self.event_type is TravisEventType.pull_request
-
-    @property
-    def is_merge(self):
-        """Indicates if the HEAD commit is a merge commit.
-
-        :rtype: bool
-        """
-        if self._is_merge is _utils.UNSET:
-            self._is_merge = git_tools.merge_commit()
-        return self._is_merge
 
     @property
     def merged_pr(self):

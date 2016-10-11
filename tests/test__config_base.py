@@ -80,6 +80,8 @@ class TestConfig(unittest.TestCase):
         config = self._make_one()
         self.assertIsInstance(config, klass)
         self.assertIs(config._active, _utils.UNSET)
+        self.assertIs(config._branch, _utils.UNSET)
+        self.assertIs(config._is_merge, _utils.UNSET)
 
     def _active_helper(self, env_var, active_val):
         import mock
@@ -165,3 +167,39 @@ class TestConfig(unittest.TestCase):
         with mock.patch('os.environ', new={}):
             with self.assertRaises(EnvironmentError):
                 getattr(config, 'branch')
+
+    def _is_merge_helper(self, is_merge_val):
+        import mock
+        from ci_diff_helper import _utils
+
+        config = self._make_one()
+        # Make sure there is no _is_merge value set.
+        self.assertIs(config._is_merge, _utils.UNSET)
+
+        # Patch the helper so we can control the value.
+        merge_commit_patch = mock.patch(
+            'ci_diff_helper.git_tools.merge_commit',
+            return_value=is_merge_val)
+        with merge_commit_patch as mocked:
+            result = config.is_merge
+            if is_merge_val:
+                self.assertTrue(result)
+            else:
+                self.assertFalse(result)
+            mocked.assert_called_once_with()
+
+        return mocked, config
+
+    def test_is_merge_property(self):
+        self._is_merge_helper(True)
+
+    def test_is_merge_property_cache(self):
+        mocked, config = self._is_merge_helper(False)
+        # Make sure the mock was only used once on first access.
+        self.assertEqual(mocked.call_count, 1)
+        # Test that the value is cached.
+        self.assertFalse(config._is_merge)
+        # Test that cached value is re-used.
+        self.assertFalse(config.is_merge)
+        # Make sure the mock did not get called again on future access.
+        self.assertEqual(mocked.call_count, 1)
