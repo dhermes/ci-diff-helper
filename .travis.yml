@@ -2,7 +2,7 @@ language: python
 sudo: false
 
 install:
-- pip install --upgrade git+git@github.com:dhermes/ci-diff-helper.git#egg=ci-diff-helper
+- pip install --upgrade git+https://github.com/dhermes/ci-diff-helper#ci-diff-helper
 
 script:
 - python travis_app.py
