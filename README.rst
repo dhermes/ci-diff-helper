@@ -41,6 +41,34 @@ Install
 
     $ pip install --upgrade ci-diff-helper
 
+See It In Action
+----------------
+
+The ``test-app`` `branch`_ is set up to run in Travis
+every time a change is made. Check out the `latest builds`_
+in ``test-app`` to see the computed values at work.
+
+For example, in a `PR build`_::
+
+        active: True
+          base: 'test-app'
+        branch: 'test-app'
+    event_type: <TravisEventType.pull_request: 'pull_request'>
+           ...
+
+and in a `push build`_::
+
+        active: True
+          base: u'cbe48c9ae38e3ee4a4b6f6696e071fa9a1b9dabb'
+        branch: 'test-app'
+    event_type: <TravisEventType.push: 'push'>
+           ...
+
+.. _branch: https://github.com/dhermes/ci-diff-helper/tree/test-app
+.. _latest builds: https://travis-ci.org/dhermes/ci-diff-helper/branches
+.. _PR build: https://travis-ci.org/dhermes/ci-diff-helper/builds/166910963
+.. _push build: https://travis-ci.org/dhermes/ci-diff-helper/builds/166927258
+
 License
 -------
 

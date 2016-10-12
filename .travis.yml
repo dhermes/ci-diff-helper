@@ -19,6 +19,7 @@ script:
 - tox -e lint
 - tox -e docs
 - tox -e doctest
+- scripts/update_test_app.sh
 
 after_success:
 - ".tox/cover/bin/pip install coveralls"
