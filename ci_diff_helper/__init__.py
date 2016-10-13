@@ -52,7 +52,9 @@ The library supports (planned)
 
 .. _rate limiting: https://developer.github.com/v3/#rate-limiting
 
-To use this in your project first install::
+To use this in your project first install:
+
+.. code-block:: bash
 
   $ pip install --upgrade ci-diff-helper
 

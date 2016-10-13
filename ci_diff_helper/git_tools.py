@@ -29,7 +29,9 @@ def git_root():
 def get_checked_in_files():
     """Gets a list of files in the current ``git`` repository.
 
-    Effectively runs::
+    Effectively runs:
+
+    .. code-block:: bash
 
       $ git ls-files ${GIT_ROOT}
 

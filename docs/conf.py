@@ -34,6 +34,8 @@ import sphinx_rtd_theme
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 sys.path.insert(0, os.path.abspath('..'))
+# Also add the current directory so custom extensions can be imported.
+sys.path.insert(0, os.path.abspath('.'))
 
 # -- General configuration ------------------------------------------------
 
@@ -199,6 +201,8 @@ html_static_path = []
 # typographically correct entities.
 #
 # html_use_smartypants = True
+
+html_translator_class = 'custom_html_writer.CustomHTMLWriter'
 
 # Custom sidebar templates, maps document names to template names.
 #
