@@ -22,12 +22,13 @@ violations (hence it has a reduced number of style checks).
 from __future__ import print_function
 
 import collections
-import ConfigParser
 import copy
 import io
 import os
 import subprocess
 import sys
+
+import six
 
 import ci_diff_helper
 
@@ -83,24 +84,18 @@ def get_default_config():
 
     :rtype: str
     :returns: The default Pylint configuration.
-    :raises EnvironmentError: if the system call fails for some reason.
     """
-    # NOTE: We uses subprocess.Popen instead of subprocess.check_output()
-    #       so that we can also swallow STDERR.
-    proc = subprocess.Popen(['pylint', '--generate-rcfile'],
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    status_code = proc.wait()
-    if status_code != 0:
-        raise EnvironmentError(
-            status_code, 'Failed to generate Pylint RC file.')
-    result = proc.stdout.read()
+    # Swallow STDERR if it says
+    # "No config file found, using default configuration"
+    result = subprocess.check_output(['pylint', '--generate-rcfile'],
+                                     stderr=subprocess.PIPE)
     # On Python 3, this returns bytes (from STDOUT), so we
     # convert to a string.
     return result.decode('utf-8')
 
 
 def read_config(contents):
-    """Reads pylintrc config onto native ConfigParser object.
+    """Reads pylintrc config into native ConfigParser object.
 
     :type contents: str
     :param contents: The contents of the file containing the INI config.
@@ -109,7 +104,7 @@ def read_config(contents):
     :returns: The parsed configuration.
     """
     file_obj = io.StringIO(contents)
-    config = ConfigParser.ConfigParser()
+    config = six.moves.configparser.ConfigParser()
     config.readfp(file_obj)
     return config
 
@@ -140,7 +135,8 @@ def make_rc(base_cfg, target_filename,
     :param base_cfg: The configuration we are merging into.
 
     :type target_filename: str
-    :param target_filename: The filename where the new
+    :param target_filename: The filename where the new configuration
+                            will be saved.
 
     :type additions: dict
     :param additions: (Optional) The values added to the configuration.
@@ -159,7 +155,7 @@ def make_rc(base_cfg, target_filename,
         replacements = {}
 
     # Create fresh config, which must extend the base one.
-    new_cfg = ConfigParser.ConfigParser()
+    new_cfg = six.moves.configparser.ConfigParser()
     # pylint: disable=protected-access
     new_cfg._sections = copy.deepcopy(base_cfg._sections)
     new_sections = new_cfg._sections
