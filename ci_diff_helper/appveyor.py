@@ -15,6 +15,46 @@
 This module uses a selection of environment variables to detect
 the state of AppVeyor configuration. See
 :mod:`~ci_diff_helper.environment_vars` for more details.
+
+This module provides a long-lived configuration object
+(:class:`AppVeyor`) that caches the returned values and uses
+them to compute other useful values.
+
+.. testsetup:: config-obj
+
+  import os
+  os.environ = {
+      'APPVEYOR': 'true',
+      'APPVEYOR_REPO_BRANCH': 'master',
+      'APPVEYOR_REPO_PROVIDER': 'github',
+  }
+  import ci_diff_helper
+
+.. doctest:: config-obj
+
+  >>> config = ci_diff_helper.AppVeyor()
+  >>> config.active
+  True
+  >>> config.branch
+  'master'
+  >>> config.provider
+  <AppVeyorRepoProvider.github: 'github'>
+  >>> config.tag is None
+  True
+
+It can also be used to detect if a merge commit is
+currently being built:
+
+.. testsetup:: merged-commit
+
+  import ci_diff_helper
+  config = ci_diff_helper.AppVeyor()
+  config._is_merge = True
+
+.. doctest:: merged-commit
+
+  >>> config.is_merge
+  True
 """
 
 import os

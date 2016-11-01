@@ -220,6 +220,8 @@ be useful for things like test collection, file linting, etc.
    '/path/to/your/git_checkout/project/feature.py']
 """
 
+from ci_diff_helper.appveyor import AppVeyor
+from ci_diff_helper.circle_ci import CircleCI
 from ci_diff_helper.git_tools import get_checked_in_files
 from ci_diff_helper.git_tools import git_root
 from ci_diff_helper.travis import in_travis
