@@ -33,7 +33,7 @@ The library supports (planned)
 
   * `git`_
 
-* Project Hosting Sites (planned)
+* Project Hosting Sites
 
   * `GitHub`_
 

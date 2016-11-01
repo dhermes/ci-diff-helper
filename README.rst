@@ -3,7 +3,7 @@ CI Diff Helper
 
     Diff Helper for Continuous Integration (CI) Services
 
-|pypi| |build| |build-circ| |appveyor| |coverage| |versions| |docs|
+|pypi| |coverage| |versions| |docs|
 
 For an open source project, running unit tests, system tests, torture tests,
 fuzz tests, integration tests, code quality checks, etc. can quickly become
@@ -18,26 +18,28 @@ The library supports (planned)
 
 * Continuous Integration Services
 
-  * `Travis CI`_
-  * `AppVeyor`_
+  * `Travis CI`_ |build|
+  * `AppVeyor`_ |appveyor|
+  * `CircleCI`_ |build-circ|
 
 * Verson Control Systems
 
   * `git`_
 
-* Project Hosting Sites (planned)
+* Project Hosting Sites
 
   * `GitHub`_
 
 .. _Travis CI: https://travis-ci.com/
 .. _AppVeyor: https://www.appveyor.com/
+.. _CircleCI: https://circleci.com/
 .. _git: https://git-scm.com/
 .. _GitHub: https://github.com/
 
 Install
 -------
 
-::
+.. code-block:: console
 
     $ pip install --upgrade ci-diff-helper
 
