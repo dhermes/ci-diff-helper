@@ -3,7 +3,7 @@ CI Diff Helper
 
     Diff Helper for Continuous Integration (CI) Services
 
-|pypi| |build| |appveyor| |coverage| |versions| |docs|
+|pypi| |build| |build-circ| |appveyor| |coverage| |versions| |docs|
 
 For an open source project, running unit tests, system tests, torture tests,
 fuzz tests, integration tests, code quality checks, etc. can quickly become
@@ -78,6 +78,9 @@ Apache 2.0 - See `LICENSE`_ for more information.
 
 .. |build| image:: https://travis-ci.org/dhermes/ci-diff-helper.svg?branch=master
    :target: https://travis-ci.org/dhermes/ci-diff-helper
+.. |build-circ| image:: https://circleci.com/gh/dhermes/ci-diff-helper.png?style=shield
+   :target: https://circleci.com/gh/dhermes/ci-diff-helper
+   :alt: CirleCI Build
 .. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/dhermes/ci-diff-helper?branch=master&svg=true
    :target: https://ci.appveyor.com/project/dhermes/ci-diff-helper
 .. |coverage| image:: https://coveralls.io/repos/github/dhermes/ci-diff-helper/badge.svg?branch=master
