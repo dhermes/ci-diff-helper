@@ -105,13 +105,7 @@ class Config(object):
 
     @property
     def tag(self):
-        """The ``git`` tag of the current Travis build.
-
-        .. note::
-
-            We only expect the ``TRAVIS_TAG`` environment variable
-            to be set during a tag "push" build, but we don't verify
-            that we are in a push build before checking for the tag.
+        """The ``git`` tag of the current CI build.
 
         :rtype: str
         """

@@ -27,6 +27,7 @@ The library supports (planned)
 
   * `Travis CI`_
   * `AppVeyor`_
+  * `CircleCI`_
 
 * Verson Control Systems
 
@@ -38,6 +39,7 @@ The library supports (planned)
 
 .. _Travis CI: https://travis-ci.com/
 .. _AppVeyor: https://www.appveyor.com/
+.. _CircleCI: https://circleci.com/
 .. _git: https://git-scm.com/
 .. _GitHub: https://github.com/
 

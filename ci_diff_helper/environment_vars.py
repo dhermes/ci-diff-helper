@@ -12,15 +12,16 @@
 
 """Comprehensive list of environment variables used in ci-diff-helper.
 
-These environment variables are core this library. They are used to
-detect the current environment.
+These environment variables are core to this library. They are used
+to detect the current environment.
 
-For more details, see the `Travis env docs`_ and
-`AppVeyor env docs`_.
+For more details, see the `Travis env docs`_, `AppVeyor env docs`_
+and `_CircleCI env docs`.
 
 .. _Travis env docs: https://docs.travis-ci.com/user/\
                      environment-variables#Default-Environment-Variables
 .. _AppVeyor env docs: https://www.appveyor.com/docs/environment-variables/
+.. _CircleCI env docs: https://circleci.com/docs/environment-variables/
 """
 
 IN_TRAVIS_ENV = 'TRAVIS'
@@ -96,4 +97,16 @@ APPVEYOR_TAG_ENV = 'APPVEYOR_REPO_TAG_NAME'
 
 This will only be valid when ``APPVEYOR_REPO_TAG``, i.e. when the
 build was started by a pushed tag.
+"""
+
+IN_CIRCLE_CI_ENV = 'CIRCLECI'
+"""Indicates if running in CircleCI."""
+
+CIRCLE_CI_BRANCH_ENV = 'CIRCLE_BRANCH'
+"""Indicates the active ``git`` branch being tested on CircleCI."""
+
+CIRCLE_CI_TAG_ENV = 'CIRCLE_TAG'
+"""The name of the ``git`` tag being tested
+
+Only set if the build is running for a tag.
 """
