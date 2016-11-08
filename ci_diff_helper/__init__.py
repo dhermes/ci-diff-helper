@@ -77,17 +77,47 @@ information about your environment:
   >>> config = ci_diff_helper.get_config()
   >>> config
   <CircleCI (active=True)>
-  >>> config.active
-  True
+
+Common Configuration Properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Long-lived configuration objects are provided as an interface for
 CI system information. These config objects cache the returned values
 for each property and use them to compute other useful values.
 
-:class:`.Travis` Configuration Type
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Each such configuration type (e.g. :class:`~.appveyor.AppVeyor`,
+:class:`~.circle_ci.CircleCI`, :class:`~.travis.Travis`) has a
+common set of properties.
 
-To use the :class:`.Travis` configuration type directly:
+.. testsetup:: shared
+
+  import os
+  import ci_diff_helper
+  os.environ = {
+      'CIRCLECI': 'true',
+      'CIRCLE_BRANCH': 'pull/808',
+  }
+  config = ci_diff_helper.CircleCI()
+  config._is_merge = False
+
+.. doctest:: shared
+
+  >>> config
+  <CircleCI (active=True)>
+  >>> config.active
+  True
+  >>> config.branch
+  'pull/808'
+  >>> config.tag is None
+  True
+  >>> config.is_merge
+  False
+
+
+:class:`~.travis.Travis` Configuration Type
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To use the :class:`~.travis.Travis` configuration type directly:
 
 .. testsetup:: pr
 
