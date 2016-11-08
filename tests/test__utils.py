@@ -99,6 +99,6 @@ class Test_pr_from_commit(unittest.TestCase):
 
     def test_valid_id(self):
         expected = 88901
-        subject = 'Merge pull request #%d from queso/cheese' % (expected,)
+        subject = 'Merge pull request #{:d} from queso/cheese'.format(expected)
         result = self._call_function_under_test(subject)
         self.assertEqual(result, expected)

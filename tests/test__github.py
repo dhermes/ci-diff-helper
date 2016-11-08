@@ -35,7 +35,7 @@ class Test__rate_limit_info(unittest.TestCase):
         response.headers[_github._RATE_RESET_HEADER] = rate_reset
         with mock.patch('six.print_') as mocked:
             self._call_function_under_test(response)
-            msg = _github._RATE_LIMIT_TEMPLATE % (
+            msg = _github._RATE_LIMIT_TEMPLATE.format(
                 remaining, rate_limit, rate_reset)
             self.assertEqual(mocked.call_count, 2)
             mocked.assert_any_call(msg, file=sys.stderr)
@@ -73,7 +73,7 @@ class Test_commit_compare(unittest.TestCase):
         slug = 'a/b'
         start = '1234'
         finish = '6789'
-        expected_url = _github._GH_COMPARE_TEMPLATE % (
+        expected_url = _github._GH_COMPARE_TEMPLATE.format(
             slug, start, finish)
         with patch_get as mocked:
             if error_class is None:

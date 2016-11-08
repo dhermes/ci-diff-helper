@@ -26,9 +26,9 @@ _LITERAL_ERR_TEMPLATE = """\
 All literal blocks must either be used for doctest or explicitly
 declared as a language other than Python. Current node:
 
-%s
+{}
 
-has combination of language (%r) and test node type (%r) which
+has combination of language ({!r}) and test node type ({!r}) which
 are not allowed.
 """
 
@@ -50,7 +50,7 @@ class CustomHTMLWriter(html.SmartyPantsHTMLTranslator):
         test_type = node.attributes.get('testnodetype', '')
         if test_type != 'doctest':
             if language.lower() in ('', 'python'):
-                msg = _LITERAL_ERR_TEMPLATE % (
+                msg = _LITERAL_ERR_TEMPLATE.format(
                     node.rawsource, language, test_type)
                 raise errors.ExtensionError(msg)
         # The base classes are not new-style, so we can't use super().

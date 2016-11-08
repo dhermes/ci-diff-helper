@@ -29,8 +29,8 @@ import ci_diff_helper
 def main(all_files=None):
     """Run pycodestyle on all Python files in the repository.
 
-    :type all_files: list
-    :param all_files: (Optional) A list of all files to consider.
+    Args:
+        all_files (Optional[list]): A list of all files to consider.
     """
     if all_files is None:
         all_files = ci_diff_helper.get_checked_in_files()

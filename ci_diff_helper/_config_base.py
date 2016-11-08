@@ -19,7 +19,7 @@ from ci_diff_helper import git_tools
 
 
 _BRANCH_ERR_TEMPLATE = (
-    'Build does not have an associated branch set (via %s).')
+    'Build does not have an associated branch set (via {}).')
 
 
 def _in_ci(env_var):
@@ -27,11 +27,11 @@ def _in_ci(env_var):
 
     Assumes the only valid environment variable value is ``true``.
 
-    :type env_var: str
-    :param env_var: The environment variable which holds the status.
+    Args:
+        env_var (str): The environment variable which holds the status.
 
-    :rtype: bool
-    :returns: Flag indicating if we are running in the target CI system.
+    Returns:
+        bool: Flag indicating if we are running in the target CI system.
     """
     return os.getenv(env_var) == 'true'
 
@@ -39,21 +39,22 @@ def _in_ci(env_var):
 def _ci_branch(env_var):
     """Get the current branch of CI build.
 
-    :type env_var: str
-    :param env_var: The environment variable which holds the branch.
+    Args:
+        env_var (str): The environment variable which holds the branch.
 
-    :rtype: str
-    :returns: The name of the branch the current build is for / associated
-              with. (May indicate the active branch or the base branch of
-              a pull request.)
-    :raises EnvironmentError: if the environment variable
-                              isn't set during the build.
+    Returns:
+        str: The name of the branch the current build is for / associated
+            with. (May indicate the active branch or the base branch of
+            a pull request.)
+
+    Raises:
+        OSError: If the environment variable isn't set during the build.
     """
     try:
         return os.environ[env_var]
     except KeyError as exc:
-        msg = _BRANCH_ERR_TEMPLATE % (env_var,)
-        raise EnvironmentError(exc, msg)
+        msg = _BRANCH_ERR_TEMPLATE.format(env_var)
+        raise OSError(exc, msg)
 
 
 class Config(object):
@@ -72,22 +73,17 @@ class Config(object):
     # pylint: disable=missing-returns-doc
     @property
     def active(self):
-        """Indicates if currently running in the target CI system.
-
-        :rtype: bool
-        """
+        """bool: Indicates if currently running in the target CI system."""
         if self._active is _utils.UNSET:
             self._active = _in_ci(self._active_env_var)
         return self._active
 
     @property
     def branch(self):
-        """Indicates the current branch in the target CI system.
+        """bool: Indicates the current branch in the target CI system.
 
         This may indicate the active branch or the base branch of a
         pull request.
-
-        :rtype: bool
         """
         if self._branch is _utils.UNSET:
             self._branch = _ci_branch(self._branch_env_var)
@@ -95,20 +91,14 @@ class Config(object):
 
     @property
     def is_merge(self):
-        """Indicates if the HEAD commit is a merge commit.
-
-        :rtype: bool
-        """
+        """bool: Indicates if the HEAD commit is a merge commit."""
         if self._is_merge is _utils.UNSET:
             self._is_merge = git_tools.merge_commit()
         return self._is_merge
 
     @property
     def tag(self):
-        """The ``git`` tag of the current CI build.
-
-        :rtype: str
-        """
+        """str: The ``git`` tag of the current CI build."""
         if self._tag is _utils.UNSET:
             tag_val = os.getenv(self._tag_env_var, '')
             # NOTE: On non-tag builds in some environments (e.g. Travis)

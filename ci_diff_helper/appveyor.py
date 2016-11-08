@@ -69,10 +69,13 @@ from ci_diff_helper import environment_vars as env
 def _appveyor_provider():
     """Get the code hosting provider for the current AppVeyor build.
 
-    :rtype: :class:`AppVeyorRepoProvider`
-    :returns: The code hosting provider for the current AppVeyor build.
-    :raises ValueError: if the ``APPVEYOR_REPO_PROVIDER`` environment
-                        variable is not one of the expected values.
+    Returns:
+        AppVeyorRepoProvider: The code hosting provider for the
+            current AppVeyor build.
+
+    Raises:
+        ValueError: If the ``APPVEYOR_REPO_PROVIDER`` environment
+            variable is not one of the expected values.
     """
     repo_provider = os.getenv(env.APPVEYOR_REPO_ENV, '')
     try:
@@ -107,17 +110,14 @@ class AppVeyor(_config_base.Config):
     # pylint: disable=missing-returns-doc
     @property
     def provider(self):
-        """The code hosting provider for the current AppVeyor build.
-
-        :rtype: str
-        """
+        """str: The code hosting provider for the current AppVeyor build."""
         if self._provider is _utils.UNSET:
             self._provider = _appveyor_provider()
         return self._provider
 
     @property
     def tag(self):
-        """The ``git`` tag of the current AppVeyor build.
+        """str: The ``git`` tag of the current AppVeyor build.
 
         .. note::
 
@@ -125,8 +125,6 @@ class AppVeyor(_config_base.Config):
             to be set when ``APPVEYOR_REPO_TAG=true`` indicates the build was
             started by a pushed tag. However, we don't verify that we are in
             a build started by a tag before checking for the tag.
-
-        :rtype: str
         """
         return super(AppVeyor, self).tag
     # pylint: enable=missing-returns-doc

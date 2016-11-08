@@ -30,19 +30,19 @@ def check_output(*args, **kwargs):
       >>> print(check_output('false', ignore_err=True))
       None
 
-    :type args: tuple
-    :param args: Arguments to pass to ``subprocess.check_output``.
+    Args:
+        args (tuple): Arguments to pass to ``subprocess.check_output``.
+        kwargs (dict): Keyword arguments for this helper. Currently the
+            only accepted keyword argument is ``ignore_err`.
 
-    :type kwargs: dict
-    :param kwargs: Keyword arguments for this helper. Currently the
-                   only accepted keyword argument is ``ignore_err`.
+    Returns:
+        str: The raw STDOUT from the command (converted from bytes
+            if necessary).
 
-    :rtype: str
-    :returns: The raw STDOUT from the command (converted from bytes
-              if necessary).
-    :raises TypeError: if any unrecognized keyword arguments are used.
-    :raises CalledProcessError:
-        If ``ignore_err`` is not :data:`True` and the system call fails.
+    Raises:
+        TypeError: If any unrecognized keyword arguments are used.
+        CalledProcessError: If ``ignore_err`` is not :data:`True` and
+            the system call fails.
     """
     ignore_err = kwargs.pop('ignore_err', False)
     if kwargs:
@@ -73,12 +73,12 @@ def pr_from_commit(merge_subject):
 
         This assumes we know the commit is a merge commit.
 
-    :type merge_subject: str
-    :param merge_subject: The subject of a merge commit.
+    Args:
+        merge_subject (str): The subject of a merge commit.
 
-    :rtype: int
-    :returns: The PR ID extracted from the commit subject. If no integer
-              can be uniquely extracted, returns :data:`None`.
+    Returns:
+        int: The PR ID extracted from the commit subject. If no integer
+            can be uniquely extracted, returns :data:`None`.
     """
     matches = _PR_ID_REGEX.findall(merge_subject)
     if len(matches) == 1:

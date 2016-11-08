@@ -27,12 +27,13 @@ INDEX_FILE = os.path.join(DOCS_DIR, 'index.rst')
 def main():
     """Rewrite the index.rst file.
 
-    :raises ValueError: if the title '==...==' isn't on line 1.
-    :raises ValueError: if the title isn't the expected value.
-    :raises ValueError: if the submodules don't start on line 4.
-    :raises ValueError: if the submodules header is unexpected.
-    :raises ValueError: if the module header is unexpected.
-    :raises ValueError: if the toctree doesn't begin as expected.
+    Raises:
+        ValueError: If the title '==...==' isn't on line 1.
+        ValueError: If the title isn't the expected value.
+        ValueError: If the submodules don't start on line 4.
+        ValueError: If the submodules header is unexpected.
+        ValueError: If the module header is unexpected.
+        ValueError: If the toctree doesn't begin as expected.
     """
     rewritten_content = []
 

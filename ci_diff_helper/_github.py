@@ -22,27 +22,27 @@ from six.moves import http_client
 from ci_diff_helper import environment_vars as env
 
 
-_GH_COMPARE_TEMPLATE = 'https://api.github.com/repos/%s/compare/%s...%s'
+_GH_COMPARE_TEMPLATE = 'https://api.github.com/repos/{}/compare/{}...{}'
 _RATE_REMAINING_HEADER = 'X-RateLimit-Remaining'
 _RATE_LIMIT_HEADER = 'X-RateLimit-Limit'
 _RATE_RESET_HEADER = 'X-RateLimit-Reset'
-_RATE_LIMIT_TEMPLATE = '%25s: %%s\n%25s: %%s\n%25s: %%s' % (
+_RATE_LIMIT_TEMPLATE = '{:>25}: {{}}\n{:>25}: {{}}\n{:>25}: {{}}'.format(
     _RATE_REMAINING_HEADER, _RATE_LIMIT_HEADER, _RATE_RESET_HEADER)
 _GH_ENV_VAR_MSG = (
     'You can avoid being rate limited by storing a GitHub OAuth '
-    'token in the %s environment variable') % (env.GH_TOKEN,)
+    'token in the {} environment variable').format(env.GH_TOKEN)
 
 
 def _rate_limit_info(response):
     """Print response rate limit information to stderr.
 
-    :type response: :class:`requests.Response`
-    :param response: A GitHub API response.
+    Args:
+        response (requests.Response): A GitHub API response.
     """
     remaining = response.headers.get(_RATE_REMAINING_HEADER)
     rate_limit = response.headers.get(_RATE_LIMIT_HEADER)
     rate_reset = response.headers.get(_RATE_RESET_HEADER)
-    msg = _RATE_LIMIT_TEMPLATE % (remaining, rate_limit, rate_reset)
+    msg = _RATE_LIMIT_TEMPLATE.format(remaining, rate_limit, rate_reset)
     six.print_(msg, file=sys.stderr)
     six.print_(_GH_ENV_VAR_MSG, file=sys.stderr)
 
@@ -50,22 +50,19 @@ def _rate_limit_info(response):
 def commit_compare(slug, start, finish):
     """Makes GitHub API request to compare two commits.
 
-    :type slug: str
-    :param slug: The GitHub repo slug for the current build.
-                 Of the form ``{organization}/{repository}``.
+    Args:
+        slug (str): The GitHub repo slug for the current build.
+            Of the form ``{organization}/{repository}``.
+        start (str): The start commit in a range.
+        finish (str): The last commit in a range.
 
-    :type start: str
-    :param start: The start commit in a range.
+    Returns:
+        dict: The parsed JSON payload of the request.
 
-    :type finish: str
-    :param finish: The last commit in a range.
-
-    :rtype: dict
-    :returns: The parsed JSON payload of the request.
-    :raises requests.exceptions.HTTPError:
-        If the GitHub API request fails.
+    Raises:
+        requests.exceptions.HTTPError: If the GitHub API request fails.
     """
-    api_url = _GH_COMPARE_TEMPLATE % (slug, start, finish)
+    api_url = _GH_COMPARE_TEMPLATE.format(slug, start, finish)
 
     headers = {}
     github_token = os.getenv(env.GH_TOKEN, None)

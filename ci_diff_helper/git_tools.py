@@ -20,8 +20,8 @@ from ci_diff_helper import _utils
 def git_root():
     """Return the root directory of the current ``git`` checkout.
 
-    :rtype: str
-    :returns: Filesystem path to ``git`` checkout root.
+    Returns:
+        str: Filesystem path to ``git`` checkout root.
     """
     return _utils.check_output('git', 'rev-parse', '--show-toplevel')
 
@@ -37,8 +37,8 @@ def get_checked_in_files():
 
     and then finds the absolute path for each file returned.
 
-    :rtype: list
-    :returns: List of all filenames checked into.
+    Returns:
+        list: List of all filenames checked into.
     """
     root_dir = git_root()
     cmd_output = _utils.check_output('git', 'ls-files', root_dir)
@@ -53,13 +53,15 @@ def get_checked_in_files():
 def merge_commit(revision='HEAD'):
     """Checks if a ``git`` revision is a merge commit.
 
-    :type revision: str
-    :param revision: (Optional) A ``git`` revision, any of a branch name,
-                     tag, a commit SHA or a special reference.
+    Args:
+        revision (Optional[str]):  A ``git`` revision, any of a branch
+            name, tag, a commit SHA or a special reference.
 
-    :rtype: bool
-    :returns: Flag indicating if the given revision.
-    :raises NotImplementedError: if the number of parents is not 1 or 2.
+    Returns:
+        bool: Flag indicating if the given revision.
+
+    Raises:
+        NotImplementedError: if the number of parents is not 1 or 2.
     """
     parents = _utils.check_output(
         'git', 'log', '--pretty=%P', '-1', revision)
@@ -76,12 +78,12 @@ def merge_commit(revision='HEAD'):
 def commit_subject(revision='HEAD'):
     """Gets the subject of a ``git`` commit.
 
-    :type revision: str
-    :param revision: (Optional) A ``git`` revision, any of a branch name,
-                     tag, a commit SHA or a special reference.
+    Args:
+        revision (Optional[str]): A ``git`` revision, any of a branch
+            name, tag, a commit SHA or a special reference.
 
-    :rtype: str
-    :returns: The commit subject.
+    Returns:
+        str: The commit subject.
     """
     return _utils.check_output(
         'git', 'log', '--pretty=%s', '-1', revision)

@@ -37,8 +37,8 @@ _SCRIPTS_DIR = os.path.abspath(os.path.dirname(__file__))
 PRODUCTION_RC = os.path.join(_SCRIPTS_DIR, 'pylintrc_production')
 TEST_RC = os.path.join(_SCRIPTS_DIR, 'pylintrc_test')
 
-_ERROR_TEMPLATE = 'Pylint failed on %s with status %d.'
-_SKIP_TEMPLATE = 'Skipping %s, no files to lint.'
+_ERROR_TEMPLATE = 'Pylint failed on {} with status {:d}.'
+_SKIP_TEMPLATE = 'Skipping {}, no files to lint.'
 
 _PRODUCTION_RC_ADDITIONS = {
     'MESSAGES CONTROL': {
@@ -82,8 +82,8 @@ IGNORED_FILES = (
 def get_default_config():
     """Get the default Pylint configuration.
 
-    :rtype: str
-    :returns: The default Pylint configuration.
+    Returns:
+        str: The default Pylint configuration.
     """
     # Swallow STDERR if it says
     # "No config file found, using default configuration"
@@ -97,11 +97,11 @@ def get_default_config():
 def read_config(contents):
     """Reads pylintrc config into native ConfigParser object.
 
-    :type contents: str
-    :param contents: The contents of the file containing the INI config.
+    Args:
+        contents (str): The contents of the file containing the INI config.
 
-    :rtype: :class:`ConfigParser.ConfigParser`
-    :returns: The parsed configuration.
+    Returns:
+        ConfigParser.ConfigParser: The parsed configuration.
     """
     file_obj = io.StringIO(contents)
     config = six.moves.configparser.ConfigParser()
@@ -115,11 +115,11 @@ def _transform_opt(opt_val):
     If already a string, do nothing. If an iterable, then
     combine into a string by joining on ",".
 
-    :type opt_val: str or list
-    :param opt_val: A config option's value.
+    Args:
+        opt_val (Union[str, list]): A config option's value.
 
-    :rtype: str
-    :returns: The option value converted to a string.
+    Returns:
+        str: The option value converted to a string.
     """
     if isinstance(opt_val, (list, tuple)):
         return ','.join(opt_val)
@@ -131,22 +131,18 @@ def make_rc(base_cfg, target_filename,
             additions=None, replacements=None):
     """Combines a base rc and additions into single file.
 
-    :type base_cfg: :class:`ConfigParser.ConfigParser`
-    :param base_cfg: The configuration we are merging into.
+    Args:
+        base_cfg (ConfigParser.ConfigParser): The configuration we
+            are merging into.
+        target_filename (str): The filename where the new configuration
+            will be saved.
+        additions (Optional[dict]): The values added to the configuration.
+        replacements (Optional[dict]): The wholesale replacements for the
+            new configuration.
 
-    :type target_filename: str
-    :param target_filename: The filename where the new configuration
-                            will be saved.
-
-    :type additions: dict
-    :param additions: (Optional) The values added to the configuration.
-
-    :type replacements: dict
-    :param replacements: (Optional) The wholesale replacements for the
-                         new configuration.
-
-    :raises KeyError: if one of the additions or replacements does not
-                      already exist in the current config.
+    Raises:
+        KeyError: If one of the additions or replacements does not
+            already exist in the current config.
     """
     # Set-up the mutable default values.
     if additions is None:
@@ -170,7 +166,7 @@ def make_rc(base_cfg, target_filename,
                 raise KeyError('Expected to be adding to existing option.')
             curr_val = curr_val.rstrip(',')
             opt_val = _transform_opt(opt_val)
-            curr_section[opt] = '%s, %s' % (curr_val, opt_val)
+            curr_section[opt] = '{}, {}'.format(curr_val, opt_val)
 
     for section, opts in replacements.items():
         curr_section = new_sections.setdefault(
@@ -180,7 +176,7 @@ def make_rc(base_cfg, target_filename,
             if curr_val is None:
                 raise KeyError('Expected to be replacing existing option.')
             opt_val = _transform_opt(opt_val)
-            curr_section[opt] = '%s' % (opt_val,)
+            curr_section[opt] = '{}'.format(opt_val)
 
     with open(target_filename, 'w') as file_obj:
         new_cfg.write(file_obj)
@@ -189,11 +185,11 @@ def make_rc(base_cfg, target_filename,
 def valid_filename(filename):
     """Checks if a file is a valid Python file.
 
-    :type filename: str
-    :param filename: The name of a source file.
+    Args:
+        filename (str): The name of a source file.
 
-    :rtype: bool
-    :returns: Flag indicating if the file is valid.
+    Returns:
+        bool: Flag indicating if the file is valid.
     """
     if filename in IGNORED_FILES:
         return False
@@ -206,11 +202,11 @@ def valid_filename(filename):
 def is_test_filename(filename):
     """Checks if the file is a test file.
 
-    :type filename: str
-    :param filename: The name of a source file.
+    Args:
+        filename (str): The name of a source file.
 
-    :rtype: bool
-    :returns: Boolean indicating if ``filename`` is a test file.
+    Returns:
+        bool: Boolean indicating if ``filename`` is a test file.
     """
     return 'test' in filename
 
@@ -221,12 +217,12 @@ def get_python_files(all_files=None):
     Separates the files based on test or production code according
     to :func:`is_test_filename`.
 
-    :type all_files: list
-    :param all_files: (Optional) A list of all files to consider.
+    Args:
+        all_files (Optional[list]): A list of all files to consider.
 
-    :rtype: tuple
-    :returns: A tuple containing two lists. The first list
-              contains all production files, the next all test files.
+    Returns:
+        Tuple[list, list]: A tuple containing two lists. The first list
+            contains all production files, the next all test files.
     """
     if all_files is None:
         all_files = ci_diff_helper.get_checked_in_files()
@@ -247,34 +243,30 @@ def get_python_files(all_files=None):
 def lint_fileset(filenames, rc_filename, description):
     """Lints a group of files using a given rcfile.
 
-    :type filenames: list
-    :param filenames: A list of files to be linted.
-
-    :type rc_filename: str
-    :param rc_filename: The name of the Pylint config RC file.
-
-    :type description: str
-    :param description: A description of the files and configuration
-                        currently being run.
+    Args:
+        filenames (list): A list of files to be linted.
+        rc_filename (str): The name of the Pylint config RC file.
+        description (str): A description of the files and configuration
+            currently being run.
     """
     if filenames:
         pylint_shell_command = ['pylint', '--rcfile', rc_filename]
         pylint_shell_command.extend(filenames)
         status_code = subprocess.call(pylint_shell_command)
         if status_code != 0:
-            error_message = _ERROR_TEMPLATE % (description,
-                                               status_code)
+            error_message = _ERROR_TEMPLATE.format(
+                description, status_code)
             print(error_message, file=sys.stderr)
             sys.exit(status_code)
     else:
-        print(_SKIP_TEMPLATE % (description,))
+        print(_SKIP_TEMPLATE.format(description))
 
 
 def main(all_files=None):
     """Script entry point. Lints both sets of files.
 
-    :type all_files: list
-    :param all_files: (Optional) A list of all files to consider.
+    Args:
+        all_files (Optional[list]): A list of all files to consider.
     """
     default_config = read_config(get_default_config())
     make_rc(default_config, PRODUCTION_RC,

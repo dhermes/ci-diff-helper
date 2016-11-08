@@ -98,7 +98,7 @@ class Test__get_commit_range(unittest.TestCase):
         import mock
 
         with mock.patch('os.environ', new={}):
-            with self.assertRaises(EnvironmentError):
+            with self.assertRaises(OSError):
                 self._call_function_under_test()
 
 
@@ -278,7 +278,7 @@ class Test__travis_slug(unittest.TestCase):
         import mock
 
         with mock.patch('os.environ', new={}):
-            with self.assertRaises(EnvironmentError):
+            with self.assertRaises(OSError):
                 self._call_function_under_test()
 
 
@@ -502,7 +502,7 @@ class TestTravis(unittest.TestCase):
 
         config = self._make_one()
         with mock.patch('os.environ', new={}):
-            with self.assertRaises(EnvironmentError):
+            with self.assertRaises(OSError):
                 getattr(config, 'slug')
 
     def _merged_pr_helper(self, event_type, is_merge=False, pr_id=None):
@@ -517,7 +517,7 @@ class TestTravis(unittest.TestCase):
             return_value=is_merge)
         patch_subject = mock.patch(
             'ci_diff_helper.git_tools.commit_subject',
-            return_value='#%s' % (pr_id,))
+            return_value='#{}'.format(pr_id))
         with patch_merge as mocked_merge:
             with patch_subject as mocked_subject:
                 result = config.merged_pr
@@ -663,5 +663,5 @@ class Test_travis_branch(unittest.TestCase):
         import mock
 
         with mock.patch('os.environ', new={}):
-            with self.assertRaises(EnvironmentError):
+            with self.assertRaises(OSError):
                 self._call_function_under_test()

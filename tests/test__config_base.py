@@ -58,7 +58,7 @@ class Test__ci_branch(unittest.TestCase):
 
         env_var = 'MY_CI'
         with mock.patch('os.environ', new={}):
-            with self.assertRaises(EnvironmentError):
+            with self.assertRaises(OSError):
                 self._call_function_under_test(env_var)
 
 
@@ -165,7 +165,7 @@ class TestConfig(unittest.TestCase):
 
         config = self._make_one()
         with mock.patch('os.environ', new={}):
-            with self.assertRaises(EnvironmentError):
+            with self.assertRaises(OSError):
                 getattr(config, 'branch')
 
     def _is_merge_helper(self, is_merge_val):
