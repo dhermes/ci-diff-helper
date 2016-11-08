@@ -119,7 +119,7 @@ common set of properties.
 
 To use the :class:`~.travis.Travis` configuration type directly:
 
-.. testsetup:: pr
+.. testsetup:: travis-pr
 
   import os
   os.environ = {
@@ -131,7 +131,7 @@ To use the :class:`~.travis.Travis` configuration type directly:
   }
   import ci_diff_helper
 
-.. doctest:: pr
+.. doctest:: travis-pr
 
   >>> config = ci_diff_helper.Travis()
   >>> config.active
@@ -144,7 +144,7 @@ To use the :class:`~.travis.Travis` configuration type directly:
 In addition this configuration provides extra features for
 determining a diffbase.
 
-.. doctest:: pr
+.. doctest:: travis-pr
 
   >>> config = ci_diff_helper.Travis()
   >>> config.event_type
@@ -162,7 +162,7 @@ Not only is this object valuable during a pull request build,
 it can also be used to find relevant information in a
 "push" build:
 
-.. testsetup:: push
+.. testsetup:: travis-push
 
   import os
   os.environ = {
@@ -179,7 +179,7 @@ it can also be used to find relevant information in a
 
   travis._push_build_base = mock_push_base
 
-.. doctest:: push
+.. doctest:: travis-push
 
   >>> config = ci_diff_helper.Travis()
   >>> config.event_type
@@ -198,14 +198,14 @@ environment variable, and this value is not particularly reliable.
 Instead, :attr:`~.Travis.merged_pr` provides a way to determine the
 PR that was merged:
 
-.. testsetup:: push-merged-pr
+.. testsetup:: travis-push-merged-pr
 
   import ci_diff_helper
   config = ci_diff_helper.Travis()
   config._merged_pr = 1355
   config._is_merge = True
 
-.. doctest:: push-merged-pr
+.. doctest:: travis-push-merged-pr
 
   >>> config.is_merge
   True
