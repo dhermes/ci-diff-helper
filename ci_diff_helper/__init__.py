@@ -281,8 +281,8 @@ def get_config():
     """Get configuration for the current environment.
 
     Returns:
-        Union[AppVeyor, CircleCI, Travis]: A configuration class
-        for the current environment.
+        Union[~appveyor.AppVeyor, ~circle_ci.CircleCI, ~travis.Travis]: A
+        configuration class for the current environment.
 
     Raises:
         OSError: If no (unique) environment is active.

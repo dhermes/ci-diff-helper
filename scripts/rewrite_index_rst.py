@@ -17,11 +17,54 @@ module ``ci_diff_helper/__init__.py``.
 """
 
 import os
+import types
+
+try:
+    import ci_diff_helper
+except ImportError:
+    ci_diff_helper = None
 
 
+_BASE_PACKAGE = 'ci_diff_helper'
+_EXPECTED_AUTOMODULE_LINES = (
+    '',
+    '.. automodule:: ci_diff_helper',
+    '    :members:',
+    '    :inherited-members:',
+    '    :undoc-members:',
+    '    :show-inheritance:',
+    '',
+)
 _CURR_DIR = os.path.dirname(__file__)
 DOCS_DIR = os.path.abspath(os.path.join(_CURR_DIR, '..', 'docs'))
 INDEX_FILE = os.path.join(DOCS_DIR, 'index.rst')
+
+
+def public_members():
+    """Get public members in :mod:`ci_diff_helper` package.
+
+    Returns:
+        list: List of all public members **defined** in the
+        main package.
+    """
+    if ci_diff_helper is None:
+        return []
+
+    members = []
+    for name in dir(ci_diff_helper):
+        # Filter out non-public.
+        if name.startswith('_'):
+            continue
+        value = getattr(ci_diff_helper, name)
+        # Filter out imported modules.
+        if isinstance(value, types.ModuleType):
+            continue
+        # Only keep values defined in the base package.
+        home = getattr(value, '__module__', _BASE_PACKAGE)
+        if home == _BASE_PACKAGE:
+            members.append(name)
+
+    return members
 
 
 def main():
@@ -62,8 +105,21 @@ def main():
         raise ValueError('Unexpected submodules header', lines[2:6])
     if lines[mod_index - 1] != 'Module contents':
         raise ValueError('Unexpected module header', lines[mod_index - 1])
+    if tuple(lines[mod_index + 1:]) != _EXPECTED_AUTOMODULE_LINES:
+        raise ValueError('Unexpected automodule content',
+                         lines[mod_index + 1:])
 
-    automodule_lines = lines[mod_index + 1:]
+    members_config = '    :members:'
+    members = public_members()
+    if members:
+        members_str = ', '.join(members)
+        members_config += ' ' + members_str
+    automodule_lines = [
+        '',
+        '.. automodule:: ci_diff_helper',
+        members_config,
+        '',
+    ]
     rewritten_content.extend(automodule_lines)
 
     # Make the TOC tree hidden.

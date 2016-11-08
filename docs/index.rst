@@ -2,10 +2,7 @@
 ==================
 
 .. automodule:: ci_diff_helper
-    :members:
-    :inherited-members:
-    :undoc-members:
-    :show-inheritance:
+    :members: get_config
 
 .. toctree::
    :hidden:
