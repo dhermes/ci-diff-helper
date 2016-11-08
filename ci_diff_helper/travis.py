@@ -149,7 +149,7 @@ def _push_build_base(slug):
         slug (str): The GitHub repo slug for the current build.
             Of the form ``{organization}/{repository}``.
 
-    Returns
+    Returns:
         str: The commit SHA of the diff base.
     """
     start, finish = _get_commit_range()
