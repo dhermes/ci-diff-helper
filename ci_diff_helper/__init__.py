@@ -54,7 +54,7 @@ The library supports (planned)
 
 .. _rate limiting: https://developer.github.com/v3/#rate-limiting
 
-To use this in your project first install:
+To use this in your project, first install:
 
 .. code-block:: bash
 
@@ -80,10 +80,14 @@ information about your environment:
   >>> config.active
   True
 
-Once you've done that, you can use some basic functions
-(:func:`~travis.in_travis`, :func:`~travis.in_travis_pr` and
-:func:`~travis.travis_branch`) to get information about your
-current environment.
+Long-lived configuration objects are provided as an interface for
+CI system information. These config objects cache the returned values
+for each property and use them to compute other useful values.
+
+:class:`.Travis` Configuration Type
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To use the :class:`.Travis` configuration type directly:
 
 .. testsetup:: pr
 
@@ -96,23 +100,6 @@ current environment.
       'TRAVIS_PULL_REQUEST': '1234',
   }
   import ci_diff_helper
-
-.. doctest:: pr
-
-  >>> import ci_diff_helper
-  >>> ci_diff_helper.in_travis()
-  True
-  >>> ci_diff_helper.in_travis_pr()
-  True
-  >>> ci_diff_helper.travis_branch()
-  'master'
-
-While these functions are convenient, they are "one-shot", i.e. they
-compute the value and return it, but don't cache the computed value.
-
-Instead, a long-lived configuration object (:class:`.Travis`) is provided
-with the same functionality, but also caches the returned values and
-uses them to compute other useful values.
 
 .. doctest:: pr
 
@@ -195,7 +182,10 @@ PR that was merged:
   >>> config.merged_pr
   1355
 
-In addition :func:`~git_tools.git_root` and
+``git`` tools
+~~~~~~~~~~~~~
+
+The helpers :func:`~git_tools.git_root` and
 :func:`~git_tools.get_checked_in_files` are provided as
 tools for a ``git``-based project. Being able to get the
 root of the current ``git`` checkout may be needed to collect
@@ -244,10 +234,7 @@ from ci_diff_helper.appveyor import AppVeyor
 from ci_diff_helper.circle_ci import CircleCI
 from ci_diff_helper.git_tools import get_checked_in_files
 from ci_diff_helper.git_tools import git_root
-from ci_diff_helper.travis import in_travis
-from ci_diff_helper.travis import in_travis_pr
 from ci_diff_helper.travis import Travis
-from ci_diff_helper.travis import travis_branch
 
 
 __all__ = [
@@ -256,10 +243,7 @@ __all__ = [
     'get_checked_in_files',
     'get_config',
     'git_root',
-    'in_travis',
-    'in_travis_pr',
     'Travis',
-    'travis_branch',
 ]
 
 
