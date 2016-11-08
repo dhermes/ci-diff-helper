@@ -18,4 +18,3 @@ general:
   branches:
     ignore:
       - gh-pages
-      - test-app
