@@ -19,30 +19,29 @@ import json
 import ci_diff_helper
 
 
-PROPERTIES = (
-    'active',
-    'base',
-    'branch',
-    'event_type',
-    'in_pr',
-    'is_merge',
-    'merged_pr',
-    'pr',
-    'slug',
-    'tag',
-)
-"""Our artisanally-crafted list of properties."""
+PROPERTIES_MAP = {
+    'Travis': (
+        'active',
+        'base',
+        'branch',
+        'event_type',
+        'in_pr',
+        'is_merge',
+        'merged_pr',
+        'pr',
+        'slug',
+        'tag',
+    ),
+}
+"""Our artisanally-crafted property lists."""
 ERROR_TYPES = (
-    EnvironmentError,
+    OSError,
     KeyError,
     NotImplementedError,
     ValueError,
 )
 """Accepted / expected list of errors."""
 HELPERS = (
-    ci_diff_helper.in_travis,
-    ci_diff_helper.in_travis_pr,
-    ci_diff_helper.travis_branch,
     ci_diff_helper.get_checked_in_files,
     ci_diff_helper.git_root,
 )
@@ -53,35 +52,51 @@ SECTION_SEP = '=' * 40
 """Separator for printing between sections."""
 
 
-def get_properties(klass):
+def get_properties(config):
     """Get the names of all defined ``@property``s on a class.
 
-    :type klass: type
-    :param klass: A type to check for properties.
+    Args:
+        config (ci_diff_helper._config_base.Config): A config object.
 
-    :rtype tuple:
-    :returns: Sorted tuple of `@property` names.
+    Returns:
+        tuple: Sorted tuple of `@property` names.
+
+    Raises:
+        KeyError: If the class does not have an expected property map.
+        ValueError: If the property map doesn't agree with the
+            current ``config``.
     """
+    klass = type(config)  # NOTE: This assumes new-style classes.
+
+    try:
+        expected_props = PROPERTIES_MAP[klass.__name__]
+    except KeyError:
+        raise KeyError('No property map for class', klass)
+
     result = []
     for name in dir(klass):
         klass_attr = getattr(klass, name)
         if isinstance(klass_attr, property):
             result.append(name)
-    return tuple(sorted(result))
+
+    result = tuple(sorted(result))
+    if expected_props != result:
+        raise ValueError('The property list is out of date',
+                         'Expected', expected_props,
+                         'Actual', result)
+
+    return result
 
 
 def main():
     """Main script to test out Travis features."""
-    print('Travis() config object:')
+    config = ci_diff_helper.get_config()
+    print('Config object:')
     print(HEADER_SEP)
-    config = ci_diff_helper.Travis()
-    expected_props = get_properties(ci_diff_helper.Travis)
-    if expected_props != PROPERTIES:
-        raise ValueError('The property list is out of date',
-                         'Expected', expected_props,
-                         'Actual', PROPERTIES)
+    print(config)
 
-    for prop in PROPERTIES:
+    config_props = get_properties(config)
+    for prop in config_props:
         try:
             value = getattr(config, prop)
         except ERROR_TYPES as exc:
