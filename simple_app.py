@@ -20,6 +20,19 @@ import ci_diff_helper
 
 
 PROPERTIES_MAP = {
+    'AppVeyor': (
+        'active',
+        'branch',
+        'is_merge',
+        'provider',
+        'tag',
+    ),
+    'CircleCI': (
+        'active',
+        'branch',
+        'is_merge',
+        'tag',
+    ),
     'Travis': (
         'active',
         'base',
@@ -89,11 +102,10 @@ def get_properties(config):
 
 
 def main():
-    """Main script to test out Travis features."""
+    """Main script to test out CI features."""
     config = ci_diff_helper.get_config()
-    print('Config object:')
+    print('Config object: {}'.format(config))
     print(HEADER_SEP)
-    print(config)
 
     config_props = get_properties(config)
     for prop in config_props:
@@ -101,13 +113,13 @@ def main():
             value = getattr(config, prop)
         except ERROR_TYPES as exc:
             value = exc
-        print('%22s: %r' % (prop, value))
+        print('{:>22}: {!r}'.format(prop, value))
 
     print(SECTION_SEP)
-    print('Travis (and git) helper functions:')
+    print('git helper functions:')
     print(HEADER_SEP)
     for helper in HELPERS:
-        format_str = '%20s(): %r'
+        format_str = '{:>20}(): {!r}'
         try:
             value = helper()
         except ERROR_TYPES as exc:
@@ -121,8 +133,8 @@ def main():
             # Add extra newline at the top.
             value = '\n' + value
             # Update the format string to **not** be a literal.
-            format_str = '%20s(): %s'
-        print(format_str % (helper.__name__, value))
+            format_str = '{:>20}(): {}'
+        print(format_str.format(helper.__name__, value))
 
 
 if __name__ == '__main__':
