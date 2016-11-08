@@ -214,6 +214,28 @@ PR that was merged:
   >>> config.merged_pr
   1355
 
+:class:`~.circle_ci.CircleCI` Configuration Type
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To use the :class:`~.circle_ci.CircleCI` configuration type directly:
+
+.. testsetup:: circle-ci-pr
+
+  import os
+  os.environ = {
+      'CIRCLECI': 'true',
+      'CIRCLE_BRANCH': 'master',
+  }
+  import ci_diff_helper
+
+.. doctest:: circle-ci-pr
+
+  >>> config = ci_diff_helper.CircleCI()
+  >>> config
+  <CircleCI (active=True)>
+  >>> config.branch
+  'master'
+
 :class:`~.appveyor.AppVeyor` Configuration Type
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
