@@ -134,6 +134,8 @@ To use the :class:`~.travis.Travis` configuration type directly:
 .. doctest:: travis-pr
 
   >>> config = ci_diff_helper.Travis()
+  >>> config
+  <Travis (active=True)>
   >>> config.active
   True
   >>> config.in_pr
@@ -211,6 +213,31 @@ PR that was merged:
   True
   >>> config.merged_pr
   1355
+
+:class:`~.appveyor.AppVeyor` Configuration Type
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To use the :class:`~.appveyor.AppVeyor` configuration type directly:
+
+.. testsetup:: appveyor-pr
+
+  import os
+  os.environ = {
+      'APPVEYOR': 'true',
+      'APPVEYOR_REPO_BRANCH': 'master',
+      'APPVEYOR_REPO_PROVIDER': 'github',
+  }
+  import ci_diff_helper
+
+.. doctest:: appveyor-pr
+
+  >>> config = ci_diff_helper.AppVeyor()
+  >>> config
+  <AppVeyor (active=True)>
+  >>> config.branch
+  'master'
+  >>> config.provider
+  <AppVeyorRepoProvider.github: 'github'>
 
 ``git`` tools
 ~~~~~~~~~~~~~
