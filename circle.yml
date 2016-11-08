@@ -1,4 +1,13 @@
+dependencies:
+  override:
+    - pip install --upgrade pip
+    - pip install --upgrade git+https://github.com/dhermes/ci-diff-helper#ci-diff-helper
+
+test:
+  override:
+    - python simple_app.py
+
 general:
   branches:
     ignore:
-      - test-app
+      - gh-pages
