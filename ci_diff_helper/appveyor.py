@@ -24,7 +24,7 @@ them to compute other useful values.
 
   import os
   os.environ = {
-      'APPVEYOR': 'true',
+      'APPVEYOR': 'True',
       'APPVEYOR_REPO_BRANCH': 'master',
       'APPVEYOR_REPO_PROVIDER': 'github',
   }

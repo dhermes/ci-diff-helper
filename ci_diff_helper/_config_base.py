@@ -25,7 +25,8 @@ _BRANCH_ERR_TEMPLATE = (
 def _in_ci(env_var):
     """Detect if we are running in the target CI system.
 
-    Assumes the only valid environment variable value is ``true``.
+    Assumes the only valid environment variable value is ``true`` (case
+    insensitive).
 
     Args:
         env_var (str): The environment variable which holds the status.
@@ -33,7 +34,7 @@ def _in_ci(env_var):
     Returns:
         bool: Flag indicating if we are running in the target CI system.
     """
-    return os.getenv(env_var) == 'true'
+    return os.getenv(env_var, '').lower() == 'true'
 
 
 def _ci_branch(env_var):

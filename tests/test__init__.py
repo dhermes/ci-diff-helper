@@ -33,7 +33,7 @@ class Test_get_config(unittest.TestCase):
 
         mock_env = {
             env.IN_CIRCLE_CI_ENV: 'true',
-            env.IN_APPVEYOR_ENV: 'true',
+            env.IN_APPVEYOR_ENV: 'True',
         }
         with mock.patch('os.environ', new=mock_env):
             with self.assertRaises(OSError):

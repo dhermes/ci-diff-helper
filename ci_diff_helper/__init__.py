@@ -245,7 +245,7 @@ To use the :class:`~.appveyor.AppVeyor` configuration type directly:
 
   import os
   os.environ = {
-      'APPVEYOR': 'true',
+      'APPVEYOR': 'True',
       'APPVEYOR_REPO_BRANCH': 'master',
       'APPVEYOR_REPO_PROVIDER': 'github',
   }

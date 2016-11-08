@@ -20,20 +20,31 @@ class Test__in_ci(unittest.TestCase):
         from ci_diff_helper._config_base import _in_ci
         return _in_ci(env_var)
 
-    def test_success(self):
+    def _helper(self, env_var, value):
         import mock
 
-        env_var = 'MY_CI'
-        mock_env = {env_var: 'true'}
+        mock_env = {env_var: value}
         with mock.patch('os.environ', new=mock_env):
-            self.assertTrue(self._call_function_under_test(env_var))
+            return self._call_function_under_test(env_var)
 
-    def test_failure(self):
+    def test_success(self):
+        env_var = 'MY_CI'
+        self.assertTrue(self._helper(env_var, 'true'))
+
+    def test_success_uppercase(self):
+        env_var = 'MOI_SEE_OY'
+        self.assertTrue(self._helper(env_var, 'True'))
+
+    def test_failure_missing(self):
         import mock
 
         env_var = 'MY_CI'
         with mock.patch('os.environ', new={}):
             self.assertFalse(self._call_function_under_test(env_var))
+
+    def test_failure_invalid(self):
+        env_var = 'HI_BYE_CI'
+        self.assertFalse(self._helper(env_var, 'Treeoooh'))
 
 
 class Test__ci_branch(unittest.TestCase):
