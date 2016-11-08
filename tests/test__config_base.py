@@ -243,3 +243,10 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(config._tag, tag)
         # Test that cached value is re-used.
         self.assertEqual(config.tag, tag)
+
+    def test___repr__(self):
+        import mock
+
+        config = self._make_one()
+        with mock.patch('os.environ', new={}):
+            self.assertEqual(repr(config), '<Config (active=False)>')

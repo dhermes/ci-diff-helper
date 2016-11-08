@@ -109,3 +109,12 @@ class Config(object):
                 self._tag = tag_val
         return self._tag
     # pylint: enable=missing-returns-doc
+
+    def __repr__(self):
+        """Representation of current configuration.
+
+        Returns:
+            str: Object representation.
+        """
+        return '<{} (active={})>'.format(
+            self.__class__.__name__, self.active)

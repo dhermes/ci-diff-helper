@@ -148,3 +148,13 @@ class TestAppVeyor(unittest.TestCase):
         tag = '0.x.y'
         config._tag = tag
         self.assertEqual(config.tag, tag)
+
+    def test___repr__(self):
+        import mock
+        from ci_diff_helper import environment_vars as env
+
+        config = self._make_one()
+
+        mock_env = {env.IN_APPVEYOR_ENV: 'false'}
+        with mock.patch('os.environ', new=mock_env):
+            self.assertEqual(repr(config), '<AppVeyor (active=False)>')

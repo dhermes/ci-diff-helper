@@ -63,7 +63,8 @@ def main():
     if lines[mod_index - 1] != 'Module contents':
         raise ValueError('Unexpected module header', lines[mod_index - 1])
 
-    rewritten_content.extend(lines[mod_index + 1:])
+    automodule_lines = lines[mod_index + 1:]
+    rewritten_content.extend(automodule_lines)
 
     # Make the TOC tree hidden.
     toctree_lines = lines[6:mod_index - 1]

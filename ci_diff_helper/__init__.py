@@ -60,6 +60,26 @@ To use this in your project first install:
 
   $ pip install --upgrade ci-diff-helper
 
+Once you've done that, you can automatically detect your
+current environment and get a configuration object with
+information about your environment:
+
+.. testsetup:: auto-detect
+
+  import os
+  os.environ = {
+      'CIRCLECI': 'true',
+  }
+
+.. doctest:: auto-detect
+
+  >>> import ci_diff_helper
+  >>> config = ci_diff_helper.get_config()
+  >>> config
+  <CircleCI (active=True)>
+  >>> config.active
+  True
+
 Once you've done that, you can use some basic functions
 (:func:`~travis.in_travis`, :func:`~travis.in_travis_pr` and
 :func:`~travis.travis_branch`) to get information about your
@@ -228,3 +248,39 @@ from ci_diff_helper.travis import in_travis
 from ci_diff_helper.travis import in_travis_pr
 from ci_diff_helper.travis import Travis
 from ci_diff_helper.travis import travis_branch
+
+
+__all__ = [
+    'AppVeyor',
+    'CircleCI',
+    'get_checked_in_files',
+    'get_config',
+    'git_root',
+    'in_travis',
+    'in_travis_pr',
+    'Travis',
+    'travis_branch',
+]
+
+
+def get_config():
+    """Get configuration for the current environment.
+
+    Returns:
+        Union[AppVeyor, CircleCI, Travis]: A configuration class
+        for the current environment.
+
+    Raises:
+        OSError: If no (unique) environment is active.
+    """
+    choices = [AppVeyor(), CircleCI(), Travis()]
+    current = []
+    for choice in choices:
+        if choice.active:
+            current.append(choice)
+
+    if len(current) != 1:
+        raise OSError(
+            None, 'Could not find unique environment. Found:',
+            current)
+    return current[0]

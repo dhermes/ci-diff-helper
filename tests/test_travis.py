@@ -588,6 +588,16 @@ class TestTravis(unittest.TestCase):
         config._tag = tag
         self.assertEqual(config.tag, tag)
 
+    def test___repr__(self):
+        import mock
+        from ci_diff_helper import environment_vars as env
+
+        config = self._make_one()
+
+        mock_env = {env.IN_TRAVIS_ENV: 'true'}
+        with mock.patch('os.environ', new=mock_env):
+            self.assertEqual(repr(config), '<Travis (active=True)>')
+
 
 class Test_in_travis(unittest.TestCase):
 

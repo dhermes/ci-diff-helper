@@ -66,6 +66,7 @@ _TEST_RC_ADDITIONS = copy.deepcopy(_PRODUCTION_RC_ADDITIONS)
 _TEST_RC_ADDITIONS['MESSAGES CONTROL']['disable'].extend([
     'missing-docstring',
     'protected-access',
+    'similarities',
     'too-many-public-methods',
 ])
 _TEST_RC_REPLACEMENTS = copy.deepcopy(_PRODUCTION_RC_REPLACEMENTS)

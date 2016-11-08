@@ -34,3 +34,10 @@ class TestCircleCI(unittest.TestCase):
         self.assertIs(config._branch, _utils.UNSET)
         self.assertIs(config._is_merge, _utils.UNSET)
         self.assertIs(config._tag, _utils.UNSET)
+
+    def test___repr__(self):
+        import mock
+
+        config = self._make_one()
+        with mock.patch('os.environ', new={}):
+            self.assertEqual(repr(config), '<CircleCI (active=False)>')
