@@ -13,6 +13,8 @@
 """Check that the current README.rst is built from the template."""
 
 
+from __future__ import print_function
+
 import os
 
 
