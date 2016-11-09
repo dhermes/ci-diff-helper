@@ -3,7 +3,7 @@ CI Diff Helper
 
     Diff Helper for Continuous Integration (CI) Services
 
-|pypi| |coverage| |versions| |docs|
+{pypi}|coverage| {versions}|docs|
 
 For an open source project, running unit tests, system tests, torture tests,
 fuzz tests, integration tests, code quality checks, etc. can quickly become
@@ -120,19 +120,15 @@ Apache 2.0 - See `LICENSE`_ for more information.
 
 .. _LICENSE: https://github.com/dhermes/ci-diff-helper/blob/master/LICENSE
 
-.. |build-travis| image:: https://travis-ci.org/dhermes/ci-diff-helper.svg?branch=master
+.. |build-travis| image:: https://travis-ci.org/dhermes/ci-diff-helper.svg?{travis_info}
    :target: https://travis-ci.org/dhermes/ci-diff-helper
 .. |build-circ| image:: https://circleci.com/gh/dhermes/ci-diff-helper.svg?style=shield
    :target: https://circleci.com/gh/dhermes/ci-diff-helper
    :alt: CirleCI Build
-.. |build-appveyor| image:: https://ci.appveyor.com/api/projects/status/github/dhermes/ci-diff-helper?branch=master&svg=true
+.. |build-appveyor| image:: https://ci.appveyor.com/api/projects/status/github/dhermes/ci-diff-helper?{appveyor_info}&svg=true
    :target: https://ci.appveyor.com/project/dhermes/ci-diff-helper
-.. |coverage| image:: https://coveralls.io/repos/github/dhermes/ci-diff-helper/badge.svg?branch=master
-   :target: https://coveralls.io/github/dhermes/ci-diff-helper?branch=master
-.. |pypi| image:: https://img.shields.io/pypi/v/ci-diff-helper.svg
-   :target: https://pypi.python.org/pypi/ci-diff-helper
-.. |versions| image:: https://img.shields.io/pypi/pyversions/ci-diff-helper.svg
-   :target: https://pypi.python.org/pypi/ci-diff-helper
-.. |docs| image:: https://readthedocs.org/projects/ci-diff-helper/badge/?version=latest
-   :target: http://ci-diff-helper.readthedocs.io/en/latest/?badge=latest
+.. |coverage| image:: https://coveralls.io/repos/github/dhermes/ci-diff-helper/badge.svg?branch={coveralls_branch}
+   :target: https://coveralls.io/github/dhermes/ci-diff-helper?branch={coveralls_branch}
+{pypi_img}{versions_img}.. |docs| image:: https://readthedocs.org/projects/ci-diff-helper/badge/?version={rtd_version}
+   :target: http://ci-diff-helper.readthedocs.io/en/{rtd_version}/?badge={rtd_version}
    :alt: Documentation Status

@@ -20,6 +20,7 @@ script:
 - tox -e docs
 - tox -e doctest
 - scripts/update_test_app.sh
+- python scripts/check_readme.py
 
 after_success:
 - ".tox/cover/bin/pip install coveralls"

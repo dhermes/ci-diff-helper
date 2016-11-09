@@ -1,0 +1,3 @@
+include README.rst.template
+graft ci_diff_helper
+global-exclude *.pyc
