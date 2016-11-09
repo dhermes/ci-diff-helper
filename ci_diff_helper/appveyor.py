@@ -26,7 +26,7 @@ them to compute other useful values.
   os.environ = {
       'APPVEYOR': 'True',
       'APPVEYOR_REPO_BRANCH': 'master',
-      'APPVEYOR_REPO_PROVIDER': 'github',
+      'APPVEYOR_REPO_PROVIDER': 'gitHub',
   }
   import ci_diff_helper
 
@@ -75,14 +75,15 @@ def _appveyor_provider():
 
     Raises:
         ValueError: If the ``APPVEYOR_REPO_PROVIDER`` environment
-            variable is not one of the expected values.
+            variable is not one of the (case-insensitive)
+            expected values.
     """
     repo_provider = os.getenv(env.APPVEYOR_REPO_ENV, '')
     try:
-        return AppVeyorRepoProvider(repo_provider)
+        return AppVeyorRepoProvider(repo_provider.lower())
     except ValueError:
         raise ValueError('Invalid repo provider', repo_provider,
-                         'Expected one of',
+                         'Expected one of (case-insensitive)',
                          [enum_val.name for enum_val in AppVeyorRepoProvider])
 
 

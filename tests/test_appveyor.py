@@ -20,16 +20,25 @@ class Test__appveyor_provider(unittest.TestCase):
         from ci_diff_helper.appveyor import _appveyor_provider
         return _appveyor_provider()
 
-    def test_success(self):
+    def _helper(self, repo_provider):
         import mock
-        from ci_diff_helper import appveyor
         from ci_diff_helper import environment_vars as env
 
-        repo_provider = 'github'
         mock_env = {env.APPVEYOR_REPO_ENV: repo_provider}
         with mock.patch('os.environ', new=mock_env):
-            result = self._call_function_under_test()
-            self.assertIs(result, appveyor.AppVeyorRepoProvider.github)
+            return self._call_function_under_test()
+
+    def test_success(self):
+        from ci_diff_helper import appveyor
+
+        result = self._helper('bitbucket')
+        self.assertIs(result, appveyor.AppVeyorRepoProvider.bitbucket)
+
+    def test_success_different_case(self):
+        from ci_diff_helper import appveyor
+
+        result = self._helper('gitHub')
+        self.assertIs(result, appveyor.AppVeyorRepoProvider.github)
 
     def test_failure(self):
         import mock
@@ -48,7 +57,7 @@ class TestAppVeyorRepoProvider(unittest.TestCase):
 
     def _make_one(self, enum_val):
         klass = self._get_target_class()
-        return klass(enum_val)
+        return klass(enum_val.lower())
 
     def test_members(self):
         klass = self._get_target_class()
@@ -63,7 +72,7 @@ class TestAppVeyorRepoProvider(unittest.TestCase):
 
     def test_github(self):
         klass = self._get_target_class()
-        provider_obj = self._make_one('github')
+        provider_obj = self._make_one('gitHub')
         self.assertIs(provider_obj, klass.github)
 
     def test_gitlab(self):
