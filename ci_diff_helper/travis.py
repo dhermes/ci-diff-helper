@@ -12,12 +12,134 @@
 
 """Set of utilities for dealing with Travis CI.
 
+This module provides a custom configuration type
+:class:`Travis` for the `Travis`_ CI system.
+
+.. _Travis: https://travis-ci.com/
+
 Since Travis only works with GitHub, the commands in this module
 are GitHub and ``git`` centric.
 
 This module uses a selection of environment variables to detect
 the state of Travis configuration. See
 :mod:`~ci_diff_helper.environment_vars` for more details.
+
+:class:`Travis` Configuration Type
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When running in Travis, you can automatically detect your
+current environment and get the configuration object:
+
+.. testsetup:: auto-detect
+
+  import os
+  os.environ = {
+      'TRAVIS': 'true',
+  }
+
+.. doctest:: auto-detect
+
+  >>> import ci_diff_helper
+  >>> config = ci_diff_helper.get_config()
+  >>> config
+  <Travis (active=True)>
+
+To use the :class:`Travis` configuration type directly:
+
+.. testsetup:: travis-pr
+
+  import os
+  os.environ = {
+      'TRAVIS': 'true',
+      'TRAVIS_EVENT_TYPE': 'pull_request',
+      'TRAVIS_BRANCH': 'master',
+      'TRAVIS_REPO_SLUG': 'organization/repository',
+      'TRAVIS_PULL_REQUEST': '1234',
+  }
+  import ci_diff_helper
+
+.. doctest:: travis-pr
+
+  >>> config = ci_diff_helper.Travis()
+  >>> config
+  <Travis (active=True)>
+  >>> config.active
+  True
+  >>> config.in_pr
+  True
+  >>> config.branch
+  'master'
+
+In addition this configuration provides extra features for
+determining a diffbase.
+
+.. doctest:: travis-pr
+
+  >>> config = ci_diff_helper.Travis()
+  >>> config.event_type
+  <TravisEventType.pull_request: 'pull_request'>
+  >>> config.slug
+  'organization/repository'
+  >>> config.pr
+  1234
+  >>> config.tag is None
+  True
+  >>> config.base
+  'master'
+
+Not only is this object valuable during a pull request build,
+it can also be used to find relevant information in a
+"push" build:
+
+.. testsetup:: travis-push
+
+  import os
+  os.environ = {
+      'TRAVIS_EVENT_TYPE': 'push',
+      'TRAVIS_REPO_SLUG': 'organization/repository',
+      'TRAVIS_TAG': '0.13.37',
+  }
+  import ci_diff_helper
+  from ci_diff_helper import travis
+
+  def mock_push_base(slug):
+      assert slug == 'organization/repository'
+      return '4ad7349dc7223ebc02175a16dc577a013044a538'
+
+  travis._push_build_base = mock_push_base
+
+.. doctest:: travis-push
+
+  >>> config = ci_diff_helper.Travis()
+  >>> config.event_type
+  <TravisEventType.push: 'push'>
+  >>> config.pr is None
+  True
+  >>> config.tag
+  '0.13.37'
+  >>> config.base
+  '4ad7349dc7223ebc02175a16dc577a013044a538'
+
+Though the :attr:`~Travis.base` property can be useful as a diffbase
+of a given commit, it may be inappropriate. In a "push" build,
+:attr:`~Travis.base` will be computed from the ``TRAVIS_COMMIT_RANGE``
+environment variable, and this value is not particularly reliable.
+Instead, :attr:`~Travis.merged_pr` provides a way to determine the
+PR that was merged:
+
+.. testsetup:: travis-push-merged-pr
+
+  import ci_diff_helper
+  config = ci_diff_helper.Travis()
+  config._merged_pr = 1355
+  config._is_merge = True
+
+.. doctest:: travis-push-merged-pr
+
+  >>> config.is_merge
+  True
+  >>> config.merged_pr
+  1355
 """
 
 import os

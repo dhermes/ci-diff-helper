@@ -12,15 +12,38 @@
 
 """Set of utilities for dealing with AppVeyor CI.
 
+This module provides a custom configuration type
+:class:`AppVeyor` for the `AppVeyor`_ CI system.
+
+.. _AppVeyor: https://www.appveyor.com/
+
 This module uses a selection of environment variables to detect
 the state of AppVeyor configuration. See
 :mod:`~ci_diff_helper.environment_vars` for more details.
 
-This module provides a long-lived configuration object
-(:class:`AppVeyor`) that caches the returned values and uses
-them to compute other useful values.
+:class:`AppVeyor` Configuration Type
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. testsetup:: config-obj
+When running in AppVeyor, you can automatically detect your
+current environment and get the configuration object:
+
+.. testsetup:: auto-detect
+
+  import os
+  os.environ = {
+      'APPVEYOR': 'True',
+  }
+
+.. doctest:: auto-detect
+
+  >>> import ci_diff_helper
+  >>> config = ci_diff_helper.get_config()
+  >>> config
+  <AppVeyor (active=True)>
+
+To use the :class:`AppVeyor` configuration type directly:
+
+.. testsetup:: appveyor-pr
 
   import os
   os.environ = {
@@ -30,31 +53,15 @@ them to compute other useful values.
   }
   import ci_diff_helper
 
-.. doctest:: config-obj
+.. doctest:: appveyor-pr
 
   >>> config = ci_diff_helper.AppVeyor()
-  >>> config.active
-  True
+  >>> config
+  <AppVeyor (active=True)>
   >>> config.branch
   'master'
   >>> config.provider
   <AppVeyorRepoProvider.github: 'github'>
-  >>> config.tag is None
-  True
-
-It can also be used to detect if a merge commit is
-currently being built:
-
-.. testsetup:: merged-commit
-
-  import ci_diff_helper
-  config = ci_diff_helper.AppVeyor()
-  config._is_merge = True
-
-.. doctest:: merged-commit
-
-  >>> config.is_merge
-  True
 """
 
 import os

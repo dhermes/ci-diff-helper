@@ -12,17 +12,38 @@
 
 """Set of utilities for dealing with Circle CI.
 
-The commands in this module are ``git`` centric.
+This module provides a custom configuration type
+:class:`CircleCI` for the `CircleCI`_ CI system.
+
+.. _CircleCI: https://circleci.com/
 
 This module uses a selection of environment variables to detect
 the state of Circle CI configuration. See
 :mod:`~ci_diff_helper.environment_vars` for more details.
 
-This module provides a long-lived configuration object
-(:class:`CircleCI`) that caches the returned values and uses
-them to compute other useful values.
+:class:`CircleCI` Configuration Type
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. testsetup:: config-obj
+When running in CircleCI, you can automatically detect your
+current environment and get the configuration object:
+
+.. testsetup:: auto-detect
+
+  import os
+  os.environ = {
+      'CIRCLECI': 'true',
+  }
+
+.. doctest:: auto-detect
+
+  >>> import ci_diff_helper
+  >>> config = ci_diff_helper.get_config()
+  >>> config
+  <CircleCI (active=True)>
+
+To use the :class:`CircleCI` configuration type directly:
+
+.. testsetup:: circle-ci-pr
 
   import os
   os.environ = {
@@ -32,29 +53,15 @@ them to compute other useful values.
   }
   import ci_diff_helper
 
-.. doctest:: config-obj
+.. doctest:: circle-ci-pr
 
   >>> config = ci_diff_helper.CircleCI()
-  >>> config.active
-  True
+  >>> config
+  <CircleCI (active=True)>
   >>> config.branch
   'master'
   >>> config.tag
   '0.4.2'
-
-It can also be used to detect if a merge commit is
-currently being built:
-
-.. testsetup:: merged-commit
-
-  import ci_diff_helper
-  config = ci_diff_helper.CircleCI()
-  config._is_merge = True
-
-.. doctest:: merged-commit
-
-  >>> config.is_merge
-  True
 """
 
 from ci_diff_helper import _config_base
