@@ -113,12 +113,13 @@ def main():
             value = getattr(config, prop)
         except ERROR_TYPES as exc:
             value = exc
-        print('{:>22}: {!r}'.format(prop, value))
+        print('{:>10}: {!r}'.format(prop, value))
 
     print(SECTION_SEP)
     print('git helper functions:')
     print(HEADER_SEP)
     for helper in HELPERS:
+        print('{}():'.format(helper.__name__))
         format_str = '{:>20}(): {!r}'
         try:
             value = helper()
@@ -126,15 +127,9 @@ def main():
             value = exc
         if isinstance(value, (list, tuple)):
             json_value = json.dumps(value, indent=2)
-            # Indent by 22 spaces.
-            whitespace = ' ' * 22
-            lines = [whitespace + line for line in json_value.split('\n')]
-            value = '\n'.join(lines)
-            # Add extra newline at the top.
-            value = '\n' + value
-            # Update the format string to **not** be a literal.
-            format_str = '{:>20}(): {}'
-        print(format_str.format(helper.__name__, value))
+            print(json_value)
+        else:
+            print(repr(value))
 
 
 if __name__ == '__main__':
