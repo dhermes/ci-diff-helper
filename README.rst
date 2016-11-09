@@ -53,57 +53,65 @@ to see the computed values at work.
 
 For example, in a `Travis PR build`_::
 
+    Config object: <Travis (active=True)>
+    ----------------------------------------
         active: True
           base: 'test-app'
         branch: 'test-app'
     event_type: <TravisEventType.pull_request: 'pull_request'>
+         in_pr: True
+      is_merge: True
+     merged_pr: None
+            pr: 10
+          slug: 'dhermes/ci-diff-helper'
+           tag: None
            ...
 
 and in a `Travis push build`_::
 
     Config object: <Travis (active=True)>
     ----------------------------------------
-                    active: True
-                      base: u'da0c87dcc580b8322a5c6d683a1bcd30d3873387'
-                    branch: 'test-app'
-                event_type: <TravisEventType.push: 'push'>
-                     in_pr: False
-                  is_merge: False
-                 merged_pr: None
-                        pr: None
-                      slug: 'dhermes/ci-diff-helper'
-                       tag: None
-                       ...
+        active: True
+          base: u'4a02445642735ba0d3ce5b944f4b2647b4c55813'
+        branch: 'test-app'
+    event_type: <TravisEventType.push: 'push'>
+         in_pr: False
+      is_merge: True
+     merged_pr: 10
+            pr: None
+          slug: 'dhermes/ci-diff-helper'
+           tag: None
+           ...
 
 A `CircleCI push build`_::
 
     Config object: <CircleCI (active=True)>
     ----------------------------------------
-                    active: True
-                    branch: 'test-app'
-                  is_merge: False
-                       tag: None
-                       ...
+        active: True
+        branch: 'test-app'
+      is_merge: True
+           tag: None
+           ...
 
 An `AppVeyor push build`_::
 
     Config object: <AppVeyor (active=True)>
     ----------------------------------------
-                    active: True
-                    branch: 'test-app'
-                  is_merge: False
-                  provider: <AppVeyorRepoProvider.github: 'github'>
-                       tag: None
-                       ...
+        active: True
+        branch: 'test-app'
+      is_merge: True
+      provider: <AppVeyorRepoProvider.github: 'github'>
+           tag: None
+           ...
 
 .. _branch: https://github.com/dhermes/ci-diff-helper/tree/test-app
 .. _latest Travis builds: https://travis-ci.org/dhermes/ci-diff-helper/branches
 .. _latest CircleCI builds: https://circleci.com/gh/dhermes/ci-diff-helper/tree/test-app
 .. _latest AppVeyor builds: https://ci.appveyor.com/project/dhermes/ci-diff-helper/history?branch=test-app
-.. _Travis PR build: https://travis-ci.org/dhermes/ci-diff-helper/builds/166910963
-.. _Travis push build: https://travis-ci.org/dhermes/ci-diff-helper/builds/174374853
-.. _CircleCI push build: https://circleci.com/gh/dhermes/ci-diff-helper/45
-.. _AppVeyor push build: https://ci.appveyor.com/project/dhermes/ci-diff-helper/build/1.0.136.test-app
+.. _Travis PR build: https://travis-ci.org/dhermes/ci-diff-helper/builds/174378302
+.. _Travis push build: https://travis-ci.org/dhermes/ci-diff-helper/builds/174378578
+.. _CircleCI push build: https://circleci.com/gh/dhermes/ci-diff-helper/49
+.. _AppVeyor push build: https://ci.appveyor.com/project/dhermes/ci-diff-helper/build/1.0.140.test-app
 
 License
 -------
