@@ -161,6 +161,11 @@ class TestCircleCI(unittest.TestCase):
         self.assertIs(config._active, _utils.UNSET)
         self.assertIs(config._branch, _utils.UNSET)
         self.assertIs(config._is_merge, _utils.UNSET)
+        self.assertIs(config._pr, _utils.UNSET)
+        self.assertIs(config._pr_info_cached, _utils.UNSET)
+        self.assertIs(config._provider, _utils.UNSET)
+        self.assertIs(config._repo_url, _utils.UNSET)
+        self.assertIs(config._slug, _utils.UNSET)
         self.assertIs(config._tag, _utils.UNSET)
 
     def test___repr__(self):
@@ -291,3 +296,71 @@ class TestCircleCI(unittest.TestCase):
         self.assertIs(config._slug, slug_val)
         # Test that cached value is re-used.
         self.assertIs(config.slug, slug_val)
+
+    def test__pr_info_property_cache(self):
+        import mock
+
+        config = self._make_one()
+        config._pr_info_cached = mock.sentinel.info
+
+        self.assertIs(config._pr_info, mock.sentinel.info)
+
+    def test__pr_info_property_non_pr(self):
+        from ci_diff_helper import _utils
+
+        config = self._make_one()
+
+        # Fake that there is no PR.
+        config._pr = None
+        self.assertIsNone(config.pr)
+
+        # Make sure the cached value isn't set.
+        self.assertIs(config._pr_info_cached, _utils.UNSET)
+
+        # Now compute the property value.
+        self.assertEqual(config._pr_info, {})
+
+    def test__pr_info_property_github_pr(self):
+        import mock
+        from ci_diff_helper import circle_ci
+        from ci_diff_helper import environment_vars as env
+
+        config = self._make_one()
+
+        slug = 'arf/garf'
+        repo_url = circle_ci._GITHUB_PREFIX + slug
+        pr_id = 223311
+        mock_env = {
+            env.CIRCLE_CI_REPO_URL: repo_url,
+            env.CIRCLE_CI_PR_NUM: str(pr_id),
+        }
+        with mock.patch('os.environ', new=mock_env):
+            with mock.patch('ci_diff_helper._github.pr_info',
+                            return_value=mock.sentinel.info) as get_info:
+                pr_info = config._pr_info
+                self.assertIs(pr_info, mock.sentinel.info)
+                get_info.assert_called_once_with(slug, pr_id)
+
+        self.assertEqual(get_info.call_count, 1)
+        # Make sure value is cached and doesn't call the helper again.
+        self.assertIs(pr_info, mock.sentinel.info)
+        self.assertEqual(get_info.call_count, 1)
+
+    def test__pr_info_property_pr_not_github(self):
+        import mock
+        from ci_diff_helper import circle_ci
+        from ci_diff_helper import environment_vars as env
+
+        config = self._make_one()
+
+        slug = 'bucket/chuck-it'
+        repo_url = circle_ci._BITBUCKET_PREFIX + slug
+        mock_env = {
+            env.CIRCLE_CI_REPO_URL: repo_url,
+            env.CIRCLE_CI_PR_NUM: '817',
+        }
+        with mock.patch('os.environ', new=mock_env):
+            with mock.patch('ci_diff_helper._github.pr_info') as get_info:
+                with self.assertRaises(NotImplementedError):
+                    getattr(config, '_pr_info')
+                get_info.assert_not_called()

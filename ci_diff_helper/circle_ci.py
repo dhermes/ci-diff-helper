@@ -102,6 +102,7 @@ import os
 import enum
 
 from ci_diff_helper import _config_base
+from ci_diff_helper import _github
 from ci_diff_helper import _utils
 from ci_diff_helper import environment_vars as env
 
@@ -198,6 +199,7 @@ class CircleCI(_config_base.Config):
 
     # Default instance attributes.
     _pr = _utils.UNSET
+    _pr_info_cached = _utils.UNSET
     _provider = _utils.UNSET
     _repo_url = _utils.UNSET
     _slug = _utils.UNSET
@@ -224,6 +226,29 @@ class CircleCI(_config_base.Config):
         if currently in a pull request.
         """
         return self.pr is not None
+
+    @property
+    def _pr_info(self):
+        """dict: The information for the current pull request.
+
+        This information is retrieved from the GitHub API and cached.
+        It is non-public, but a ``@property`` is used for the caching.
+
+        .. warning::
+
+            This property is only meant to be used in a "pull request"
+            from a GitHub repository.
+        """
+        if self._pr_info_cached is _utils.UNSET:
+            current_pr = self.pr
+            if current_pr is None:
+                self._pr_info_cached = {}
+            elif self.provider is CircleCIRepoProvider.github:
+                self._pr_info_cached = _github.pr_info(self.slug, current_pr)
+            else:
+                raise NotImplementedError(
+                    'GitHub is only supported way to retrieve PR info')
+        return self._pr_info_cached
 
     @property
     def repo_url(self):

@@ -76,6 +76,7 @@ _TEST_RC_REPLACEMENTS = copy.deepcopy(_PRODUCTION_RC_REPLACEMENTS)
 _TEST_RC_REPLACEMENTS.setdefault('BASIC', {})
 _TEST_RC_REPLACEMENTS['BASIC']['class-rgx'] = (
     '([A-Z_][a-zA-Z0-9]+|Test_.*)$')
+_TEST_RC_REPLACEMENTS['BASIC']['method-rgx'] = '[a-z_][a-z0-9_]{2,30}$|^test_'
 
 _ROOT_DIR = os.path.abspath(os.path.join(_SCRIPTS_DIR, '..'))
 IGNORED_FILES = (
