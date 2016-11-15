@@ -115,7 +115,6 @@ class AppVeyor(_config_base.Config):
     _branch_env_var = env.APPVEYOR_BRANCH
     _tag_env_var = env.APPVEYOR_TAG
 
-    # pylint: disable=missing-returns-doc
     @property
     def provider(self):
         """str: The code hosting provider for the current AppVeyor build."""
@@ -135,4 +134,3 @@ class AppVeyor(_config_base.Config):
             a build started by a tag before checking for the tag.
         """
         return super(AppVeyor, self).tag
-    # pylint: enable=missing-returns-doc

@@ -338,7 +338,6 @@ class Travis(_config_base.Config):
     _branch_env_var = env.TRAVIS_BRANCH
     _tag_env_var = env.TRAVIS_TAG
 
-    # pylint: disable=missing-returns-doc
     @property
     def base(self):
         """str: The ``git`` object that current build is changed against.
@@ -352,9 +351,10 @@ class Travis(_config_base.Config):
             for a branch. This is because Travis leaves the value empty in
             builds triggered by the initial commit of a new branch.
 
-        Raises:
-            NotImplementedError: If not in a "pull request" or
-                "push" build.
+        .. warning::
+
+            This property is only meant to be used in a "pull request" or
+            "push" build.
         """
         if self._base is _utils.UNSET:
             if self.in_pr:
@@ -396,9 +396,10 @@ class Travis(_config_base.Config):
             request ID. A more comprehensive check would involve
             veriying the ID by using the GitHub API.
 
-        Raises:
-            NotImplementedError: If not in a "pull request" or
-                "push" build.
+        .. warning::
+
+            This property is only meant to be used in a "pull request" or
+            "push" build.
         """
         if self._merged_pr is not _utils.UNSET:
             return self._merged_pr
@@ -415,7 +416,6 @@ class Travis(_config_base.Config):
             raise NotImplementedError
         return self._merged_pr
 
-    # pylint: disable=invalid-name
     @property
     def pr(self):
         """int: The current Travis pull request (if any).
@@ -425,7 +425,6 @@ class Travis(_config_base.Config):
         if self._pr is _utils.UNSET:
             self._pr = _travis_pr()
         return self._pr
-    # pylint: enable=invalid-name
 
     @property
     def slug(self):
@@ -458,4 +457,3 @@ class Travis(_config_base.Config):
             that we are in a push build before checking for the tag.
         """
         return super(Travis, self).tag
-    # pylint: enable=missing-returns-doc

@@ -44,6 +44,9 @@ _PRODUCTION_RC_ADDITIONS = {
     'MESSAGES CONTROL': {
         'disable': ['I'],
     },
+    'BASIC': {
+        'good-names': ['pr'],
+    },
 }
 _PRODUCTION_RC_REPLACEMENTS = {
     'MASTER': {

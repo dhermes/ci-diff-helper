@@ -71,7 +71,6 @@ class Config(object):
     _branch_env_var = None
     _tag_env_var = None
 
-    # pylint: disable=missing-returns-doc
     @property
     def active(self):
         """bool: Indicates if currently running in the target CI system."""
@@ -109,7 +108,6 @@ class Config(object):
             else:
                 self._tag = tag_val
         return self._tag
-    # pylint: enable=missing-returns-doc
 
     def __repr__(self):
         """Representation of current configuration.

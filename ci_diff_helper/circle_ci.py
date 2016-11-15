@@ -66,6 +66,8 @@ To use the :class:`CircleCI` configuration type directly:
   '0.4.2'
   >>> config.repo_url
   'https://github.com/organization/repository'
+  >>> config.provider
+  <CircleCIRepoProvider.github: 'github'>
 
 During a pull request build, we can determine information about
 the current PR being built:
@@ -104,6 +106,10 @@ from ci_diff_helper import environment_vars as env
 
 _REPO_URL_TEMPLATE = (
     'CircleCI build does not have a repo URL set (via {})')
+_GITHUB_HOST = 'github.com'
+_GITHUB_PREFIX = 'https://{}/'.format(_GITHUB_HOST)
+_BITBUCKET_HOST = 'bitbucket.org'
+_BITBUCKET_PREFIX = 'https://{}/'.format(_BITBUCKET_HOST)
 
 
 def _circle_ci_pr():
@@ -135,6 +141,46 @@ def _circle_ci_repo_url():
         raise OSError(exc, msg)
 
 
+def _circle_ci_provider(repo_url):
+    """Get the code hosting provider for the current CircleCI build.
+
+    Args:
+        repo_url (str): The URL of a code hosting repository.
+
+    Returns:
+        CircleCIRepoProvider: The code hosting provider for the
+            current CircleCI build.
+
+    Raises:
+        ValueError: If ``repo_url`` contains the GitHub host but
+            does not start with the corresponding expected prefix.
+        ValueError: If ``repo_url`` contains the Bitbucket host but
+            does not start with the corresponding expected prefix.
+        ValueError: If ``repo_url`` doesn't match either the GitHub
+            or Bitbucket hosts.
+    """
+    if _GITHUB_HOST in repo_url:
+        if repo_url.startswith(_GITHUB_PREFIX):
+            return CircleCIRepoProvider.github
+        else:
+            raise ValueError('Repository URL contained host',
+                             _GITHUB_HOST,
+                             'but did not begin as expected',
+                             'expected prefix', _GITHUB_PREFIX)
+    elif _BITBUCKET_HOST in repo_url:
+        if repo_url.startswith(_BITBUCKET_PREFIX):
+            return CircleCIRepoProvider.bitbucket
+        else:
+            raise ValueError('Repository URL contained host',
+                             _BITBUCKET_HOST,
+                             'but did not begin as expected',
+                             'expected prefix', _BITBUCKET_PREFIX)
+    else:
+        raise ValueError('Invalid repo URL', repo_url,
+                         'Expected a URL for one of',
+                         [enum_val.name for enum_val in CircleCIRepoProvider])
+
+
 # pylint: disable=too-few-public-methods
 class CircleCIRepoProvider(enum.Enum):
     """Enum representing all possible CircleCI repo providers."""
@@ -148,13 +194,13 @@ class CircleCI(_config_base.Config):
 
     # Default instance attributes.
     _pr = _utils.UNSET
+    _provider = _utils.UNSET
     _repo_url = _utils.UNSET
     # Class attributes.
     _active_env_var = env.IN_CIRCLE_CI
     _branch_env_var = env.CIRCLE_CI_BRANCH
     _tag_env_var = env.CIRCLE_CI_TAG
 
-    # pylint: disable=invalid-name
     @property
     def pr(self):
         """int: The current CircleCI pull request (if any).
@@ -164,7 +210,6 @@ class CircleCI(_config_base.Config):
         if self._pr is _utils.UNSET:
             self._pr = _circle_ci_pr()
         return self._pr
-    # pylint: enable=invalid-name
 
     @property
     def in_pr(self):
@@ -185,3 +230,10 @@ class CircleCI(_config_base.Config):
         if self._repo_url is _utils.UNSET:
             self._repo_url = _circle_ci_repo_url()
         return self._repo_url
+
+    @property
+    def provider(self):
+        """str: The code hosting provider for the current CircleCI build."""
+        if self._provider is _utils.UNSET:
+            self._provider = _circle_ci_provider(self.repo_url)
+        return self._provider
