@@ -48,12 +48,12 @@ class Test__circle_ci_pr(unittest.TestCase):
             self.assertIsNone(self._call_function_under_test())
 
 
-class Test__circle_ci_repo_url(unittest.TestCase):
+class Test__repo_url(unittest.TestCase):
 
     @staticmethod
     def _call_function_under_test():
         from ci_diff_helper import circle_ci
-        return circle_ci._circle_ci_repo_url()
+        return circle_ci._repo_url()
 
     def test_success(self):
         import mock
@@ -73,19 +73,20 @@ class Test__circle_ci_repo_url(unittest.TestCase):
                 self._call_function_under_test()
 
 
-class Test__circle_ci_provider(unittest.TestCase):
+class Test__provider_slug(unittest.TestCase):
 
     @staticmethod
     def _call_function_under_test(repo_url):
         from ci_diff_helper import circle_ci
-        return circle_ci._circle_ci_provider(repo_url)
+        return circle_ci._provider_slug(repo_url)
 
     def test_github(self):
         from ci_diff_helper import circle_ci
 
         repo_url = 'https://github.com/hi/goodbye'
-        result = self._call_function_under_test(repo_url)
-        self.assertIs(result, circle_ci.CircleCIRepoProvider.github)
+        provider, slug = self._call_function_under_test(repo_url)
+        self.assertIs(provider, circle_ci.CircleCIRepoProvider.github)
+        self.assertEqual(slug, 'hi/goodbye')
 
     def test_github_bad_prefix(self):
         with self.assertRaises(ValueError):
@@ -95,8 +96,9 @@ class Test__circle_ci_provider(unittest.TestCase):
         from ci_diff_helper import circle_ci
 
         repo_url = 'https://bitbucket.org/fly/on-the-wall'
-        result = self._call_function_under_test(repo_url)
-        self.assertIs(result, circle_ci.CircleCIRepoProvider.bitbucket)
+        provider, slug = self._call_function_under_test(repo_url)
+        self.assertIs(provider, circle_ci.CircleCIRepoProvider.bitbucket)
+        self.assertEqual(slug, 'fly/on-the-wall')
 
     def test_bitbucket_bad_prefix(self):
         with self.assertRaises(ValueError):
@@ -220,7 +222,7 @@ class TestCircleCI(unittest.TestCase):
 
         # Patch the helper so we can control the value.
         repo_url_patch = mock.patch(
-            'ci_diff_helper.circle_ci._circle_ci_repo_url',
+            'ci_diff_helper.circle_ci._repo_url',
             return_value=repo_url_val)
         with repo_url_patch as mocked:
             result = config.repo_url
@@ -241,7 +243,7 @@ class TestCircleCI(unittest.TestCase):
         # Test that cached value is re-used.
         self.assertIs(config.repo_url, repo_url_val)
 
-    def _provider_helper(self, provider_val):
+    def _slug_provider_helper(self, provider_val, slug_val, slug_first=False):
         import mock
         from ci_diff_helper import _utils
 
@@ -252,23 +254,40 @@ class TestCircleCI(unittest.TestCase):
 
         # Patch the helper so we can control the value.
         provider_patch = mock.patch(
-            'ci_diff_helper.circle_ci._circle_ci_provider',
-            return_value=provider_val)
+            'ci_diff_helper.circle_ci._provider_slug',
+            return_value=(provider_val, slug_val))
         with provider_patch as mocked:
-            result = config.provider
-            self.assertIs(result, provider_val)
+            if slug_first:
+                self.assertIs(config.slug, slug_val)
+                self.assertIs(config.provider, provider_val)
+            else:
+                self.assertIs(config.provider, provider_val)
+                self.assertIs(config.slug, slug_val)
             mocked.assert_called_once_with(mock.sentinel.repo_url)
 
         return config
 
     def test_provider_property(self):
         provider_val = 'pro-divide-uhr'
-        self._provider_helper(provider_val)
+        self._slug_provider_helper(provider_val, None)
 
     def test_provider_property_cache(self):
         provider_val = 'pro-bono-vide'
-        config = self._provider_helper(provider_val)
+        config = self._slug_provider_helper(provider_val, None)
         # Test that the value is cached.
         self.assertIs(config._provider, provider_val)
         # Test that cached value is re-used.
         self.assertIs(config.provider, provider_val)
+
+    def test_slug_property(self):
+        slug_val = 'slug-slugger-sluggest'
+        self._slug_provider_helper(None, slug_val, slug_first=True)
+
+    def test_slug_property_cache(self):
+        slug_val = 'soup'
+        config = self._slug_provider_helper(
+            None, slug_val, slug_first=True)
+        # Test that the value is cached.
+        self.assertIs(config._slug, slug_val)
+        # Test that cached value is re-used.
+        self.assertIs(config.slug, slug_val)

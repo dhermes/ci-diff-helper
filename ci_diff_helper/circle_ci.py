@@ -68,6 +68,8 @@ To use the :class:`CircleCI` configuration type directly:
   'https://github.com/organization/repository'
   >>> config.provider
   <CircleCIRepoProvider.github: 'github'>
+  >>> config.slug
+  'organization/repository'
 
 During a pull request build, we can determine information about
 the current PR being built:
@@ -124,7 +126,7 @@ def _circle_ci_pr():
         return None
 
 
-def _circle_ci_repo_url():
+def _repo_url():
     """Get the repository URL for the current build.
 
     Returns:
@@ -141,15 +143,15 @@ def _circle_ci_repo_url():
         raise OSError(exc, msg)
 
 
-def _circle_ci_provider(repo_url):
+def _provider_slug(repo_url):
     """Get the code hosting provider for the current CircleCI build.
 
     Args:
         repo_url (str): The URL of a code hosting repository.
 
     Returns:
-        CircleCIRepoProvider: The code hosting provider for the
-            current CircleCI build.
+        Tuple[CircleCIRepoProvider, str]: Pair of the code hosting provider
+            for the current CircleCI build and the repository slug.
 
     Raises:
         ValueError: If ``repo_url`` contains the GitHub host but
@@ -161,7 +163,8 @@ def _circle_ci_provider(repo_url):
     """
     if _GITHUB_HOST in repo_url:
         if repo_url.startswith(_GITHUB_PREFIX):
-            return CircleCIRepoProvider.github
+            _, slug = repo_url.split(_GITHUB_PREFIX, 1)
+            return CircleCIRepoProvider.github, slug
         else:
             raise ValueError('Repository URL contained host',
                              _GITHUB_HOST,
@@ -169,7 +172,8 @@ def _circle_ci_provider(repo_url):
                              'expected prefix', _GITHUB_PREFIX)
     elif _BITBUCKET_HOST in repo_url:
         if repo_url.startswith(_BITBUCKET_PREFIX):
-            return CircleCIRepoProvider.bitbucket
+            _, slug = repo_url.split(_BITBUCKET_PREFIX, 1)
+            return CircleCIRepoProvider.bitbucket, slug
         else:
             raise ValueError('Repository URL contained host',
                              _BITBUCKET_HOST,
@@ -196,6 +200,7 @@ class CircleCI(_config_base.Config):
     _pr = _utils.UNSET
     _provider = _utils.UNSET
     _repo_url = _utils.UNSET
+    _slug = _utils.UNSET
     # Class attributes.
     _active_env_var = env.IN_CIRCLE_CI
     _branch_env_var = env.CIRCLE_CI_BRANCH
@@ -228,12 +233,28 @@ class CircleCI(_config_base.Config):
         ``https://bitbucket.org/{user}/{repository}``.
         """
         if self._repo_url is _utils.UNSET:
-            self._repo_url = _circle_ci_repo_url()
+            self._repo_url = _repo_url()
         return self._repo_url
 
     @property
     def provider(self):
         """str: The code hosting provider for the current CircleCI build."""
         if self._provider is _utils.UNSET:
-            self._provider = _circle_ci_provider(self.repo_url)
+            # NOTE: One **could** check here that _slug isn't already set,
+            #       but that would be over-protective, since the only
+            #       way it could be set also sets _provider.
+            self._provider, self._slug = _provider_slug(self.repo_url)
         return self._provider
+
+    @property
+    def slug(self):
+        """str: The current slug in the CircleCI build.
+
+        Of the form ``{organization}/{repository}``.
+        """
+        if self._slug is _utils.UNSET:
+            # NOTE: One **could** check here that _provider isn't already set,
+            #       but that would be over-protective, since the only
+            #       way it could be set also sets _slug.
+            self._provider, self._slug = _provider_slug(self.repo_url)
+        return self._slug
