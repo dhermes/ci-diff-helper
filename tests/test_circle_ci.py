@@ -73,6 +73,38 @@ class Test__circle_ci_repo_url(unittest.TestCase):
                 self._call_function_under_test()
 
 
+class TestAppVeyorRepoProvider(unittest.TestCase):
+
+    @staticmethod
+    def _get_target_class():
+        from ci_diff_helper import circle_ci
+        return circle_ci.CircleCIRepoProvider
+
+    def _make_one(self, enum_val):
+        klass = self._get_target_class()
+        return klass(enum_val)
+
+    def test_members(self):
+        klass = self._get_target_class()
+        self.assertEqual(
+            set([enum_val.name for enum_val in klass]),
+            set(['bitbucket', 'github']))
+
+    def test_bitbucket(self):
+        klass = self._get_target_class()
+        provider_obj = self._make_one('bitbucket')
+        self.assertIs(provider_obj, klass.bitbucket)
+
+    def test_github(self):
+        klass = self._get_target_class()
+        provider_obj = self._make_one('github')
+        self.assertIs(provider_obj, klass.github)
+
+    def test_invalid(self):
+        with self.assertRaises(ValueError):
+            self._make_one('mustard')
+
+
 class TestCircleCI(unittest.TestCase):
 
     @staticmethod

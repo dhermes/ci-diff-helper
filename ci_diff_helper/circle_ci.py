@@ -95,6 +95,8 @@ the current PR being built:
 
 import os
 
+import enum
+
 from ci_diff_helper import _config_base
 from ci_diff_helper import _utils
 from ci_diff_helper import environment_vars as env
@@ -131,6 +133,14 @@ def _circle_ci_repo_url():
     except KeyError as exc:
         msg = _REPO_URL_TEMPLATE.format(env.CIRCLE_CI_REPO_URL)
         raise OSError(exc, msg)
+
+
+# pylint: disable=too-few-public-methods
+class CircleCIRepoProvider(enum.Enum):
+    """Enum representing all possible CircleCI repo providers."""
+    github = 'github'
+    bitbucket = 'bitbucket'
+# pylint: enable=too-few-public-methods
 
 
 class CircleCI(_config_base.Config):
