@@ -165,7 +165,7 @@ def _travis_pr():
     """Get the current Travis pull request (if any).
 
     Returns:
-        int: The current pull request ID.
+        Optional[int]: The current pull request ID.
     """
     try:
         return int(os.getenv(env.TRAVIS_PR, ''))

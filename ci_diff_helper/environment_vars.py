@@ -110,3 +110,38 @@ CIRCLE_CI_TAG = 'CIRCLE_TAG'
 
 Only set if the build is running for a tag.
 """
+
+CIRCLE_CI_PR = 'CI_PULL_REQUEST'
+"""Pull request containing the current change set.
+
+If the current build is part of only one pull request, the URL of that
+PR will be populated here. If there was more than one pull request, this
+field contain one of the pull request URLs (picked randomly).
+"""
+
+CIRCLE_CI_PRS = 'CI_PULL_REQUESTS'
+"""Comma-separated list of pull requests current build is a part of."""
+
+CIRCLE_CI_REPO_URL = 'CIRCLE_REPOSITORY_URL'
+"""A link to the homepage for the current repository."""
+
+CIRCLE_CI_PR_NUM = 'CIRCLE_PR_NUMBER'
+"""The ID of the PR that started the current build.
+
+We only expect this environment variable to be set during a
+build that is a part of a pull request from a fork.
+"""
+
+CIRCLE_CI_PR_REPO = 'CIRCLE_PR_REPONAME'
+"""The name of the forked repository that started the current PR build.
+
+We only expect this environment variable to be set during a
+build that is a part of a pull request from a fork.
+"""
+
+CIRCLE_CI_PR_OWNER = 'CIRCLE_PR_USERNAME'
+"""The owner of the forked repository that started the current PR build.
+
+We only expect this environment variable to be set during a
+build that is a part of a pull request from a fork.
+"""
