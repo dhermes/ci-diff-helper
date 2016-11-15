@@ -80,6 +80,8 @@ determining a diffbase.
   <TravisEventType.pull_request: 'pull_request'>
   >>> config.slug
   'organization/repository'
+  >>> config.repo_url
+  'https://github.com/organization/repository'
   >>> config.pr
   1234
   >>> config.tag is None
@@ -156,6 +158,7 @@ from ci_diff_helper import git_tools
 _RANGE_DELIMITER = '...'
 _SLUG_TEMPLATE = (
     'Travis build does not have a repo slug set (via {})')
+_URL_TEMPLATE = 'https://github.com/{}'
 
 
 def _travis_pr():
@@ -328,6 +331,7 @@ class Travis(_config_base.Config):
     _event_type = _utils.UNSET
     _merged_pr = _utils.UNSET
     _pr = _utils.UNSET
+    _repo_url = _utils.UNSET
     _slug = _utils.UNSET
     # Class attributes.
     _active_env_var = env.IN_TRAVIS
@@ -432,6 +436,16 @@ class Travis(_config_base.Config):
         if self._slug is _utils.UNSET:
             self._slug = _travis_slug()
         return self._slug
+
+    @property
+    def repo_url(self):
+        """str: The URL of the current repository being built.
+
+        Of the form ``https://github.com/{organization}/{repository}``.
+        """
+        if self._repo_url is _utils.UNSET:
+            self._repo_url = _URL_TEMPLATE.format(self.slug)
+        return self._repo_url
 
     @property
     def tag(self):

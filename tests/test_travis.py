@@ -597,3 +597,33 @@ class TestTravis(unittest.TestCase):
         mock_env = {env.IN_TRAVIS: 'true'}
         with mock.patch('os.environ', new=mock_env):
             self.assertEqual(repr(config), '<Travis (active=True)>')
+
+    def _repo_url_helper(self, slug_val):
+        from ci_diff_helper import _utils
+        from ci_diff_helper import travis
+
+        config = self._make_one()
+        # Make sure there is no _repo_url value set.
+        self.assertIs(config._repo_url, _utils.UNSET)
+
+        # Patch the slug on config so we can control the value.
+        config._slug = slug_val
+        result = config.repo_url
+        self.assertEqual(result, travis._URL_TEMPLATE.format(slug_val))
+        return config
+
+    def test_repo_url_property(self):
+        slug_val = 'slurg-slog'
+        self._repo_url_helper(slug_val)
+
+    def test_repo_url_property_cache(self):
+        from ci_diff_helper import travis
+
+        slug_val = 'slentriloquist'
+        repo_url_val = travis._URL_TEMPLATE.format(slug_val)
+        config = self._repo_url_helper(slug_val)
+        # Test that the value is cached.
+        cached_val = config._repo_url
+        self.assertEqual(cached_val, repo_url_val)
+        # Test that cached value is re-used.
+        self.assertIs(config.repo_url, cached_val)
