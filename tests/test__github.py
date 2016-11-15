@@ -17,8 +17,8 @@ class Test__rate_limit_info(unittest.TestCase):
 
     @staticmethod
     def _call_function_under_test(response):
-        from ci_diff_helper._github import _rate_limit_info
-        return _rate_limit_info(response)
+        from ci_diff_helper import _github
+        return _github._rate_limit_info(response)
 
     def test_it(self):
         import sys
@@ -43,31 +43,92 @@ class Test__rate_limit_info(unittest.TestCase):
                                    file=sys.stderr)
 
 
+class Test__get_headers(unittest.TestCase):
+
+    @staticmethod
+    def _call_function_under_test():
+        from ci_diff_helper import _github
+        return _github._get_headers()
+
+    def test_without_auth(self):
+        import mock
+
+        with mock.patch('os.environ', new={}):
+            headers = self._call_function_under_test()
+
+        self.assertEqual(headers, {})
+
+    def test_with_auth(self):
+        import mock
+        from ci_diff_helper import environment_vars as env
+
+        token = 'n00bt0k3nf411'
+        mock_env = {env.GH_TOKEN: token}
+        with mock.patch('os.environ', new=mock_env):
+            headers = self._call_function_under_test()
+
+        expected = {'Authorization': 'token ' + token}
+        self.assertEqual(headers, expected)
+
+
+class Test__maybe_fail(unittest.TestCase):
+
+    @staticmethod
+    def _call_function_under_test(response):
+        from ci_diff_helper import _github
+        return _github._maybe_fail(response)
+
+    def test_success(self):
+        import mock
+        import requests
+        from six.moves import http_client
+
+        response = mock.Mock(spec=requests.Response,
+                             status_code=http_client.OK)
+        self._call_function_under_test(response)
+
+        response.raise_for_status.assert_not_called()
+
+    def test_failure(self):
+        import mock
+        import requests
+        from six.moves import http_client
+
+        response = requests.Response()
+        response.status_code = http_client.FORBIDDEN
+
+        to_patch = 'ci_diff_helper._github._rate_limit_info'
+        with mock.patch(to_patch) as patched:
+            with self.assertRaises(requests.HTTPError):
+                self._call_function_under_test(response)
+            patched.assert_called_once_with(response)
+
+
 class Test_commit_compare(unittest.TestCase):
 
     @staticmethod
     def _call_function_under_test(slug, start, finish):
-        from ci_diff_helper._github import commit_compare
-        return commit_compare(slug, start, finish)
+        from ci_diff_helper import _github
+        return _github.commit_compare(slug, start, finish)
 
     @staticmethod
-    def _make_response(status_code, payload):
+    def _make_response(payload):
         import json
         import requests
+        from six.moves import http_client
 
         response = requests.Response()
-        response.status_code = status_code
+        response.status_code = http_client.OK
         response._content = json.dumps(payload).encode('utf-8')
         return response
 
-    def _helper(self, status_code, payload,
-                error_class=None, headers=None):
+    def test_success(self):
         import mock
+
         from ci_diff_helper import _github
 
-        if headers is None:
-            headers = {}
-        response = self._make_response(status_code, payload)
+        payload = {'hi': 'bye'}
+        response = self._make_response(payload)
 
         patch_get = mock.patch('requests.get', return_value=response)
         slug = 'a/b'
@@ -75,40 +136,21 @@ class Test_commit_compare(unittest.TestCase):
         finish = '6789'
         expected_url = _github._GH_COMPARE_TEMPLATE.format(
             slug, start, finish)
-        with patch_get as mocked:
-            if error_class is None:
+
+        headers_mock = mock.Mock(
+            return_value=mock.sentinel.headers)
+        fail_mock = mock.Mock()
+        with mock.patch.multiple('ci_diff_helper._github',
+                                 _get_headers=headers_mock,
+                                 _maybe_fail=fail_mock):
+            with patch_get as mocked_get:
                 result = self._call_function_under_test(
                     slug, start, finish)
-                self.assertEqual(result, payload)
-            else:
-                # Patch six.print_ so the test isn't noisy.
-                with mock.patch('six.print_'):
-                    with self.assertRaises(error_class):
-                        self._call_function_under_test(
-                            slug, start, finish)
-            mocked.assert_called_once_with(expected_url, headers=headers)
 
-    def test_success(self):
-        from six.moves import http_client
+        self.assertEqual(result, payload)
 
-        payload = {'hi': 'bye'}
-        self._helper(http_client.OK, payload)
-
-    def test_success_with_token(self):
-        import mock
-        from six.moves import http_client
-        from ci_diff_helper import environment_vars as env
-
-        payload = {'hi': 'bye'}
-        token = 'n00bt0k3nf411'
-        mock_env = {env.GH_TOKEN: token}
-        headers = {'Authorization': 'token ' + token}
-        with mock.patch('os.environ', new=mock_env):
-            self._helper(http_client.OK, payload, headers=headers)
-
-    def test_response_failure(self):
-        import requests
-        from six.moves import http_client
-
-        self._helper(http_client.NOT_FOUND, {},
-                     error_class=requests.HTTPError)
+        # Verify mocks.
+        headers_mock.assert_called_once_with()
+        fail_mock.assert_called_once_with(response)
+        mocked_get.assert_called_once_with(
+            expected_url, headers=mock.sentinel.headers)

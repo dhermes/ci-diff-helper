@@ -47,6 +47,37 @@ def _rate_limit_info(response):
     six.print_(_GH_ENV_VAR_MSG, file=sys.stderr)
 
 
+def _get_headers():
+    """Get headers for GitHub API request.
+
+    Attempts to add a GitHub token to headers if available.
+
+    Returns:
+        dict: The headers for a GitHub API request.
+    """
+    headers = {}
+    github_token = os.getenv(env.GH_TOKEN, None)
+    if github_token is not None:
+        headers['Authorization'] = 'token ' + github_token
+
+    return headers
+
+
+def _maybe_fail(response):
+    """Fail and print info if an API request was not successful.
+
+    Args:
+        response (requests.models.Response): A ``requests`` response
+            from a GitHub API request.
+
+    Raises:
+        requests.exceptions.HTTPError: If the GitHub API request fails.
+    """
+    if response.status_code != http_client.OK:
+        _rate_limit_info(response)
+        response.raise_for_status()
+
+
 def commit_compare(slug, start, finish):
     """Makes GitHub API request to compare two commits.
 
@@ -64,14 +95,8 @@ def commit_compare(slug, start, finish):
     """
     api_url = _GH_COMPARE_TEMPLATE.format(slug, start, finish)
 
-    headers = {}
-    github_token = os.getenv(env.GH_TOKEN, None)
-    if github_token is not None:
-        headers['Authorization'] = 'token ' + github_token
-
+    headers = _get_headers()
     response = requests.get(api_url, headers=headers)
-    if response.status_code != http_client.OK:
-        _rate_limit_info(response)
-        response.raise_for_status()
+    _maybe_fail(response)
 
     return response.json()
