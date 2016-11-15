@@ -20,14 +20,15 @@ import ci_diff_helper
 
 
 PROPERTIES_MAP = {
-    'AppVeyor': (
+    'AppVeyor': frozenset([
         'active',
         'branch',
         'is_merge',
         'provider',
         'tag',
-    ),
-    'CircleCI': (
+    ]),
+    'CircleCI': frozenset([
+        '_pr_info',
         'active',
         'branch',
         'in_pr',
@@ -37,8 +38,8 @@ PROPERTIES_MAP = {
         'repo_url',
         'slug',
         'tag',
-    ),
-    'Travis': (
+    ]),
+    'Travis': frozenset([
         'active',
         'base',
         'branch',
@@ -50,7 +51,7 @@ PROPERTIES_MAP = {
         'repo_url',
         'slug',
         'tag',
-    ),
+    ]),
 }
 """Our artisanally-crafted property lists."""
 ERROR_TYPES = (
@@ -98,11 +99,19 @@ def get_properties(config):
         if isinstance(klass_attr, property):
             result.append(name)
 
-    result = tuple(sorted(result))
+    result = set(result)
     if expected_props != result:
-        raise ValueError('The property list is out of date',
-                         'Expected', expected_props,
-                         'Actual', result)
+        error_parts = ('The property list is out of date',)
+
+        delta_missing = result - expected_props
+        if delta_missing:
+            error_parts += ('Missing', sorted(delta_missing))
+
+        delta_extra = expected_props - result
+        if delta_extra:
+            error_parts += ('Unused properties', sorted(delta_extra))
+
+        raise ValueError(*error_parts)
 
     return result
 
