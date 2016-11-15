@@ -35,6 +35,7 @@ PROPERTIES_MAP = {
         'pr',
         'provider',
         'repo_url',
+        'slug',
         'tag',
     ),
     'Travis': (
