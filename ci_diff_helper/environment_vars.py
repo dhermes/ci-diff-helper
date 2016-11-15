@@ -24,16 +24,16 @@ and `_CircleCI env docs`.
 .. _CircleCI env docs: https://circleci.com/docs/environment-variables/
 """
 
-IN_TRAVIS_ENV = 'TRAVIS'
+IN_TRAVIS = 'TRAVIS'
 """Indicates if running in Travis."""
 
-TRAVIS_PR_ENV = 'TRAVIS_PULL_REQUEST'
+TRAVIS_PR = 'TRAVIS_PULL_REQUEST'
 """Indicates which Travis pull request we are in.
 
 Is an integer when in a pull request or "false" when not.
 """
 
-TRAVIS_BRANCH_ENV = 'TRAVIS_BRANCH'
+TRAVIS_BRANCH = 'TRAVIS_BRANCH'
 """Indicates the active Travis branch.
 
 In a "push" build, this is the branch that was pushed while
@@ -41,10 +41,10 @@ in a "pull request" build it is the branch that a pull
 request is against.
 """
 
-TRAVIS_EVENT_TYPE_ENV = 'TRAVIS_EVENT_TYPE'
+TRAVIS_EVENT_TYPE = 'TRAVIS_EVENT_TYPE'
 """Indicates the type of build that is occurring."""
 
-TRAVIS_RANGE_ENV = 'TRAVIS_COMMIT_RANGE'
+TRAVIS_RANGE = 'TRAVIS_COMMIT_RANGE'
 """The range of commits changed in the current build.
 
 This is not particularly useful in a PR build.
@@ -55,13 +55,13 @@ This is not particularly useful in a PR build.
     a new branch.
 """
 
-TRAVIS_SLUG_ENV = 'TRAVIS_REPO_SLUG'
+TRAVIS_SLUG = 'TRAVIS_REPO_SLUG'
 """The GitHub repository slug for the current Travis build.
 
 A slug is of the form ``{organization}/{repository}``.
 """
 
-TRAVIS_TAG_ENV = 'TRAVIS_TAG'
+TRAVIS_TAG = 'TRAVIS_TAG'
 """The tag of the current Travis build.
 
 We only expect the ``TRAVIS_TAG`` environment variable to be set
@@ -79,33 +79,33 @@ Integration server will typically be `rate limited`_.
 .. _rate limited: https://developer.github.com/v3/#rate-limiting
 """
 
-IN_APPVEYOR_ENV = 'APPVEYOR'
+IN_APPVEYOR = 'APPVEYOR'
 """Indicates if running in AppVeyor."""
 
-APPVEYOR_REPO_ENV = 'APPVEYOR_REPO_PROVIDER'
+APPVEYOR_REPO = 'APPVEYOR_REPO_PROVIDER'
 """The code hosting provided for the repository being tested in AppVeyor."""
 
-APPVEYOR_BRANCH_ENV = 'APPVEYOR_REPO_BRANCH'
+APPVEYOR_BRANCH = 'APPVEYOR_REPO_BRANCH'
 """Indicates the active AppVeyor branch.
 
 In a "pull request" build it is the **base** branch the PR is
 merging into, otherwise it is the branch being built.
 """
 
-APPVEYOR_TAG_ENV = 'APPVEYOR_REPO_TAG_NAME'
+APPVEYOR_TAG = 'APPVEYOR_REPO_TAG_NAME'
 """The tag of the current AppVeyor build.
 
 This will only be valid when ``APPVEYOR_REPO_TAG``, i.e. when the
 build was started by a pushed tag.
 """
 
-IN_CIRCLE_CI_ENV = 'CIRCLECI'
+IN_CIRCLE_CI = 'CIRCLECI'
 """Indicates if running in CircleCI."""
 
-CIRCLE_CI_BRANCH_ENV = 'CIRCLE_BRANCH'
+CIRCLE_CI_BRANCH = 'CIRCLE_BRANCH'
 """Indicates the active ``git`` branch being tested on CircleCI."""
 
-CIRCLE_CI_TAG_ENV = 'CIRCLE_TAG'
+CIRCLE_CI_TAG = 'CIRCLE_TAG'
 """The name of the ``git`` tag being tested
 
 Only set if the build is running for a tag.

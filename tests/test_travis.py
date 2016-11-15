@@ -27,7 +27,7 @@ class Test__travis_pr(unittest.TestCase):
         valid_int = '1234'
         actual_val = 1234
         self.assertEqual(int(valid_int), actual_val)
-        mock_env = {env.TRAVIS_PR_ENV: valid_int}
+        mock_env = {env.TRAVIS_PR: valid_int}
         with mock.patch('os.environ', new=mock_env):
             self.assertEqual(self._call_function_under_test(), actual_val)
 
@@ -43,7 +43,7 @@ class Test__travis_pr(unittest.TestCase):
 
         not_int = 'not-int'
         self.assertRaises(ValueError, int, not_int)
-        mock_env = {env.TRAVIS_PR_ENV: not_int}
+        mock_env = {env.TRAVIS_PR: not_int}
         with mock.patch('os.environ', new=mock_env):
             self.assertIsNone(self._call_function_under_test())
 
@@ -61,7 +61,7 @@ class Test__travis_event_type(unittest.TestCase):
         from ci_diff_helper import travis
 
         event_env = 'push'
-        mock_env = {env.TRAVIS_EVENT_TYPE_ENV: event_env}
+        mock_env = {env.TRAVIS_EVENT_TYPE: event_env}
         with mock.patch('os.environ', new=mock_env):
             result = self._call_function_under_test()
             self.assertIs(result, travis.TravisEventType.push)
@@ -89,7 +89,7 @@ class Test__get_commit_range(unittest.TestCase):
         start = 'abcd'
         finish = 'wxyz'
         commit_range = start + travis._RANGE_DELIMITER + finish
-        mock_env = {env.TRAVIS_RANGE_ENV: commit_range}
+        mock_env = {env.TRAVIS_RANGE: commit_range}
         with mock.patch('os.environ', new=mock_env):
             result = self._call_function_under_test()
             self.assertEqual(result, (start, finish))
@@ -269,7 +269,7 @@ class Test__travis_slug(unittest.TestCase):
         from ci_diff_helper import environment_vars as env
 
         slug = 'foo/bar'
-        mock_env = {env.TRAVIS_SLUG_ENV: slug}
+        mock_env = {env.TRAVIS_SLUG: slug}
         with mock.patch('os.environ', new=mock_env):
             result = self._call_function_under_test()
             self.assertEqual(result, slug)
@@ -594,6 +594,6 @@ class TestTravis(unittest.TestCase):
 
         config = self._make_one()
 
-        mock_env = {env.IN_TRAVIS_ENV: 'true'}
+        mock_env = {env.IN_TRAVIS: 'true'}
         with mock.patch('os.environ', new=mock_env):
             self.assertEqual(repr(config), '<Travis (active=True)>')

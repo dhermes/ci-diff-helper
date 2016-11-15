@@ -85,7 +85,7 @@ def _appveyor_provider():
             variable is not one of the (case-insensitive)
             expected values.
     """
-    repo_provider = os.getenv(env.APPVEYOR_REPO_ENV, '')
+    repo_provider = os.getenv(env.APPVEYOR_REPO, '')
     try:
         return AppVeyorRepoProvider(repo_provider.lower())
     except ValueError:
@@ -111,9 +111,9 @@ class AppVeyor(_config_base.Config):
     # Default instance attributes.
     _provider = _utils.UNSET
     # Class attributes.
-    _active_env_var = env.IN_APPVEYOR_ENV
-    _branch_env_var = env.APPVEYOR_BRANCH_ENV
-    _tag_env_var = env.APPVEYOR_TAG_ENV
+    _active_env_var = env.IN_APPVEYOR
+    _branch_env_var = env.APPVEYOR_BRANCH
+    _tag_env_var = env.APPVEYOR_TAG
 
     # pylint: disable=missing-returns-doc
     @property

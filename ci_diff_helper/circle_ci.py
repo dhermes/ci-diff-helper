@@ -72,6 +72,6 @@ class CircleCI(_config_base.Config):
     """Represent CircleCI state and cache return values."""
 
     # Class attributes.
-    _active_env_var = env.IN_CIRCLE_CI_ENV
-    _branch_env_var = env.CIRCLE_CI_BRANCH_ENV
-    _tag_env_var = env.CIRCLE_CI_TAG_ENV
+    _active_env_var = env.IN_CIRCLE_CI
+    _branch_env_var = env.CIRCLE_CI_BRANCH
+    _tag_env_var = env.CIRCLE_CI_TAG

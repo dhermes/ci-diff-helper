@@ -24,7 +24,7 @@ class Test__appveyor_provider(unittest.TestCase):
         import mock
         from ci_diff_helper import environment_vars as env
 
-        mock_env = {env.APPVEYOR_REPO_ENV: repo_provider}
+        mock_env = {env.APPVEYOR_REPO: repo_provider}
         with mock.patch('os.environ', new=mock_env):
             return self._call_function_under_test()
 
@@ -164,6 +164,6 @@ class TestAppVeyor(unittest.TestCase):
 
         config = self._make_one()
 
-        mock_env = {env.IN_APPVEYOR_ENV: 'false'}
+        mock_env = {env.IN_APPVEYOR: 'false'}
         with mock.patch('os.environ', new=mock_env):
             self.assertEqual(repr(config), '<AppVeyor (active=False)>')

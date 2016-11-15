@@ -32,8 +32,8 @@ class Test_get_config(unittest.TestCase):
         from ci_diff_helper import environment_vars as env
 
         mock_env = {
-            env.IN_CIRCLE_CI_ENV: 'true',
-            env.IN_APPVEYOR_ENV: 'True',
+            env.IN_CIRCLE_CI: 'true',
+            env.IN_APPVEYOR: 'True',
         }
         with mock.patch('os.environ', new=mock_env):
             with self.assertRaises(OSError):
@@ -44,7 +44,7 @@ class Test_get_config(unittest.TestCase):
         from ci_diff_helper import environment_vars as env
         from ci_diff_helper import travis
 
-        mock_env = {env.IN_TRAVIS_ENV: 'true'}
+        mock_env = {env.IN_TRAVIS: 'true'}
         with mock.patch('os.environ', new=mock_env):
             config = self._call_function_under_test()
 

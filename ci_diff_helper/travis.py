@@ -165,7 +165,7 @@ def _travis_pr():
         int: The current pull request ID.
     """
     try:
-        return int(os.getenv(env.TRAVIS_PR_ENV, ''))
+        return int(os.getenv(env.TRAVIS_PR, ''))
     except ValueError:
         return None
 
@@ -180,7 +180,7 @@ def _travis_event_type():
         ValueError: If the ``TRAVIS_EVENT_TYPE`` environment
             variable is not one of the expected values.
     """
-    event_env = os.getenv(env.TRAVIS_EVENT_TYPE_ENV, '')
+    event_env = os.getenv(env.TRAVIS_EVENT_TYPE, '')
     try:
         return TravisEventType(event_env)
     except ValueError:
@@ -208,7 +208,7 @@ def _get_commit_range():
         OSError: If the ``TRAVIS_COMMIT_RANGE`` does not contain
             '...' (which indicates a start and end commit).
     """
-    commit_range = os.getenv(env.TRAVIS_RANGE_ENV, '')
+    commit_range = os.getenv(env.TRAVIS_RANGE, '')
     try:
         start, finish = commit_range.split(_RANGE_DELIMITER)
         return start, finish
@@ -304,9 +304,9 @@ def _travis_slug():
             isn't set during a Travis build.
     """
     try:
-        return os.environ[env.TRAVIS_SLUG_ENV]
+        return os.environ[env.TRAVIS_SLUG]
     except KeyError as exc:
-        msg = _SLUG_TEMPLATE.format(env.TRAVIS_SLUG_ENV)
+        msg = _SLUG_TEMPLATE.format(env.TRAVIS_SLUG)
         raise OSError(exc, msg)
 
 
@@ -330,9 +330,9 @@ class Travis(_config_base.Config):
     _pr = _utils.UNSET
     _slug = _utils.UNSET
     # Class attributes.
-    _active_env_var = env.IN_TRAVIS_ENV
-    _branch_env_var = env.TRAVIS_BRANCH_ENV
-    _tag_env_var = env.TRAVIS_TAG_ENV
+    _active_env_var = env.IN_TRAVIS
+    _branch_env_var = env.TRAVIS_BRANCH
+    _tag_env_var = env.TRAVIS_TAG
 
     # pylint: disable=missing-returns-doc
     @property
