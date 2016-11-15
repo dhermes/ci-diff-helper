@@ -30,7 +30,10 @@ PROPERTIES_MAP = {
     'CircleCI': (
         'active',
         'branch',
+        'in_pr',
         'is_merge',
+        'pr',
+        'repo_url',
         'tag',
     ),
     'Travis': (
@@ -42,6 +45,7 @@ PROPERTIES_MAP = {
         'is_merge',
         'merged_pr',
         'pr',
+        'repo_url',
         'slug',
         'tag',
     ),
