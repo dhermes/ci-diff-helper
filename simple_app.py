@@ -33,6 +33,7 @@ PROPERTIES_MAP = {
         'in_pr',
         'is_merge',
         'pr',
+        'provider',
         'repo_url',
         'tag',
     ),
