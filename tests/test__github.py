@@ -154,3 +154,54 @@ class Test_commit_compare(unittest.TestCase):
         fail_mock.assert_called_once_with(response)
         mocked_get.assert_called_once_with(
             expected_url, headers=mock.sentinel.headers)
+
+
+class Test_pr_info(unittest.TestCase):
+
+    @staticmethod
+    def _call_function_under_test(slug, pr_id):
+        from ci_diff_helper import _github
+        return _github.pr_info(slug, pr_id)
+
+    @staticmethod
+    def _make_response(payload):
+        import json
+        import requests
+        from six.moves import http_client
+
+        response = requests.Response()
+        response.status_code = http_client.OK
+        response._content = json.dumps(payload).encode('utf-8')
+        return response
+
+    def test_success(self):
+        import mock
+
+        from ci_diff_helper import _github
+
+        base_sha = '04facb05d80e871107892b3635e24fee60a4fc36'
+        payload = {'base': {'sha': base_sha}}
+        response = self._make_response(payload)
+
+        patch_get = mock.patch('requests.get', return_value=response)
+        slug = 'a/b'
+        pr_id = 808
+        expected_url = _github._GH_PR_TEMPLATE.format(slug, pr_id)
+
+        headers_mock = mock.Mock(
+            return_value=mock.sentinel.headers)
+        fail_mock = mock.Mock()
+        with mock.patch.multiple('ci_diff_helper._github',
+                                 _get_headers=headers_mock,
+                                 _maybe_fail=fail_mock):
+            with patch_get as mocked_get:
+                result = self._call_function_under_test(
+                    slug, pr_id)
+
+        self.assertEqual(result, payload)
+
+        # Verify mocks.
+        headers_mock.assert_called_once_with()
+        fail_mock.assert_called_once_with(response)
+        mocked_get.assert_called_once_with(
+            expected_url, headers=mock.sentinel.headers)

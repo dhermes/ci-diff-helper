@@ -23,6 +23,7 @@ from ci_diff_helper import environment_vars as env
 
 
 _GH_COMPARE_TEMPLATE = 'https://api.github.com/repos/{}/compare/{}...{}'
+_GH_PR_TEMPLATE = 'https://api.github.com/repos/{}/pulls/{:d}'
 _RATE_REMAINING_HEADER = 'X-RateLimit-Remaining'
 _RATE_LIMIT_HEADER = 'X-RateLimit-Limit'
 _RATE_RESET_HEADER = 'X-RateLimit-Reset'
@@ -94,6 +95,29 @@ def commit_compare(slug, start, finish):
         requests.exceptions.HTTPError: If the GitHub API request fails.
     """
     api_url = _GH_COMPARE_TEMPLATE.format(slug, start, finish)
+
+    headers = _get_headers()
+    response = requests.get(api_url, headers=headers)
+    _maybe_fail(response)
+
+    return response.json()
+
+
+def pr_info(slug, pr_id):
+    """Makes GitHub API request to info about a pull request.
+
+    Args:
+        slug (str): The GitHub repo slug for the current build.
+            Of the form ``{organization}/{repository}``.
+        pr_id (int): The pull request ID.
+
+    Returns:
+        dict: The pull request information.
+
+    Raises:
+        requests.exceptions.HTTPError: If the GitHub API request fails.
+    """
+    api_url = _GH_PR_TEMPLATE.format(slug, pr_id)
 
     headers = _get_headers()
     response = requests.get(api_url, headers=headers)
