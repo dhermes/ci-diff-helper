@@ -43,6 +43,6 @@ def print_and_check(filter_func, expected):
     vars_found = set(env_vars.keys())
     if not vars_found <= expected:
         print('Encountered unexpected variables', file=sys.stderr)
-        for unknown in vars_found - expected:
+        for unknown in sorted(vars_found - expected):
             print('- {}'.format(unknown), file=sys.stderr)
         sys.exit(1)

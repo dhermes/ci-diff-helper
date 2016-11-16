@@ -16,6 +16,7 @@ import env_helper
 
 
 EXPECTED = frozenset([
+    'CI',
     'TRAVIS',
     'TRAVIS_BRANCH',
     'TRAVIS_BUILD_DIR',
@@ -29,9 +30,12 @@ EXPECTED = frozenset([
     'TRAVIS_LANGUAGE',
     'TRAVIS_OS_NAME',
     'TRAVIS_PULL_REQUEST',
+    'TRAVIS_PULL_REQUEST_BRANCH',
+    'TRAVIS_PULL_REQUEST_SHA',
     'TRAVIS_PYTHON_VERSION',
     'TRAVIS_REPO_SLUG',
     'TRAVIS_SECURE_ENV_VARS',
+    'TRAVIS_SUDO',
     'TRAVIS_TAG',
 ])
 

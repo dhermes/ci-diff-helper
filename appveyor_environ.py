@@ -16,6 +16,30 @@ import env_helper
 
 
 EXPECTED = frozenset([
+    'APPVEYOR',
+    'APPVEYOR_ACCOUNT_NAME',
+    'APPVEYOR_API_URL',
+    'APPVEYOR_BUILD_FOLDER',
+    'APPVEYOR_BUILD_ID',
+    'APPVEYOR_BUILD_NUMBER',
+    'APPVEYOR_BUILD_VERSION',
+    'APPVEYOR_JOB_ID',
+    'APPVEYOR_JOB_NAME',
+    'APPVEYOR_PROJECT_ID',
+    'APPVEYOR_PROJECT_NAME',
+    'APPVEYOR_PROJECT_SLUG',
+    'APPVEYOR_REPO_BRANCH',
+    'APPVEYOR_REPO_COMMIT',
+    'APPVEYOR_REPO_COMMIT_AUTHOR',
+    'APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL',
+    'APPVEYOR_REPO_COMMIT_MESSAGE',
+    'APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED',
+    'APPVEYOR_REPO_COMMIT_TIMESTAMP',
+    'APPVEYOR_REPO_NAME',
+    'APPVEYOR_REPO_PROVIDER',
+    'APPVEYOR_REPO_SCM',
+    'APPVEYOR_REPO_TAG',
+    'APPVEYOR_URL',
 ])
 
 
@@ -28,7 +52,7 @@ def filter_func(var_name):
     Returns:
         bool: Flag indicating if this variable is ued.
     """
-    return True
+    return 'appveyor' in var_name.lower() or 'CI' in var_name
 
 
 if __name__ == '__main__':
