@@ -40,6 +40,7 @@ EXPECTED = frozenset([
     'APPVEYOR_REPO_SCM',
     'APPVEYOR_REPO_TAG',
     'APPVEYOR_URL',
+    'CI',
 ])
 
 
