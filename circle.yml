@@ -12,3 +12,10 @@ general:
   branches:
     ignore:
       - gh-pages
+
+deployment:
+  release:
+    tag: /.*/
+    owner: dhermes
+    commands:
+      - python -c 'print("In tag build")'
