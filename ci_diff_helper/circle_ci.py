@@ -81,8 +81,23 @@ the current PR being built:
       'CIRCLECI': 'true',
       'CIRCLE_PR_NUMBER': '23',
       'CIRCLE_BRANCH': 'pull/23',
+      'CIRCLE_REPOSITORY_URL': (
+          'https://github.com/organization/repository'),
   }
   import ci_diff_helper
+  from ci_diff_helper import _github
+
+  def mock_pr_info(slug, pr_id):
+      assert slug == 'organization/repository'
+      assert pr_id == 23
+      payload = {
+          'base': {
+              'sha': '7450ebe1a2133442098faa07f3c2c08b612d75f5',
+          },
+      }
+      return payload
+
+  _github.pr_info = mock_pr_info
 
 .. doctest:: circle-ci-pr
 
@@ -95,6 +110,8 @@ the current PR being built:
   23
   >>> config.branch
   'pull/23'
+  >>> config.base
+  '7450ebe1a2133442098faa07f3c2c08b612d75f5'
 """
 
 import os
@@ -198,6 +215,7 @@ class CircleCI(_config_base.Config):
     """Represent CircleCI state and cache return values."""
 
     # Default instance attributes.
+    _base = _utils.UNSET
     _pr = _utils.UNSET
     _pr_info_cached = _utils.UNSET
     _provider = _utils.UNSET
@@ -236,18 +254,21 @@ class CircleCI(_config_base.Config):
 
         .. warning::
 
-            This property is only meant to be used in a "pull request"
+            This property is only meant to be used in a pull request
             from a GitHub repository.
         """
-        if self._pr_info_cached is _utils.UNSET:
-            current_pr = self.pr
-            if current_pr is None:
-                self._pr_info_cached = {}
-            elif self.provider is CircleCIRepoProvider.github:
-                self._pr_info_cached = _github.pr_info(self.slug, current_pr)
-            else:
-                raise NotImplementedError(
-                    'GitHub is only supported way to retrieve PR info')
+        if self._pr_info_cached is not _utils.UNSET:
+            return self._pr_info_cached
+
+        current_pr = self.pr
+        if current_pr is None:
+            self._pr_info_cached = {}
+        elif self.provider is CircleCIRepoProvider.github:
+            self._pr_info_cached = _github.pr_info(self.slug, current_pr)
+        else:
+            raise NotImplementedError(
+                'GitHub is only supported way to retrieve PR info')
+
         return self._pr_info_cached
 
     @property
@@ -283,3 +304,33 @@ class CircleCI(_config_base.Config):
             #       way it could be set also sets _slug.
             self._provider, self._slug = _provider_slug(self.repo_url)
         return self._slug
+
+    @property
+    def base(self):
+        """str: The ``git`` object that current build is changed against.
+
+        The ``git`` object can be any of a branch name, tag, a commit SHA
+        or a special reference.
+
+        .. warning::
+
+            This property will currently only work in a build for a
+            pull request from a GitHub repository.
+        """
+        if self._base is not _utils.UNSET:
+            return self._base
+
+        if self.in_pr:
+            pr_info = self._pr_info
+            try:
+                self._base = pr_info['base']['sha']
+            except KeyError:
+                raise KeyError(
+                    'Missing key in the GitHub API payload',
+                    'expected base->sha',
+                    pr_info, self.slug, self.pr)
+        else:
+            raise NotImplementedError(
+                'Diff base currently only supported in a PR from GitHub')
+
+        return self._base

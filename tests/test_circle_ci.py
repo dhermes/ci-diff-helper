@@ -159,6 +159,7 @@ class TestCircleCI(unittest.TestCase):
         config = self._make_one()
         self.assertIsInstance(config, klass)
         self.assertIs(config._active, _utils.UNSET)
+        self.assertIs(config._base, _utils.UNSET)
         self.assertIs(config._branch, _utils.UNSET)
         self.assertIs(config._is_merge, _utils.UNSET)
         self.assertIs(config._pr, _utils.UNSET)
@@ -364,3 +365,40 @@ class TestCircleCI(unittest.TestCase):
                 with self.assertRaises(NotImplementedError):
                     getattr(config, '_pr_info')
                 get_info.assert_not_called()
+
+    def test_base_property_cache(self):
+        import mock
+
+        config = self._make_one()
+        config._base = mock.sentinel.base
+
+        self.assertIs(config.base, mock.sentinel.base)
+
+    def test_base_property_non_pr(self):
+        config = self._make_one()
+        # Fake that we are outside a PR.
+        config._pr = None
+
+        with self.assertRaises(NotImplementedError):
+            getattr(config, 'base')
+
+    def test_base_property_success(self):
+        config = self._make_one()
+        # Fake that we are inside a PR.
+        config._pr = 123
+        base_sha = '23ff39e7f437d888cb1aa07b4646fc6376f4af35'
+        payload = {'base': {'sha': base_sha}}
+        config._pr_info_cached = payload
+
+        self.assertEqual(config.base, base_sha)
+
+    def test_base_property_pr_bad_payload(self):
+        config = self._make_one()
+        # Fake that we are inside a PR.
+        config._pr = 678
+        config._pr_info_cached = {}
+        # Also fake the info that shows up in the exception.
+        config._slug = 'foo/food'
+
+        with self.assertRaises(KeyError):
+            getattr(config, 'base')
