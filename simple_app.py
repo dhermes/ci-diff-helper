@@ -16,6 +16,8 @@ from __future__ import print_function
 
 import json
 
+import requests
+
 import ci_diff_helper
 
 
@@ -30,6 +32,7 @@ PROPERTIES_MAP = {
     'CircleCI': frozenset([
         '_pr_info',
         'active',
+        'base',
         'branch',
         'in_pr',
         'is_merge',
@@ -55,9 +58,10 @@ PROPERTIES_MAP = {
 }
 """Our artisanally-crafted property lists."""
 ERROR_TYPES = (
-    OSError,
+    requests.HTTPError,
     KeyError,
     NotImplementedError,
+    OSError,
     ValueError,
 )
 """Accepted / expected list of errors."""
