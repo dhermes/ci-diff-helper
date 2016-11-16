@@ -5,6 +5,7 @@ install:
 - pip install --upgrade git+https://github.com/dhermes/ci-diff-helper#ci-diff-helper
 
 script:
+- python travis_environ.py
 - python simple_app.py
 
 cache:

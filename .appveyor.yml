@@ -48,4 +48,5 @@ install:
 
 test_script:
   # Run the project tests
+  - "%CMD_IN_ENV% python appveyor_environ.py"
   - "%CMD_IN_ENV% python simple_app.py"

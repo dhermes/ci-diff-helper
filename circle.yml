@@ -5,6 +5,7 @@ dependencies:
 
 test:
   override:
+    - python circle_ci_environ.py
     - python simple_app.py
 
 general:
