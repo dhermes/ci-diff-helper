@@ -132,10 +132,22 @@ class Test_get_changed_files(unittest.TestCase):
         expected = []
         self.assertEqual(result, expected)
 
+    def _maybe_skip_if_no_commit(self, blob_name):
+        from ci_diff_helper import _utils
+
+        commit_file = _utils.check_output(
+            'git', 'cat-file', '-t', blob_name, ignore_err=True)
+        if commit_file != 'commit':
+            self.skipTest(
+                'Commit {!r} does not exist'.format(blob_name))
+
     @unittest.skipUnless(utils.HAS_GIT, 'git not installed')
     def test_actual_call_parent(self):
         blob_name1 = 'bdb1ee24f05abe80f099bc5fd612fd46b36f3b28'
+        self._maybe_skip_if_no_commit(blob_name1)
         blob_name2 = blob_name1 + '^'
+        self._maybe_skip_if_no_commit(blob_name2)
+
         result = self._call_function_under_test(blob_name1, blob_name2)
         expected = [
             'ci_diff_helper/appveyor.py',
