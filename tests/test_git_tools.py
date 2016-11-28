@@ -142,7 +142,7 @@ class Test_get_changed_files(unittest.TestCase):
                 'Commit {!r} does not exist'.format(blob_name))
 
     @unittest.skipUnless(utils.HAS_GIT, 'git not installed')
-    def test_actual_call_parent(self):
+    def test_actual_call_parent(self):  # pragma: NO COVER
         blob_name1 = 'bdb1ee24f05abe80f099bc5fd612fd46b36f3b28'
         self._maybe_skip_if_no_commit(blob_name1)
         blob_name2 = blob_name1 + '^'
