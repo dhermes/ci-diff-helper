@@ -345,6 +345,50 @@ class Travis(_config_base.Config):
         The ``git`` object can be any of a branch name, tag, a commit SHA
         or a special reference.
 
+        This can be used in combination with :func:`.get_changed_files` to
+        determine files that need to be linted, tested or inspected in
+        some other way:
+
+        .. testsetup:: travis-base-with-changed
+
+          import os
+          import ci_diff_helper
+          from ci_diff_helper import _utils
+
+          os.environ = {
+              'TRAVIS': 'true',
+              'TRAVIS_EVENT_TYPE': 'pull_request',
+              'TRAVIS_BRANCH': 'master',
+          }
+          config = ci_diff_helper.Travis()
+
+          blob_name1 = 'HEAD'
+          blob_name2 = 'master'
+          calls = [
+              ('git', 'diff', '--name-only', blob_name1, blob_name2),
+          ]
+          files = (
+              '/path/to/your/git_checkout/project/_supporting.py')
+          results = [
+              files,
+          ]
+
+          def mock_check(*args):
+              assert args == calls.pop(0)
+              return results.pop(0)
+
+          _utils.check_output = mock_check
+
+        .. doctest:: travis-base-with-changed
+          :options: +NORMALIZE_WHITESPACE
+
+          >>> config
+          <Travis (active=True)>
+          >>> config.base
+          'master'
+          >>> ci_diff_helper.get_changed_files('HEAD', config.base)
+          ['/path/to/your/git_checkout/project/_supporting.py']
+
         .. note::
 
             This will throw an :exc:`OSError` on the very first "push" build

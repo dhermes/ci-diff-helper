@@ -96,6 +96,58 @@ class Test_get_checked_in_files(unittest.TestCase):
         self.assertLessEqual(set(result), self._all_files(root_dir))
 
 
+class Test_get_changed_files(unittest.TestCase):
+
+    @staticmethod
+    def _call_function_under_test(blob_name1, blob_name2):
+        from ci_diff_helper import git_tools
+
+        return git_tools.get_changed_files(blob_name1, blob_name2)
+
+    def _helper(self, changed, expected):
+        import mock
+
+        blob_name1 = 'HEAD'
+        blob_name2 = '031cf739bc419eb2c320f8c897b03c04796943a9'
+        output_patch = mock.patch('ci_diff_helper._utils.check_output',
+                                  return_value=changed)
+        with output_patch as mocked:
+            result = self._call_function_under_test(blob_name1, blob_name2)
+            self.assertEqual(result, expected)
+            mocked.assert_called_once_with(
+                'git', 'diff', '--name-only', blob_name1, blob_name2)
+
+    def test_empty(self):
+        self._helper('', [])
+
+    def test_with_changes(self):
+        expected = ['foo.py', os.path.join('bar', 'baz.txt')]
+        self._helper('\n'.join(expected), expected)
+
+    @unittest.skipUnless(utils.HAS_GIT, 'git not installed')
+    def test_actual_call_same(self):
+        blob_name1 = '7575455ec442498f3d1c5b2a8d3bc7861918d987'
+        blob_name2 = blob_name1
+        result = self._call_function_under_test(blob_name1, blob_name2)
+        expected = []
+        self.assertEqual(result, expected)
+
+    @unittest.skipUnless(utils.HAS_GIT, 'git not installed')
+    def test_actual_call_parent(self):
+        blob_name1 = 'bdb1ee24f05abe80f099bc5fd612fd46b36f3b28'
+        blob_name2 = blob_name1 + '^'
+        result = self._call_function_under_test(blob_name1, blob_name2)
+        expected = [
+            'ci_diff_helper/appveyor.py',
+            'ci_diff_helper/environment_vars.py',
+            'docs/ci_diff_helper.appveyor.rst',
+            'docs/index.rst',
+            'tests/test_appveyor.py',
+            'tests/test_travis.py',
+        ]
+        self.assertEqual(result, expected)
+
+
 class Test_merge_commit(unittest.TestCase):
 
     @staticmethod

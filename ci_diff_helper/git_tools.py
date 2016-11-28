@@ -38,7 +38,7 @@ def get_checked_in_files():
     and then finds the absolute path for each file returned.
 
     Returns:
-        list: List of all filenames checked into.
+        list: List of all filenames checked into the repository.
     """
     root_dir = git_root()
     cmd_output = _utils.check_output('git', 'ls-files', root_dir)
@@ -48,6 +48,28 @@ def get_checked_in_files():
         result.append(os.path.abspath(filename))
 
     return result
+
+
+def get_changed_files(blob_name1, blob_name2):
+    """Gets a list of changed files between two ``git`` revisions.
+
+    A ``git`` object reference can be any of a branch name, tag,
+    a commit SHA or a special reference.
+
+    Args:
+        blob_name1 (str): A ``git`` object reference.
+        blob_name2 (str): A ``git`` object reference.
+
+    Returns:
+        list: List of all filenames changed.
+    """
+    cmd_output = _utils.check_output(
+        'git', 'diff', '--name-only', blob_name1, blob_name2)
+
+    if cmd_output:
+        return cmd_output.split('\n')
+    else:
+        return []
 
 
 def merge_commit(revision='HEAD'):

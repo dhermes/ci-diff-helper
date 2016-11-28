@@ -122,9 +122,47 @@ commit is currently being built:
 ``git`` tools
 ~~~~~~~~~~~~~
 
-The helpers :func:`~git_tools.git_root` and
-:func:`~git_tools.get_checked_in_files` are provided as
-tools for a ``git``-based project. Being able to get the
+The helpers :func:`~git_tools.git_root`, :
+func:`~git_tools.get_checked_in_files` and
+func:`~git_tools.get_changed_files` are provided as
+tools for a ``git``-based project.
+
+The most relevant of these for finding diffs is
+func:`~git_tools.get_changed_files`. For example, to find
+changed files between a current checkout and an upstream
+branch:
+
+.. testsetup:: git-changed
+
+  import ci_diff_helper
+  from ci_diff_helper import _utils
+
+  blob_name1 = 'HEAD'
+  blob_name2 = 'upstream/master'
+  calls = [
+      ('git', 'diff', '--name-only', blob_name1, blob_name2),
+  ]
+  files = (
+      '/path/to/your/git_checkout/project/_supporting.py\\n'
+      '/path/to/your/git_checkout/README.md')
+  results = [
+      files,
+  ]
+
+  def mock_check(*args):
+      assert args == calls.pop(0)
+      return results.pop(0)
+
+  _utils.check_output = mock_check
+
+.. doctest:: git-changed
+  :options: +NORMALIZE_WHITESPACE
+
+  >>> ci_diff_helper.get_changed_files('HEAD', 'upstream/master')
+  ['/path/to/your/git_checkout/project/_supporting.py',
+   '/path/to/your/git_checkout/README.md']
+
+In addition, being able to get the
 root of the current ``git`` checkout may be needed to collect
 files, execute scripts, etc. Getting all checked in files can
 be useful for things like test collection, file linting, etc.
@@ -169,6 +207,7 @@ be useful for things like test collection, file linting, etc.
 
 from ci_diff_helper.appveyor import AppVeyor
 from ci_diff_helper.circle_ci import CircleCI
+from ci_diff_helper.git_tools import get_changed_files
 from ci_diff_helper.git_tools import get_checked_in_files
 from ci_diff_helper.git_tools import git_root
 from ci_diff_helper.travis import Travis
@@ -177,6 +216,7 @@ from ci_diff_helper.travis import Travis
 __all__ = [
     'AppVeyor',
     'CircleCI',
+    'get_changed_files',
     'get_checked_in_files',
     'get_config',
     'git_root',
