@@ -137,7 +137,7 @@ class Test_get_changed_files(unittest.TestCase):
 
         commit_file = _utils.check_output(
             'git', 'cat-file', '-t', blob_name, ignore_err=True)
-        if commit_file != 'commit':
+        if commit_file != 'commit':  # pragma: NO COVER
             self.skipTest(
                 'Commit {!r} does not exist'.format(blob_name))
 
