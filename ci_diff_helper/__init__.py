@@ -122,13 +122,13 @@ commit is currently being built:
 ``git`` tools
 ~~~~~~~~~~~~~
 
-The helpers :func:`~git_tools.git_root`, :
-func:`~git_tools.get_checked_in_files` and
-func:`~git_tools.get_changed_files` are provided as
+The helpers :func:`~git_tools.git_root`,
+:func:`~git_tools.get_checked_in_files` and
+:func:`~git_tools.get_changed_files` are provided as
 tools for a ``git``-based project.
 
 The most relevant of these for finding diffs is
-func:`~git_tools.get_changed_files`. For example, to find
+:func:`~git_tools.get_changed_files`. For example, to find
 changed files between a current checkout and an upstream
 branch:
 
