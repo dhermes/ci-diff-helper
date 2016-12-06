@@ -117,7 +117,7 @@ def get_properties(config):
 
         raise ValueError(*error_parts)
 
-    return result
+    return sorted(result)
 
 
 def main():
