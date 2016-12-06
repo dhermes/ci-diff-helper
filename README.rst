@@ -62,7 +62,8 @@ For example, in a `Travis PR build`_::
          in_pr: True
       is_merge: True
      merged_pr: None
-            pr: 10
+            pr: 13
+      repo_url: 'https://github.com/dhermes/ci-diff-helper'
           slug: 'dhermes/ci-diff-helper'
            tag: None
            ...
@@ -72,28 +73,64 @@ and in a `Travis push build`_::
     Config object: <Travis (active=True)>
     ----------------------------------------
         active: True
-          base: u'4a02445642735ba0d3ce5b944f4b2647b4c55813'
+          base: u'84b14d000b75a47592116ff1a99dfcd38614dae3'
         branch: 'test-app'
     event_type: <TravisEventType.push: 'push'>
          in_pr: False
       is_merge: True
-     merged_pr: 10
+     merged_pr: 13
             pr: None
+      repo_url: 'https://github.com/dhermes/ci-diff-helper'
           slug: 'dhermes/ci-diff-helper'
            tag: None
            ...
 
-A `CircleCI push build`_::
+A `CircleCI PR build`_::
 
     Config object: <CircleCI (active=True)>
+    ----------------------------------------
+      _pr_info: {...}
+        active: True
+          base: u'84b14d000b75a47592116ff1a99dfcd38614dae3'
+        branch: 'pull/13'
+         in_pr: True
+      is_merge: False
+            pr: 13
+      provider: <CircleCIRepoProvider.github: 'github'>
+      repo_url: 'https://github.com/dhermes/ci-diff-helper'
+          slug: 'dhermes/ci-diff-helper'
+           tag: None
+           ...
+
+and in a `CircleCI push build`_::
+
+    Config object: <CircleCI (active=True)>
+    ----------------------------------------
+      _pr_info: {}
+        active: True
+          base: NotImplementedError('Diff base currently only supported in a PR from GitHub',)
+        branch: 'test-app'
+         in_pr: False
+      is_merge: True
+            pr: None
+      provider: <CircleCIRepoProvider.github: 'github'>
+      repo_url: 'https://github.com/dhermes/ci-diff-helper'
+          slug: 'dhermes/ci-diff-helper'
+           tag: None
+           ...
+
+An `AppVeyor PR build`_::
+
+    Config object: <AppVeyor (active=True)>
     ----------------------------------------
         active: True
         branch: 'test-app'
       is_merge: True
+      provider: <AppVeyorRepoProvider.github: 'github'>
            tag: None
            ...
 
-An `AppVeyor push build`_::
+and in an `AppVeyor push build`_::
 
     Config object: <AppVeyor (active=True)>
     ----------------------------------------
@@ -108,10 +145,12 @@ An `AppVeyor push build`_::
 .. _latest Travis builds: https://travis-ci.org/dhermes/ci-diff-helper/branches
 .. _latest CircleCI builds: https://circleci.com/gh/dhermes/ci-diff-helper/tree/test-app
 .. _latest AppVeyor builds: https://ci.appveyor.com/project/dhermes/ci-diff-helper/history?branch=test-app
-.. _Travis PR build: https://travis-ci.org/dhermes/ci-diff-helper/builds/174378302
-.. _Travis push build: https://travis-ci.org/dhermes/ci-diff-helper/builds/174378578
-.. _CircleCI push build: https://circleci.com/gh/dhermes/ci-diff-helper/49
-.. _AppVeyor push build: https://ci.appveyor.com/project/dhermes/ci-diff-helper/build/1.0.140.test-app
+.. _Travis PR build: https://travis-ci.org/dhermes/ci-diff-helper/builds/181729702
+.. _Travis push build: https://travis-ci.org/dhermes/ci-diff-helper/builds/181731200
+.. _CircleCI PR build: https://circleci.com/gh/dhermes/ci-diff-helper/107
+.. _CircleCI push build: https://circleci.com/gh/dhermes/ci-diff-helper/108
+.. _AppVeyor PR build: https://ci.appveyor.com/project/dhermes/ci-diff-helper/build/1.0.199.test-app
+.. _AppVeyor push build: https://ci.appveyor.com/project/dhermes/ci-diff-helper/build/1.0.200.test-app
 
 License
 -------
