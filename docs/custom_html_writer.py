@@ -55,3 +55,12 @@ class CustomHTMLWriter(html.SmartyPantsHTMLTranslator):
                 raise errors.ExtensionError(msg)
         # The base classes are not new-style, so we can't use super().
         return html.SmartyPantsHTMLTranslator.visit_literal_block(self, node)
+
+
+def setup(app):
+    """Set-up this extension.
+
+    Args:
+        app (sphinx.application.Sphinx): A running Sphinx app.
+    """
+    app.set_translator('html', CustomHTMLWriter)

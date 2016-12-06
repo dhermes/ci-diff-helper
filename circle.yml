@@ -13,6 +13,7 @@ test:
     - tox -e lint
     - tox -e docs
     - tox -e doctest
+    - python scripts/check_readme.py
 
 general:
   branches:

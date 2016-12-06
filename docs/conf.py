@@ -56,6 +56,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'sphinx_docstring_typing',
+    'custom_html_writer',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -203,8 +204,6 @@ html_static_path = []
 # typographically correct entities.
 #
 # html_use_smartypants = True
-
-html_translator_class = 'custom_html_writer.CustomHTMLWriter'
 
 # Custom sidebar templates, maps document names to template names.
 #
