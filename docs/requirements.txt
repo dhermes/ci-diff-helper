@@ -1,1 +1,3 @@
+sphinx
 sphinx-docstring-typing
+sphinx_rtd_theme

@@ -19,7 +19,7 @@ how to write a custom Sphinx extension.
 """
 
 from sphinx import errors
-from sphinx.writers import html
+from sphinx.builders import html
 
 
 _LITERAL_ERR_TEMPLATE = """\
@@ -33,7 +33,7 @@ are not allowed.
 """
 
 
-class CustomHTMLWriter(html.SmartyPantsHTMLTranslator):
+class CustomHTMLWriter(html.HTMLTranslator):
     """Custom HTML writer.
 
     This makes sure that code blocks are all tested. It does this by
