@@ -89,7 +89,7 @@ def main():
                     if set(line) == set('=')]
     if title_index != 1:
         raise ValueError('Unexpected title line', title_index)
-    if lines[0] != 'ci_diff_helper package':
+    if lines[0] != 'ci\\_diff\\_helper package':
         raise ValueError('Unexpected title content', lines[0])
 
     title = '``ci-diff-helper``'

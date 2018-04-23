@@ -54,7 +54,7 @@ class CustomHTMLWriter(html.HTMLTranslator):
                     node.rawsource, language, test_type)
                 raise errors.ExtensionError(msg)
         # The base classes are not new-style, so we can't use super().
-        return html.SmartyPantsHTMLTranslator.visit_literal_block(self, node)
+        return html.HTMLTranslator.visit_literal_block(self, node)
 
 
 def setup(app):

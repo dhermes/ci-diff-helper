@@ -1,5 +1,5 @@
-ci_diff_helper.appveyor module
-==============================
+ci\_diff\_helper.appveyor module
+================================
 
 .. automodule:: ci_diff_helper.appveyor
     :members:

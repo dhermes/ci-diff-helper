@@ -1,5 +1,5 @@
-ci_diff_helper.travis module
-============================
+ci\_diff\_helper.travis module
+==============================
 
 .. automodule:: ci_diff_helper.travis
     :members:
